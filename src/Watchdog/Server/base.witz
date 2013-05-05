@@ -6,6 +6,7 @@
 <style>
 #include static/style.css
 </style>
+#HEAD
 <link rel="icon" type="image/png" href="$CachedStatic("favicon.png")"/>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss"/>
 <script type="text/javascript">
@@ -28,3 +29,4 @@ $dbg()
 </div>
 </body>
 </html>
+#define HEAD

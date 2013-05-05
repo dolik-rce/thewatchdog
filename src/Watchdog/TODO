@@ -1,7 +1,8 @@
 SERVER
 ------
-Subtest support
-Graphing
+Extend graphing
+Allow linking to issue tracker
+Pretty icons
 Timezone handling?
 
 CLIENT

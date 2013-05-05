@@ -28,7 +28,7 @@ namespace Upp{
 		extern IniString output_dir;
 		extern IniString server_url;
 		extern IniString svn;
-		extern IniInt    max_build_time;
+		extern IniInt    max_test_time;
 		extern IniString smtp_host;
 		extern IniInt    smtp_port;
 		extern IniBool   smtp_use_ssl;

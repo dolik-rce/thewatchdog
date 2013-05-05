@@ -1,43 +1,51 @@
 #include "Server.h"
 
-inline SqlVal CountIf(const SqlBool& b){
-	return SqlFunc("sum",SqlFunc("if", SqlSet(SqlVal(~b,SqlVal::HIGH),1,0)));
+inline SqlVal CountIf(const SqlVal& val, const SqlBool& b){
+	return SqlFunc("sum",SqlFunc("if", SqlSet(SqlVal(~b,SqlVal::HIGH),val,0)));
 }
 
 SKYLARK(HomePage, "") {
-	SQLR * Select(STATUS,
-	             CountIf(START > (GetSysTime()-86400)).As("DAILY"),
-	             CountIf(START > (GetSysDate()-30)).As("MONTHLY"),
-	             CountIf(SqlBool::True()).As("TOTAL"))
-	      .From(RESULT)
-	      .GroupBy(STATUS);
-	ValueMap vm;
-	ValueArray daily, monthly, total;
-	for(int i = WD_READY; i <= WD_DONE; i++){
-		daily.Set(i, 0);
-		monthly.Set(i, 0);
-		total.Set(i, 0);
+	SQLR * Select(CountIf(TEST_COUNT, START > (GetSysTime()-86400)).As("TESTS_DAILY"),
+	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  START > (GetSysTime()-86400)).As("OK_DAILY"),
+	              CountIf(ERR_COUNT,  START > (GetSysTime()-86400)).As("ERR_DAILY"),
+	              CountIf(FAIL_COUNT, START > (GetSysTime()-86400)).As("FAIL_DAILY"),
+	              CountIf(TEST_COUNT, START > (GetSysDate()-30)).As("TESTS_MONTHLY"),
+	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  START > (GetSysDate()-30)).As("OK_MONTHLY"),
+	              CountIf(ERR_COUNT,  START > (GetSysDate()-30)).As("ERR_MONTHLY"),
+	              CountIf(FAIL_COUNT, START > (GetSysDate()-30)).As("FAIL_MONTHLY"),
+	              CountIf(TEST_COUNT, SqlBool::True()).As("TESTS_TOTAL"),
+	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  SqlBool::True()).As("OK_TOTAL"),
+	              CountIf(ERR_COUNT,  SqlBool::True()).As("ERR_TOTAL"),
+	              CountIf(FAIL_COUNT, SqlBool::True()).As("FAIL_TOTAL"),
+	              CountIf(1, STATUS == WD_INPROGRESS).As("RUNNING"))
+	      .From(RESULT);
+	ValueMap stats;
+	if(!SQLR.Fetch(stats)){
+		http << "Database error";
+		return;
 	}
-	while(SQLR.Fetch(vm)) {
-		daily.Set(int(vm[STATUS]),vm["DAILY"]);
-		monthly.Set(int(vm[STATUS]),vm["MONTHLY"]);
-		total.Set(int(vm[STATUS]),vm["TOTAL"]);
+	SQLR * Select(CountIf(1, DT > (GetSysTime()-86400)).As("DAILY"),
+	              CountIf(1, DT > (GetSysDate()-30)).As("MONTHLY"))
+	      .From(WORK);
+	ValueMap commits;
+	if(!SQLR.Fetch(commits)){
+		http << "Database error";
+		return;
 	}
-	
 	ValueMap misc;
-	SQLR * Select(CountIf(LAST_WORK > (GetSysTime()-86400)).As("DAILY"),
-	             CountIf(LAST_WORK > (GetSysDate()-30)).As("MONTHLY"),
-	             CountIf(SqlBool::True()).As("TOTAL"))
-	      .From(CLIENT);
-	if(SQLR.Fetch(vm)){
-		misc.Add("D_ACTIVE" ,vm["DAILY"]);
-		misc.Add("M_ACTIVE" ,vm["MONTHLY"]);
-		misc.Add("T_ACTIVE" ,vm["TOTAL"]);
+	SQLR * Select(CountIf(1, LAST_WORK > (GetSysTime()-86400)).As("ACTIVE_DAILY"),
+	             CountIf(1, LAST_WORK > (GetSysDate()-30)).As("ACTIVE_MONTHLY"),
+	             CountIf(1, SqlBool::True()).As("ACTIVE_TOTAL"))
+	      .From(CLIENT)
+	      .Where(ID>0);
+	if(!SQLR.Fetch(misc)){
+		http << "Database error";
+		return;
 	}
 	misc.Add("LAST", lastrev());
 	
 	
-	http("MISC", misc)("DAILY",daily)("MONTHLY",monthly)("TOTAL",total)
+	http("MISC", misc)("STATS", stats)("REVS", commits)
 	    .RenderResult("Watchdog/Server/index");
 }
 
@@ -143,10 +151,11 @@ SKYLARK(Commits, "commits") {
 	ValueArray commits;
 	ValueMap vm;
 	SQLR * Select(REVISION,AUTHOR,DT,PATH,MSG,
-	             SqlFunc("sum",SqlSet("if(STATUS=1,1,0)",SqlSet::HIGH)).As("CNT1"),
-	             SqlFunc("sum",SqlSet("if(STATUS=2,1,0)",SqlSet::HIGH)).As("CNT2"),
-	             SqlFunc("sum",SqlSet("if(STATUS=3,1,0)",SqlSet::HIGH)).As("CNT3"),
-	             SqlFunc("sum",SqlSet("if(STATUS=4,1,0)",SqlSet::HIGH)).As("CNT4"))
+	             CountIf(1, STATUS==WD_INPROGRESS).As("RUNNING"),
+	             SqlFunc("sum",TEST_COUNT-(FAIL_COUNT+ERR_COUNT+SKIP_COUNT)).As("SUCCESS"),
+	             SqlFunc("sum",FAIL_COUNT).As("FAIL"),
+	             SqlFunc("sum",ERR_COUNT).As("ERROR"),
+	             SqlFunc("sum",SKIP_COUNT).As("SKIP"))
 	      .From(WORK)
 	      .LeftJoin(RESULT).On(REVISION==REV)
 	      .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
@@ -327,8 +336,58 @@ SKYLARK(Output, "output/*/*"){
 	}
 }
 
-SKYLARK(Stats, "stats") {
-	http.RenderResult("Watchdog/Server/stats");
+SKYLARK(Stats, "stats/*") {
+	int cid = http.Int(0);
+	SQLR * Select(ID, NAME, LAST_ACTIVITY, LAST_WORK, DESCR, SRC)
+	       .From(CLIENT).Where(ID == cid);
+	ValueMap client;
+	if(!SQLR.Fetch(client)){
+		http << "unknown client";
+		return;
+	}
+	SQLR * Select(REV,
+	              TEST_COUNT, 
+	              TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),
+	              ERR_COUNT,
+	              FAIL_COUNT,
+	              SKIP_COUNT,
+	              DURATION,
+	              MSG, AUTHOR, DT)
+	        .From(RESULT)
+	        .InnerJoin(WORK).On(REV==REVISION)
+	        .Where(cid==CLIENT_ID)
+	        .OrderBy(Descending(REV))
+	        .Limit(100);
+	ValueMap point;
+	ValueMap revlog;
+	ValueMap vm;
+	Vector<Vector<Value> > stats;
+	Vector<Value> row;
+	stats.SetCount(6);
+	while(SQLR.Fetch(row)){
+		for(int i = 0; i < 6; i++){
+			point.Set("x",row[0]);
+			point.Set("y",row[1+i]);
+			stats[i].Add(point);
+		}
+		vm.Set("MSG",row[7]);
+		vm.Set("AUTHOR",row[8]);
+		vm.Set("DT",row[9]);
+		revlog.Add(row[0],vm);
+	}
+	for(int i = 0; i < 6; i++){
+		Reverse(stats[i]);
+	}
+	
+	http("CLIENT", client)
+	    ("TOTAL", ValueArray(stats[0]))
+	    ("PASS", ValueArray(stats[1]))
+	    ("ERR", ValueArray(stats[2]))
+	    ("FAIL", ValueArray(stats[3]))
+	    ("SKIP", ValueArray(stats[4]))
+	    ("DURATION", ValueArray(stats[5]))
+	    ("REVLOG", revlog)
+	 .RenderResult("Watchdog/Server/stats");
 }
 
 SKYLARK(Favicon, "favicon.ico") {

@@ -11,6 +11,7 @@
   <a href="/editclient/$CLIENT.ID"><img src="$CachedStatic("edit.png")" class="icon">Edit</a><br>
   <a href="/auth/removeclient/$CLIENT.ID"><img src="$CachedStatic("remove.png")" class="icon">Delete</a>
 </td></tr>
+<tr><td><a href="/stats/$CLIENT.ID">See stats</a></td><td></td></tr>
 </table>
 <br>
 #include paging

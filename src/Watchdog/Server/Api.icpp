@@ -89,7 +89,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	int pos = output.Find("TEST_SUMMARY: ");
 	if (pos >= 0){
 		try {
-			CParser p(output.Begin()+14);
+			CParser p(output.Begin()+pos+14);
 			String id;
 			while(!p.IsEof()){
 				if(p.IsId()) {
@@ -136,7 +136,11 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	         "STATUS=values(STATUS),"
 	         "DURATION=values(DURATION),"
 	         "START=if(START is NULL, values(START), START),"
-	         "FINISHED=values(FINISHED)");
+	         "FINISHED=values(FINISHED),"
+	         "TEST_COUNT=values(TEST_COUNT),"
+	         "ERR_COUNT=values(ERR_COUNT),"
+	         "FAIL_COUNT=values(FAIL_COUNT),"
+	         "SKIP_COUNT=values(SKIP_COUNT)");
 	http.Response(200,"OK");
 	http.Finalize();
 	

@@ -117,7 +117,7 @@ void UpdateLogs(){
 
 void CleanResults(){
 	SQL * Delete(RESULT)
-	       .Where(STATUS==WD_INPROGRESS && START < GetSysTime()-int(Ini::max_build_time));
+	       .Where(STATUS==WD_INPROGRESS && START < GetSysTime()-int(Ini::max_test_time));
 }
 
 void CleanAuth(){

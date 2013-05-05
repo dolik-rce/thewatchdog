@@ -15,10 +15,11 @@ $for(i in COMMITS)
     <tr>
       <th><a href=$Commit(i.REVISION)>$i.REVISION</a></th>
       <td class="centered">
-      $if(i.CNT1>0)<span title="In progress" class="status1">$i.CNT1</span>$endif
-      $if(i.CNT2>0)<span title="Failed" class="status2">$i.CNT2</span>$endif
-      $if(i.CNT3>0)<span title="Error" class="status3">$i.CNT3</span>$endif
-      $if(i.CNT4>0)<span title="Succesfully built" class="status4">$i.CNT4</span>$endif
+      $if(i.RUNNING>0)<span title="In progress" class="status1">$i.RUNNING</span>$endif
+      $if(i.FAIL>0)<span title="Failed" class="status2">$i.FAIL</span>$endif
+      $if(i.ERROR>0)<span title="Error" class="status3">$i.ERROR</span>$endif
+      $if(i.SUCCESS>0)<span title="Succeeded" class="status4">$i.SUCCESS</span>$endif
+      $if(i.SKIP>0)<span title="Skipped" class="status5">$i.SKIP</span>$endif
       </td>
       <td>$i.AUTHOR</td>
       <td>$i.DT</td>

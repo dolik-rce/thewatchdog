@@ -18,7 +18,7 @@ namespace Upp{ namespace Ini {
 	INI_STRING(output_dir,GetExeFilePath()+"/output","Directory where the output logs are stored");
 	INI_STRING(server_url,"http://localhost:8001", "Url of the server where the application runs.");
 	INI_STRING(svn, ".", "URL/path of the svn repository");
-	INI_INT(max_build_time, 86400, "Number of seconds before an 'In progress' record is deleted from results");
+	INI_INT(max_test_time, 86400, "Number of seconds before an 'In progress' record is deleted from results");
 	INI_BOOL(debug, false, "Activates debug functions");
 	INI_STRING(smtp_host, "127.0.0.1", "SMTP server address");
 	INI_INT(smtp_port, 25, "SMTP server port");
