@@ -1,0 +1,10 @@
+SERVER
+------
+Subtest support
+Graphing
+Timezone handling?
+
+CLIENT
+------
+Client should send WD_ERROR on error (implement as bash trap in shell, exception handling in python)
+Publish the usage examples

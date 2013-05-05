@@ -1,0 +1,8 @@
+#include base
+#define TITLE 404 Not found
+#define BODY
+Sorry, we looked twice, but we couldn't find the page <strong>$PAGE</strong> anywhere.
+Perhaps you followed an outdated link, or just made a typo.<br>
+
+If you really believe that this page should exist, please contact the 
+$(email("dolik.rce@gmail.com", "administrator")).

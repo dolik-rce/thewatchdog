@@ -1,0 +1,28 @@
+#include base
+#define TITLE Clients
+#define BODY
+<table border="1">
+<tr>
+ <th>Name</th>
+ <th>Description</th>
+ <th>Followed path</th>
+ <th>Last contact</th>
+ <th>Last work</th>
+ <th>Actions</th>
+</tr>
+$for(i in CLIENT)
+    <tr>
+      <th><a href=$Client(i.ID)>$i.NAME</a></th>
+      <td>$raw(i.DESCR)</td>
+      <td>$i.SRC</td>
+      <td>$i.LAST_ACTIVITY</td>
+      <td>$i.LAST_WORK</td>
+      <td align="center">
+        <a href="/editclient/$i.ID"><img src="$CachedStatic("edit.png")" title="Edit" alt="Edit"></a>
+        <a href="/auth/removeclient/$i.ID"><img src="$CachedStatic("remove.png")" title="Delete" alt="Delete"></a>
+      </td>
+    </tr>
+$/
+</table>
+<br>
+<a href="/editclient/new">Add new client ...</a>

@@ -1,0 +1,39 @@
+#include base
+#define TITLE RSS feeds
+#define BODY
+
+<p class="big">I want to see whats going on filtered by:</p>
+<table class="indent">
+<tr><td>Client:</td><td><select id="client" onchange="feedfilter();">
+  <option value="">Any</option>
+$for(i in CLIENTS)
+  <option value="$i.ID">$i.NAME</option>
+$/
+</select></td></tr>
+<tr><td>Author:</td><td><select id="author" onchange="feedfilter();">
+  <option value="">Anyone</option>
+$for(i in AUTHORS)
+  <option value="$i.AUTHOR">$i.AUTHOR</option>
+$/
+</select></td></tr>
+<tr><td>Path:</td><td><input id="path" size="30" onchange="feedfilter();" onkeyup="feedfilter();"></td></tr>
+<tr><td>Status:</td><td><select id="status" onchange="feedfilter();">
+  <option value="">Any</option>
+  <option value="failed">Only failed</option>
+  <option value="ok">Only successful</option>
+</select></td></tr>
+</table>
+<br>
+<input type="hidden" id="url" value="$SELF/rss">
+<div class="big">This news can be delivered either by RSS feed:
+  <p class="indent" id="feedurl"><a href="$SELF/rss">$SELF/rss</a></p>
+or via e-mail anouncements:
+  <form action=$Subscribe() method="POST">
+    <p class="indent">
+      <small>E-mail address:</small> <input name="email">
+      <input id="filter" name="filter" value="" type="hidden">
+      $post_identity()
+      <input type="submit" value="Subscribe">
+    </p>
+  </form>
+</div>

@@ -1,0 +1,185 @@
+#include "Server.h"
+
+SKYLARK(GetWork, "api/getwork/*:POST")
+{
+	int cid = http.Int(0);
+	if(!CheckAuth2(http, SQL, cid, "/api/getwork/"+IntStr(cid)))
+		return;
+	
+	int max_age;
+	if(IsNull(http["max_age"])){
+		max_age = 365;
+	} else {
+		max_age = http.Int("max_age");
+	}
+	SQL * Update(CLIENT)(LAST_ACTIVITY,GetSysTime()).Where(ID == cid);
+	SQLR * Select(REVISION)
+	       .From(WORK)
+	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
+	       .InnerJoin(CLIENT).On(ID == cid)
+	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
+	              && Like(PATH,SqlFunc("concat",SqlSet(SRC,"%"))) 
+	              && DT >= (GetSysDate()-max_age))
+	       .OrderBy(REVISION);
+	while(SQLR.Fetch())
+		http << IntStr(SQLR[0]) << ",";
+}
+
+SKYLARK(AcceptWork, "api/acceptwork/*:POST")
+{
+	int cid = http.Int(0);
+	if(!CheckAuth2(http, SQL, cid, "/api/acceptwork/"+IntStr(cid)))
+		return;
+
+	Time start;
+	if(IsNull(http["start"])){
+		start = GetSysTime();
+	} else {
+		start.Set(ScanInt64(AsString(http["start"])));
+	}
+	SQL * Update(CLIENT)(LAST_WORK,GetSysTime())(LAST_ACTIVITY,GetSysTime())
+	       .Where(ID==cid);
+	SqlStatement insert = 
+	      Insert(RESULT)(REV,http.Int("revision"))
+	                    (CLIENT_ID,cid)
+	                    (START,start)
+	                    (STATUS,WD_INPROGRESS);
+	SQL * SqlStatement(insert.Get()+" on duplicate key update "
+	         "STATUS=values(STATUS),"
+	         "START=values(START),"
+	         "FINISHED=NULL,"
+	         "DURATION=NULL");
+	http.Response(200, "OK");
+}
+
+SKYLARK(SubmitWork, "api/submitwork/*:POST")
+{
+	int cid = http.Int(0);
+	if(!CheckAuth2(http, SQL, cid, "/api/submitwork/"+IntStr(cid)))
+		return;
+	
+	Time start;
+	if(IsNull(http["start"])){
+		start.Set(GetSysTime().Get()-http.Int("time"));
+	} else {
+		start.Set(ScanInt64(AsString(http["start"])));
+	}
+	Time end;
+	if(IsNull(http["end"])){
+		end = GetSysTime();
+	} else {
+		end.Set(ScanInt64(AsString(http["end"])));
+	}
+	String output = http["output"];
+	String outputfile = Format("%s/%d/%d.log",(String)Ini::output_dir,http.Int("revision"),cid);
+	RealizePath(outputfile);
+	SaveFile(outputfile, output);
+	SQL * Update(CLIENT)(LAST_WORK, GetSysTime())(LAST_ACTIVITY,GetSysTime())
+	       .Where(ID==cid);
+	int revision = http.Int("revision");
+	int result = http.Int("result");
+	
+	//expected format: TEST_SUMMARY: tests=67 errors=4 failures=7 skip=0
+	//XUnit/JUnit output example: <testsuite name="nosetests" tests="67" errors="4" failures="7" skip="0">
+	//convertor: sed -n '/<testsuite/{;s/.*<testsuite//;s/>.*//;s/"//g;s/name=\S*//;s/^\s*/TEST_SUMMARY: /;p;};' nosetests.xml
+	int tests = 1;
+	int errors = 0;
+	int failures = 0;
+	int skipped = 0;
+	int pos = output.Find("TEST_SUMMARY: ");
+	if (pos >= 0){
+		try {
+			CParser p(output.Begin()+14);
+			String id;
+			while(!p.IsEof()){
+				if(p.IsId()) {
+					id = p.ReadId();
+					if(!p.Char('='))
+						break;
+				} else
+					break;
+				if(id=="tests") {
+					tests = p.ReadInt();
+				} else if(id=="errors") {
+					errors = p.ReadInt(0, tests);
+				} else if(id=="failures") {
+					failures = p.ReadInt(0, tests);
+				} else if(id=="skip") {
+					skipped = p.ReadInt(0, tests);
+				} else
+					break;
+			}
+		} catch (...) {
+			RLOG("Failed to parse TEST_SUMMARY");
+			tests=1;
+			errors = failures = skipped = 0;
+		}
+	} else {
+		switch (result) {
+		case WD_FAILED: failures = 1; break;
+		case WD_ERROR:  errors = 1;   break;
+		}
+	}
+	
+	SqlStatement insert = 
+	      Insert(RESULT)(REV, revision)
+	                    (CLIENT_ID, cid)
+	                    (STATUS, result)
+	                    (DURATION, http.Int("time"))
+	                    (START, start)
+	                    (FINISHED, end)
+	                    (TEST_COUNT, tests)
+	                    (ERR_COUNT, errors)
+	                    (FAIL_COUNT, failures)
+	                    (SKIP_COUNT, skipped);
+	SQL * SqlStatement(insert.Get()+" on duplicate key update "
+	         "STATUS=values(STATUS),"
+	         "DURATION=values(DURATION),"
+	         "START=if(START is NULL, values(START), START),"
+	         "FINISHED=values(FINISHED)");
+	http.Response(200,"OK");
+	http.Finalize();
+	
+	// now send emails
+	
+	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	              ID, NAME, DESCR, SRC,
+	              START, FINISHED, DURATION, STATUS)
+	      .From(RESULT)
+	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
+	      .Where(REV==revision && CLIENT_ID == cid);
+	ValueMap data;
+	SQLR.Fetch(data);
+	data.Add("STATUSSTR",status(data["STATUS"]));
+	http("DATA", data)("SELF", String(Ini::server_url));
+	String html = http.RenderString("Watchdog/Server/resultmail");
+	http("PLAIN",1);
+	String text = http.RenderString("Watchdog/Server/resultmail");
+	
+	ValueMap m;
+	Vector<String> to, tokens;
+	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
+	while(SQLR.Fetch(m)){
+		if(MatchFilter(m, revision, cid, result, data["AUTHOR"], data["PATH"])){
+			to.Add(m["EMAIL"]);
+			tokens.Add(m["TOK"]);
+		}
+	}
+	SendEmails(to, tokens, Format("%s %d", data["NAME"], revision), text, html);
+}
+
+SKYLARK(Update, "api/update") {
+	if(!CheckLocal(http)) return;
+	http << "OK";
+	http.Finalize();
+	UpdateLogs();
+}
+
+SKYLARK(Clean, "api/clean") {
+	if(!CheckLocal(http)) return;
+	http << "OK";
+	http.Finalize();
+	CleanResults();
+	CleanAuth();
+}

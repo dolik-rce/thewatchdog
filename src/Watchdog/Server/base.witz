@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<title>#TITLE</title>
+<style>
+#include static/style.css
+</style>
+<link rel="icon" type="image/png" href="$CachedStatic("favicon.png")"/>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss"/>
+<script type="text/javascript">
+#include static/watchdog.js
+</script>
+</head>
+<body>
+<h1><img src="$CachedStatic("favicon.png")" height="16" width="16" alt="icon"> #TITLE</h1>
+
+<div class="menu">
+<a href=$HomePage>Homepage</a><br>
+<a href=$Results>Results</a><br>
+<a href=$Clients>Clients</a><br>
+<a href=$Commits>Commits</a><br>
+<a href=$Feeds>Feeds</a><br>
+</div>
+<div id="content">
+#BODY
+$dbg()
+</div>
+</body>
+</html>

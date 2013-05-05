@@ -1,0 +1,159 @@
+#include "Server.h"
+
+SKYLARK(RssFeed, "rss")
+{
+	SqlBool filter(true);
+	int cid = http.Int("client");
+	String author = http["author"];
+	String path = http["path"];
+	String state = ToLower(String(http["status"]));
+	if(!IsNull(cid))
+		filter = SqlBool(ID==cid);
+	if(!IsNull(author))
+		filter = SqlBool(filter && AUTHOR==author);
+	if(!IsNull(path))
+		filter = SqlBool(filter && Like(PATH,path+"%"));
+	if(state == "failed")
+		filter = SqlBool(filter && STATUS==WD_FAILED);
+	else if(state == "ok")
+		filter = SqlBool(filter && STATUS==WD_DONE);
+	
+	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	             ID, NAME, DESCR, SRC,
+	             START, FINISHED, DURATION, STATUS)
+	      .From(RESULT)
+	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
+	      .Where((STATUS==WD_DONE || STATUS==WD_FAILED)
+	             && FINISHED>(GetSysTime()-30*60*60*24)
+	             && filter)
+	      .OrderBy(Descending(FINISHED));
+	ValueArray results;
+	ValueMap vm;
+	while(SQLR.Fetch(vm)){
+		vm.Add("STATUSSTR",status(vm["STATUS"]));
+		results.Add(vm);
+	}
+
+	http("ITEMS", results)("SELF", String(Ini::server_url))
+	 .ContentType("application/rss+xml")
+	 .RenderResult("Watchdog/Server/rss");
+}
+
+SKYLARK(Feeds, "feeds")
+{
+	SQLR * Select(ID, NAME).From(CLIENT).Where(ID>0).OrderBy(ID);
+	ValueArray clients;
+	ValueMap vm;
+	while(SQLR.Fetch(vm)){
+		clients.Add(vm);
+	}
+	SQLR * Select(Distinct(AUTHOR)).From(WORK).OrderBy(AUTHOR);
+	ValueArray authors;
+	while(SQLR.Fetch(vm)){
+		authors.Add(vm);
+	}
+	http("CLIENTS", clients)("AUTHORS",authors)("SELF", String(Ini::server_url))
+	 .RenderResult("Watchdog/Server/feeds");
+}
+
+SKYLARK(Subscribe, "subscribe:POST")
+{
+	String email = http["email"];
+	if(email.Find('@', 1) < 0){
+		http << "<div class=alert>Invalid email address</div>";
+		Feeds(http);
+		return;
+	}
+	String filter = http["filter"];
+	String token = Uuid::Create().ToString();
+	http("FILTER", ParseFilter(filter));
+	http("SELF", String(Ini::server_url));
+
+	SQLR * Select(ACTIVE).From(MAIL).Where(UNIQ == int(CRC32(email+filter)));
+	if(SQLR.Fetch()){
+		http("ACTION",-2)("STATE",SQLR[0])
+		 .RenderResult("Watchdog/Server/subscription");
+		return;
+	}
+	SQL * Insert(MAIL)(EMAIL, email)
+	                  (FILTER, filter.IsEmpty()?SqlEmptyString():filter)
+	                  (TOKEN, token)
+	                  (UNIQ, int(CRC32(email+filter)))
+	                  (CTIME, GetSysTime());
+	String md5 = MD5String(email+filter+token);
+	
+	http("ACTION",1)("EMAIL",email)
+	 .RenderResult("Watchdog/Server/subscription");
+	http.Finalize();
+	SendEmail(email, md5, "Verify Watchdog subscription", http.RenderString("Watchdog/Server/verifymail"));
+}
+
+SKYLARK(Verify, "verify")
+{
+	SQL * Update(MAIL)(ACTIVE,true)
+	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
+	if(!SQL.GetRowsProcessed()){
+		http("ACTION",-1)
+		 .RenderResult("Watchdog/Server/subscription");
+		return;
+	}
+	String unsubscribe = String(Ini::server_url) + "/unsubscribe?v=" + String(http["v"]);
+	http("LINK",unsubscribe)("ACTION",2)
+	 .RenderResult("Watchdog/Server/subscription");
+}
+
+SKYLARK(Unsubscribe, "unsubscribe")
+{
+	SQL * Delete(MAIL)
+	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
+	if(SQL.GetRowsProcessed())
+	http("FILTER",String("???"))("ACTION",3)
+	 .RenderResult("Watchdog/Server/subscription");
+	else
+		http << "Unsubscribing failed. Possible reasons for this are:<br>The subscription was already canceled<br>The link was corupted";
+}
+
+SKYLARK(Sitemap, "sitemap.xml")
+{
+	ValueMap url;
+	ValueArray urls;
+	
+	url.Set("FREQ","daily");
+	url.Set("PRI","1.0");
+	
+	url.Set("LOC",""); urls.Add(url);
+	url.Set("LOC","feeds"); urls.Add(url);
+	
+	url.Set("FREQ","hourly");
+	url.Set("LOC","rss"); urls.Add(url);
+	url.Set("LOC","clients"); urls.Add(url);
+	url.Set("LOC","commits"); urls.Add(url);
+	url.Set("LOC","results"); urls.Add(url);
+	
+	url.Set("FREQ","daily");
+	url.Set("PRI","0.5");
+	
+	SQLR * Select(ID).From(CLIENT);
+	while(SQLR.Fetch()){
+		url.Set("LOC",Format("client/%d",SQLR[0]));
+		urls.Add(url);
+	}
+	
+	SQLR * Select(REVISION).From(WORK);
+	while(SQLR.Fetch()){
+		url.Set("LOC",Format("commit/%d",SQLR[0]));
+		urls.Add(url);
+	}
+	
+	SQLR * Select(REV,CLIENT_ID).From(RESULT);
+	while(SQLR.Fetch()){
+		url.Set("LOC",Format("result/%d/%d", SQLR[0], SQLR[1]));
+		urls.Add(url);
+		url.Set("LOC",Format("output/%d/%d", SQLR[0], SQLR[1]));
+		urls.Add(url);
+	}
+	
+	http("URLS",urls)("SELF",Ini::server_url)
+	 .RenderResult("Watchdog/Server/sitemap");
+}

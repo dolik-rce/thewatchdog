@@ -1,0 +1,64 @@
+#include "Server.h"
+
+namespace Upp { namespace Ini {
+	INI_STRING(server_url,"http://localhost:8001", "Url of the server where the application runs.");
+}}
+
+SKYLARK(RssFeed, "rss")
+{
+	SqlBool filter(true);
+	int cid = http.Int("client");
+	String author = http["author"];
+	String path = http["path"];
+	String state = ToLower(String(http["status"]));
+	if(!IsNull(cid))
+		filter = SqlBool(ID==cid);
+	if(!IsNull(author))
+		filter = SqlBool(filter && AUTHOR==author);
+	if(!IsNull(path))
+		filter = SqlBool(filter && Like(PATH,path+"%"));
+	if(state == "failed")
+		filter = SqlBool(filter && STATUS==WD_FAILED);
+	else if(state == "ok")
+		filter = SqlBool(filter && STATUS==WD_DONE);
+	
+	Sql sql;
+	sql * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	             ID, NAME, DESCR, SRC,
+	             START, FINISHED, DURATION, STATUS)
+	      .From(RESULT)
+	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
+	      .Where((STATUS==WD_DONE || STATUS==WD_FAILED)
+	             && FINISHED>(GetSysTime()-30*60*60*24)
+	             && filter)
+	      .OrderBy(FINISHED);
+	ValueArray results;
+	ValueMap vm;
+	while(sql.Fetch(vm)){
+		vm.Add("STATUSSTR",status(vm["STATUS"]));
+		results.Add(vm);
+	}
+
+	http("ITEMS", results)("SELF", String(Ini::server_url))
+	 .ContentType("application/rss+xml")
+	 .RenderResult("Watchdog/Server/rss");
+}
+
+SKYLARK(Feeds, "feeds")
+{
+	Sql sql;
+	sql * Select(ID, NAME).From(CLIENT).OrderBy(ID);
+	ValueArray clients;
+	ValueMap vm;
+	while(sql.Fetch(vm)){
+		clients.Add(vm);
+	}
+	sql * Select(Distinct(AUTHOR)).From(WORK).OrderBy(AUTHOR);
+	ValueArray authors;
+	while(sql.Fetch(vm)){
+		authors.Add(vm);
+	}
+	http("CLIENTS", clients)("AUTHORS",authors)("SELF", String(Ini::server_url))
+	 .RenderResult("Watchdog/Server/feeds");
+}

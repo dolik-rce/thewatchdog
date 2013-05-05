@@ -1,0 +1,42 @@
+#include base
+#define TITLE Client info
+#define BODY
+<table class="indent">
+<tr><td>Name:</td><td>$CLIENT.NAME</td></tr>
+<tr><td>Description:</td><td>$raw(CLIENT.DESCR)</td></tr>
+<tr><td>Followed path:</td><td>$CLIENT.SRC</td></tr>
+<tr><td>Last contact:</td><td>$CLIENT.LAST_ACTIVITY</td></tr>
+<tr><td>Last work:</td><td>$CLIENT.LAST_WORK</td></tr>
+<tr><td valign="top">Actions:</td><td>
+  <a href="/editclient/$CLIENT.ID"><img src="$CachedStatic("edit.png")" class="icon">Edit</a><br>
+  <a href="/auth/removeclient/$CLIENT.ID"><img src="$CachedStatic("remove.png")" class="icon">Delete</a>
+</td></tr>
+</table>
+<br>
+#include paging
+<table border="1">
+<tr>
+<th>Revision</th>
+<th>Start at</th>
+<th>End at</th>
+<th>Duration</th>
+<th>Status</th>
+</tr>
+$for(i in RESULTS)
+    <tr>
+      <th><a href=$Commit(i.REVISION)>$i.REVISION</a></th>
+$if(i.START)      
+      <td>$i.START</td>
+      <td>$i.FINISHED</td>
+      <td>$Duration(i.DURATION)</td>
+      <td class="status$i.STATUS"><a href=$Result(i.REVISION,CLIENT.ID)>$i.STATUSSTR</a></td>
+$else
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>$i.STATUSSTR</td>
+$endif
+    </tr>    
+$/
+</table>
+#include paging

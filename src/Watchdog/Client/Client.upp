@@ -1,0 +1,12 @@
+uses
+	Watchdog;
+
+file
+	Client.h,
+	Client.cpp,
+	main.cpp,
+	Client.ini;
+
+mainconfig
+	"" = "MT SSE2";
+

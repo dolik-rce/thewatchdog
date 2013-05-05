@@ -1,0 +1,39 @@
+#include base
+#define TITLE Results
+#define BODY
+#include paging
+<table border="1">
+ <tr>
+  <th>Revision</th>
+$if(count(CLIENTS)>1)
+ $for(i in CLIENTS)
+  $if(i._key > 0)
+   <th><a href=$Client(i._key)>$i</a></th>
+  $/
+ $/
+$else
+ <td rowspan="$(cnt+1)">No results</td> 
+$/
+ </tr>
+$if(count(CLIENTS)>1)
+  $for(j in COMMITS)
+   <tr>
+  <th><a href=$Commit(j)>$j</a></th>
+  $for(i in CLIENTS)
+   $if(i._key > 0)
+    $if(RESULTS[j][i._key])
+     <td class="status$RESULTS[j][i._key][1]"><a href=$Result(j,i._key)>$RESULTS[j][i._key][0]</a></td>
+    $else
+     <td>&nbsp;</td>
+    $endif
+   $endif
+  $/
+ </tr>
+$/
+$else
+  $for(j in COMMITS)
+   <tr><th><a href=$Commit(j)>$j</a></th></tr>
+  $/
+$/
+</table>
+#include paging

@@ -1,0 +1,51 @@
+$if(PLAIN==1)
+Status: $DATA.STATUSSTR
+Start time: $DATA.START
+End time: $DATA.FINISHED
+Duration: $Duration(DATA.DURATION)
+
+Output: $SELF/output/$DATA.REVISION/$DATA.ID
+
+Revision: $DATA.REVISION
+Log message: $DATA.MSG
+Author: $DATA.AUTHOR
+Date: $DATA.DT
+Path: $DATA.PATH
+Client: $DATA.NAME
+
+
+You received this e-mail because this commit matches one of the filters to
+which you have subscribed on $SELF.
+To unsubscribe click following link:
+    $SELF/unsubscribe?v=@token@
+$else
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<title>$DATA.NAME $DATA.REVISION</title>
+</head>
+<body>
+<table border=0>
+	<tr><td>Status:</td><td>$DATA.STATUSSTR</td></tr>
+	<tr><td>Start time:</td><td>$DATA.START</td></tr>
+	<tr><td>End time:</td><td>$DATA.FINISHED</td></tr>
+	<tr><td>Duration:</td><td>$Duration(DATA.DURATION)</td></tr>
+	<tr><td>Output:</td><td><a href=$SELF/output/$DATA.REVISION/$DATA.ID>download</a></td></tr>
+	<tr><td>Revision:</td><td><a href="$SELF/commit/$DATA.REVISION">$DATA.REVISION</a></td></tr>
+	<tr><td>Log&nbsp;message:</td><td>$DATA.MSG</td></tr>
+	<tr><td>Author:</td><td>$DATA.AUTHOR</td></tr>
+	<tr><td>Date:</td><td>$DATA.DT</td></tr>
+	<tr><td>Path:</td><td>$DATA.PATH</td></tr>
+	<tr><td>Client:</td><td><a href="$SELF/client/$DATA.ID">$DATA.NAME</a></td></tr>
+	<tr><td>Client description:</td><td>$raw(DATA.DESCR)</td></tr>
+	<tr><td>Followed path:</td><td>$DATA.SRC</td></tr>
+</table>
+<br><br>
+You received this e-mail because this commit matches one of the filters to which you have subscribed<br>
+on <a href="$SELF">$SELF</a>.<br>
+To unsubscribe click following link:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="$SELF/unsubscribe?v=@token@">$SELF/unsubscribe?v=@token@</a><br>
+</body>
+</html>
+$endif

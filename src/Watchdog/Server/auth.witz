@@ -1,0 +1,38 @@
+#include base
+#define TITLE Authorization required
+#define BODY
+<script src=$CachedStatic("md5.js") type="text/javascript"></script>
+<script type="text/javascript">
+function updateForm(){
+  s=document.getElementById('id').value.split(';')
+  document.getElementById('client_id').value=s[0]
+  s=hex_md5(s[1]+document.getElementById('pwd').value)
+  document.getElementById('wd_auth').value=hex_md5('$WD_NONCE$TARGET'+s)
+}
+</script>
+<p>Authorization is required to call '<b>$TARGET</b>'.</p>
+<form action="$TARGET" method="POST">
+<table class="indent">
+    <tr>
+      <td>Client:</td>
+      <td><select id="id" onchange='updateForm();'>
+$for(i in CLIENTS)
+  <option value="$i._key" $if(i._first) selected $endif>$i</option>
+$/
+      </select></td>
+    </tr>
+    <tr>
+      <td>Password:</td>
+      <td><input id="pwd" onchange='updateForm();' onkeypress='updateForm();' type="password"></td>
+    </tr>
+</table>
+<input type="hidden" name="wd_nonce" value="$WD_NONCE">
+<input type="hidden" name="wd_action" value="$TARGET">
+<input id="client_id" type="hidden" name="client_id" value="0">
+<input id="wd_auth" type="hidden" name="wd_auth" value="">
+<input type="hidden" name="__post_identity__" value="$WD_ID">
+$for(i in PASS)
+  <input type="hidden" name="$i._key" value="$i">
+$/
+<input type="submit">
+</form>

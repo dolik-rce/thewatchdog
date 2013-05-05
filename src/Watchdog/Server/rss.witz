@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+  <title>Watchdog</title>
+  <link>$SELF</link>
+  <description>U++ code quality watchdog</description>
+$for(i in ITEMS)
+  <item>
+    <title>$i.NAME ($i.REVISION)</title>
+    <link>$SELF/result/$i.REVISION/$i.ID</link>
+    <description>
+<![CDATA[
+	<table border=0>
+
+	<tr><td>Status:</td><td>$i.STATUSSTR</td></tr>
+	<tr><td>Start time:</td><td>$i.START</td></tr>
+	$if(i.STATUS>1)
+	<tr><td>End time:</td><td>$i.FINISHED</td></tr>
+	$endif
+	<tr><td>Duration:</td><td>$Duration(i.DURATION)</td></tr>
+
+	$if(i.STATUS>1)
+	<tr><td>Output:</td><td><a href=$SELF/output/$i.REVISION/$i.ID>download</a></td></tr>
+	$endif
+
+	<tr><td>Revision:</td><td><a href="$SELF/commit/$i.REVISION">$i.REVISION</a></td></tr>
+	<tr><td>Log&nbsp;message:</td><td>$i.MSG</td></tr>
+	<tr><td>Author:</td><td>$i.AUTHOR</td></tr>
+	<tr><td>Date:</td><td>$i.DT</td></tr>
+	<tr><td>Path:</td><td>$i.PATH</td></tr>
+
+	<tr><td>Client:</td><td><a href="$SELF/client/$i.ID">$i.NAME</a></td></tr>
+	<tr><td>Client description:</td><td>$raw(i.DESCR)</td></tr>
+	<tr><td>Followed path:</td><td>$i.SRC</td></tr>
+
+	</table>
+]]> 
+    </description>
+    <author>$i.AUTHOR</author>
+  </item>
+$/
+</channel>
+</rss>

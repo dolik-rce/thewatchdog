@@ -1,0 +1,52 @@
+/opt/wds/log/access.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+        sharedscripts
+        postrotate
+                [ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+        endscript
+}
+/opt/wds/log/error.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+        sharedscripts
+        postrotate
+                [ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+        endscript
+}
+/opt/wds/log/server.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+        sharedscripts
+        postrotate
+                [ ! -f /var/run/wds.pid ] || kill -USR1 `cat /var/run/wds.pid`
+        endscript
+}
+/opt/wds/log/stdout.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+        sharedscripts
+        postrotate
+                [ ! -f /var/run/wds.pid ] || kill -USR1 `cat /var/run/wds.pid`
+        endscript
+}

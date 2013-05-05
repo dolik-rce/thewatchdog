@@ -1,0 +1,11 @@
+# Watchdog maintenance
+MAILTO=dolik.rce@gmail.com
+
+# check for updates every 15 minutes
+*/15 * * * * root wget -q -O /dev/null http://localhost:8001/api/update
+
+# perform cleanup tasks every 5 minutes
+*/5 * * * * root wget -q -O /dev/null http://localhost:8001/api/clean
+
+# check if server is still running, restart if needed
+* * * * * root /etc/init.d/watchdog status &> /dev/null || /etc/init.d/watchdog restart

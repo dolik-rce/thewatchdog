@@ -1,0 +1,30 @@
+#include base
+#define TITLE Commits
+#define BODY
+#include paging
+<table border="1">
+<tr>
+ <th>Revision</th>
+ <th>Status</th>
+ <th>Author</th>
+ <th>Date</th>
+ <th>Path</th>
+ <th>Log message</th>
+</tr>
+$for(i in COMMITS)
+    <tr>
+      <th><a href=$Commit(i.REVISION)>$i.REVISION</a></th>
+      <td class="centered">
+      $if(i.CNT1>0)<span title="In progress" class="status1">$i.CNT1</span>$endif
+      $if(i.CNT2>0)<span title="Failed" class="status2">$i.CNT2</span>$endif
+      $if(i.CNT3>0)<span title="Error" class="status3">$i.CNT3</span>$endif
+      $if(i.CNT4>0)<span title="Succesfully built" class="status4">$i.CNT4</span>$endif
+      </td>
+      <td>$i.AUTHOR</td>
+      <td>$i.DT</td>
+      <td>$i.PATH</td>
+      <td>$i.MSG</td>
+    </tr>    
+$/
+</table>
+#include paging

@@ -1,0 +1,19 @@
+.status0 {background-color: transparent;}
+.status1 {background-color: #88F;}
+.status2 {background-color: #F88;}
+.status3 {background-color: #BBB;}
+.status4 {background-color: #8F8;}
+td,th {padding: 3px 3px 3px 3px;}
+.ldiv {float:left; padding-right :50px;}
+.menu {position: absolute; left: 10px;}
+#content {position: absolute; left: 150px;}
+.output {overflow: auto; width: 800px; height: 400px;}
+.paging {font-size: 75%;}
+.wide {position:relative;width:100%;}
+.dl_link {font-size: 75%; position:absolute; right:0;}
+.indent {padding-left: 25px; border: 0;}
+.centered {text-align: center;}
+.big {font-size: larger;}
+.dbg {margin-top: 75px;}
+.prewrap {white-space: pre-wrap;}
+.icon {margin-right: 6px;}

@@ -1,0 +1,19 @@
+Hello and thanks for subscribing!
+
+You have chosen to receive announcements from Watchdog matching following
+filter:
+
+$for(i in FILTER)    - $i 
+$/
+
+Please follow this link to verify your email and finish the subscription:
+
+    $SELF/verify?v=@token@
+
+If you don't know what this e-mail means and where it came from, please ignore 
+it. If it happens more than once, you are encouraged to notify the page 
+administrator at dolik.rce@gmail.com, thanks.
+
+Have a nice day,
+Your Watchdog
+

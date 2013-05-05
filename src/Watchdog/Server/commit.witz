@@ -1,0 +1,29 @@
+#include base
+#define TITLE Commit info
+#define BODY
+<table class="indent">
+<tr><td>Revision:</td><td>$COMMIT.REVISION</td></tr>
+<tr><td>Author:</td><td>$COMMIT.AUTHOR</td></tr>
+<tr><td>Date:</td><td>$COMMIT.DT</td></tr>
+<tr><td>Log Message:</td><td>$COMMIT.MSG</td></tr>
+<tr><td>Path:</td><td>$COMMIT.PATH</td></tr>
+</table>
+<br>
+<table border="1">
+<tr>
+<th>Client</th>
+<th>Start at</th>
+<th>End at</th>
+<th>Duration</th>
+<th>Status</th>
+</tr>
+$for(i in RESULTS)
+    <tr>
+      <td><a href=$Client(i.CLIENT_ID)>$i.NAME</a></td>
+      <td>$i.START</td>
+      <td>$i.FINISHED</td>
+      <td>$Duration(i.DURATION)</td>
+      <td class="status$i.STATUS"><a href=$Result(COMMIT.REVISION,i.CLIENT_ID)>$i.STATUSSTR</a></td>
+    </tr>    
+$/
+</table>
