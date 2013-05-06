@@ -1,11 +1,22 @@
 SERVER
 ------
-Extend graphing
-Allow linking to issue tracker
-Pretty icons
-Timezone handling?
+Extend graphing, link graphs from more places
+User editable content, overridable templates
+  (e.g. to allow linking to issue tracker, changing welcome page)
+Git support
+Setup helper (create tables on first run, create admin user, get svn history)
+Nicer icons, real css styling	
+
 
 CLIENT
 ------
 Client should send WD_ERROR on error (implement as bash trap in shell, exception handling in python)
 Publish the usage examples
+
+
+GENERAL
+-------
+Makefile
+PKGBUILD for Arch
+Debian packaging
+Update documentation
