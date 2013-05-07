@@ -355,7 +355,7 @@ SKYLARK(Stats, "stats/*") {
 	              MSG, AUTHOR, DT)
 	        .From(RESULT)
 	        .InnerJoin(WORK).On(REV==REVISION)
-	        .Where(cid==CLIENT_ID)
+	        .Where(cid==CLIENT_ID && STATUS!=WD_INPROGRESS)
 	        .OrderBy(Descending(REV))
 	        .Limit(100);
 	ValueMap point;

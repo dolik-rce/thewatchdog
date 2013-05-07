@@ -1,29 +1,21 @@
 #include base
 #define TITLE Statistics for $CLIENT.NAME
 #define HEAD
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
 <script src="$CachedStatic("d3.v2.min.js")"></script>
 <script src="$CachedStatic("rickshaw.min.js")"></script>
 <style>
 #include static/graphs.css
+#results, #duration {
+	width: 800px;
+	height: 250px;
+}
 </style>
-
 #define BODY
-<h3>Results of last 100 tests</h3>
-<div id="chart_container">
-	<div id="y_axis"></div>
-	<div id="chart"></div>
-	<div id="x_axis"></div>
-	<div id="legend"></div>
-</div>
 
+<h3>Results of last 100 tests</h3>
+<div class="graph" id="results"></div>
 <h3>Duration of last 100 tests</h3>
-<div id="chart_container2">
-	<div id="y_axis2"></div>
-	<div id="chart2"></div>
-	<div id="x_axis2"></div>
-</div>
+<div class="graph" id="duration"></div>
 
 <script>
 
@@ -31,19 +23,22 @@ var revlog = {
 	$for(i in REVLOG) $i._key : "$i.MSG<br>$i.AUTHOR @ $i.DT", $/
 };
 
+function formatx(x) { return x + ": " + revlog[x]; }
+function formaty(y) { return y; }
 
-var graph = new Rickshaw.Graph( {
-	element: document.getElementById("chart"),
-	width: 600,
-	height: 200,
-	renderer: 'line',
-	offset: 'value',
-	interpolation: 'line',
+var g1 = new Graph({
+	element: document.getElementById("results"),
+	xFormatter: formatx,
+	yFormatter: formaty,
 	series: [
 		{
 			color: "#FF8",
 			data: $SKIP,
 			name: 'Skipped'
+		}, {
+			color: "#8F8",
+			data: $PASS,
+			name: 'Passed'
 		}, {
 			color: "#BBB",
 			data: $ERR,
@@ -52,106 +47,21 @@ var graph = new Rickshaw.Graph( {
 			color: "#F88",
 			data: $FAIL,
 			name: 'Failed'
-		}, {
-			color: "#8F8",
-			data: $PASS,
-			name: 'Passed'
-		}, {
-			color: "#000",
-			data: $TOTAL,
-			name: 'Total',
 		}
 	]
-} );
 
-var y_axis = new Rickshaw.Graph.Axis.Y( {
-	graph: graph,
-	orientation: 'left',
-	pixelsPerTick: 25,
-	element: document.getElementById('y_axis'),
-} );
-y_axis.render();
+})
 
-format = function(n) {
-		return n;
-	}
-
-var x_axis = new Rickshaw.Graph.Axis.X( {
-	graph: graph,
-	orientation: 'bottom',
-	element: document.getElementById('x_axis'),
-	pixelsPerTick: 50
-} );
-
-graph.render();
-
-var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-	graph: graph,
-	xFormatter: function(x) {
-			return x + ": " + revlog[x];
-		},
-	yFormatter: function(y) {
-		return y;
-	}
-} );
-
-var legend = new Rickshaw.Graph.Legend( {
-	graph: graph,
-	element: document.getElementById('legend')
-} );
-
-var toggler = new Rickshaw.Graph.Behavior.Series.Toggle( {
-	graph: graph,
-	legend: legend
-} );
-
-/////////////// duration ////////////
-
-var graph2 = new Rickshaw.Graph( {
-	element: document.getElementById("chart2"),
-	width: 600,
-	height: 200,
-	renderer: 'line',
-	offset: 'value',
-	interpolation: 'line',
-	series: [
-		{
+var g2 = new Graph({
+	element: document.getElementById("duration"),
+	legend : false,
+	xFormatter: formatx,
+	yFormatter: formaty,
+	series: [{
 			color: "#88F",
 			data: $DURATION,
 			name: 'Duration'
-		},
-	]
-} );
+		}]
 
-var y_axis2 = new Rickshaw.Graph.Axis.Y( {
-	graph: graph2,
-	orientation: 'left',
-	pixelsPerTick: 25,
-	element: document.getElementById('y_axis2')
-} );
-y_axis2.render();
-
-format = function(n) {
-		return n;
-	}
-
-var x_axis2 = new Rickshaw.Graph.Axis.X( {
-	graph: graph2,
-	orientation: 'bottom',
-	element: document.getElementById('x_axis2'),
-	pixelsPerTick: 50
-} );
-
-graph2.render();
-
-var hoverDetail2 = new Rickshaw.Graph.HoverDetail( {
-	graph: graph2,
-	xFormatter: function(x) {
-			return x + ": " + revlog[x];
-		},
-	yFormatter: function(y) {
-		return y + " s";
-	}
-} );
-
+})
 </script>
