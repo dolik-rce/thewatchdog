@@ -20,6 +20,7 @@ $for(i in CLIENT)
       <td align="center">
         <a href="/editclient/$i.ID"><img src="$CachedStatic("edit.png")" title="Edit" alt="Edit"></a>
         <a href="/auth/removeclient/$i.ID"><img src="$CachedStatic("remove.png")" title="Delete" alt="Delete"></a>
+        <a href=$Stats(i.ID)><img src="$CachedStatic("stats.png")" title="Statistics" alt="Statistics"></a>
       </td>
     </tr>
 $/

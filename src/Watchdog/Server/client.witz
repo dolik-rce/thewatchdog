@@ -9,9 +9,9 @@
 <tr><td>Last work:</td><td>$CLIENT.LAST_WORK</td></tr>
 <tr><td valign="top">Actions:</td><td>
   <a href="/editclient/$CLIENT.ID"><img src="$CachedStatic("edit.png")" class="icon">Edit</a><br>
-  <a href="/auth/removeclient/$CLIENT.ID"><img src="$CachedStatic("remove.png")" class="icon">Delete</a>
+  <a href="/auth/removeclient/$CLIENT.ID"><img src="$CachedStatic("remove.png")" class="icon">Delete</a><br>
+  <a href=$Stats(CLIENT.ID)><img src="$CachedStatic("stats.png")" class="icon">Statistics</a>
 </td></tr>
-<tr><td><a href="/stats/$CLIENT.ID">See stats</a></td><td></td></tr>
 </table>
 <br>
 #include paging

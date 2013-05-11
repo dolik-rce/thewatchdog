@@ -46,6 +46,7 @@ file
 	static/favicon.png,
 	static/edit.png,
 	static/remove.png,
+	static/stats.png,
 	static/robots.txt,
 	Etc readonly separator,
 	etc/watchdog.initd,
