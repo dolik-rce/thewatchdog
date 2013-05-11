@@ -16,13 +16,13 @@
 <body>
 <h1><img src="$CachedStatic("favicon.png")" height="16" width="16" alt="icon"> #TITLE</h1>
 
-<div class="menu">
-<a href=$HomePage>Homepage</a><br>
-<a href=$Results>Results</a><br>
-<a href=$Clients>Clients</a><br>
-<a href=$Commits>Commits</a><br>
-<a href=$Feeds>Feeds</a><br>
-</div>
+<ul class="menu">
+<li><a href=$HomePage>Homepage</a></li>
+<li><a href=$Results>Results</a></li>
+<li><a href=$Clients>Clients</a></li>
+<li><a href=$Commits>Commits</a></li>
+<li><a href=$Feeds>Feeds</a></li>
+</ul>
 <div id="content">
 #BODY
 $dbg()

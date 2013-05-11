@@ -7,6 +7,7 @@
 td,th {padding: 3px 3px 3px 3px;}
 .ldiv {float:left; padding-right :50px;}
 .menu {position: absolute; left: 10px;}
+ul.menu { list-style-type: none; padding-left:0; }
 #content {position: absolute; left: 150px;}
 .output {overflow: auto; width: 800px; height: 400px;}
 .paging {font-size: 75%;}
