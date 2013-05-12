@@ -1,3 +1,6 @@
 init
 .SyncID
 .SyncIgnore
+obj/
+bin/
+uppsrc/

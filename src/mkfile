@@ -1,0 +1,378 @@
+########################################################################
+#  __  __    _      _     __  __   __   _  _  ___  ___  __  __    ___  #
+# (  )(  ) _( )_  _( )_  (  \/  ) (  ) ( )/ )(  _)(  _)(  )(  )  (  _) #
+#  )(__)( (_   _)(_   _)  )    (  /__\  )  \  ) _) ) _) )(  )(__  ) _) #
+#  \____/   (_)    (_)   (_/\/\_)(_)(_)(_)\_)(___)(_)  (__)(____)(___) #
+#                                                                      #
+############################## USAGE ###################################
+# This makefile is controlled through a set of variables, similar to   #
+# any other makefile. The prefered way to change them is via command   #
+# line, e.g.: make PKG="ide usvn" CXX=g++                              #
+#                                                                      #
+# All of the variables that can control the bahaviour are listed below #
+# in DEFAULTS section. Also their default value is shown here. Notice  #
+# that many of them can contain shell commands (enclosed in ``) which  #
+# are evaluated before parsing and building each package.
+#                                                                      #
+# For boolean type of variables value "1" represents true, anything    #
+# else is evaluated as false.                                          #
+############################# TARGETS ##################################
+# This makefile defines five targets that are meant to be used         #
+# directly by user from the command line:                              #
+#                                                                      #
+# all          - builds all (default if any packages are specified)    #
+# help         - shows this help (default if no packages are given)    #
+# simulate     - prints all commands, without executing them           #
+# clean        - deletes all compiled files related to given packages  #
+# dist-clean   - deletes the entire OUT directory (including parsers)  #
+############################# EXAMPLES #################################
+# Typical usage:                                                       #
+#    make PKG=ide FLAGS="GCC"                                          #
+# More complicated usage:                                              #
+#    make PKG="ide UWord Bombs" FLAGS="GCC .NOGTK" ECHO=1              #
+# Show help:                                                           #
+#    make help                                                         #
+# Silent mode:                                                         #
+#    make PKG=ide SILENT=1                                             #
+############################# DEFAULTS #################################
+# List of packages to build (space separated). If empty, this help     #
+# text will be shown.                                                  #
+PKG:=
+# Paths where to look for packages.                                    #
+NESTS:=uppsrc bazaar examples reference tutorial $$HOME/MyApps
+# Building flags (as in TheIDE).
+FLAGS:=GCC
+# Additional include paths for compiler (without the leading "-I").    #
+INCPATHS:= /usr/include/freetype2 /usr/include/gtk-2.0
+INCPATHS+= /usr/local/include/gtk-2.0 /usr/include/glib-2.0
+INCPATHS+= /usr/local/include/glib-2.0 /usr/lib/glib-2.0/include
+INCPATHS+= /usr/local/lib/glib-2.0/include /usr/lib/gtk-2.0/include
+INCPATHS+= /usr/local/lib/gtk-2.0/include /usr/include/cairo
+INCPATHS+= /usr/include/pango-1.0 /usr/include/atk-1.0
+INCPATHS+= /usr/X11R6/include /usr/X11R6/include/freetype2
+INCPATHS+= /usr/X11R6/include/gtk-2.0 /usr/X11R6/include/glib-2.0
+INCPATHS+= /usr/X11R6/lib/glib-2.0/include
+INCPATHS+= /usr/X11R6/lib/gtk-2.0/include /usr/X11R6/include/cairo
+INCPATHS+= /usr/X11R6/include/pango-1.0 /usr/X11R6/include/atk-1.0
+INCPATHS+= /usr/local/include/cairo /usr/local/include/pango-1.0
+INCPATHS+= /usr/local/include/atk-1.0 /usr/local/include
+INCPATHS+= /usr/local/include/libpng /usr/include/gdk-pixbuf-2.0
+INCPATHS+= /usr/lib/i386-linux-gnu/glib-2.0/include
+INCPATHS+= /usr/lib/x86_64-linux-gnu/glib-2.0/include
+INCPATHS+= /usr/lib/i386-linux-gnu/gtk-2.0/include
+INCPATHS+= /usr/lib/x86_64-linux-gnu/gtk-2.0/include
+INCPATHS+= /usr/lib/gtk-2.0/include
+INCPATHS+= /usr/lib/glib-2.0/include
+# Paths to libraries for linker.                                       #
+LIBPATHS:=/usr/X11R6/lib /usr/lib /usr/local/lib
+# Directory to store intermediate object files                         #
+OUT:=_out
+# Directory where the resulting binaries will be stored                #
+BIN:=$(OUT)/bin
+# ar command                                                           #
+AR:=ar -src
+# Command to create directories equivalent to "mkdir -p". The only     #
+# good reason to change is if your platform uses mkdir command which   #
+# doesn't support the -p option                                        #
+MKDIRP:=mkdir -p
+# C compiler command                                                   #
+CC:=cc
+# C++ compiler command                                                 #
+CXX:=c++
+# Options for C/C++ preprocessor                                       #
+CPPFLAGS:=
+# Options for C compiler                                               #
+CFLAGS:=
+# Options for C++ compiler                                             #
+CXXFLAGS:=
+# Options for linker                                                   #
+LDFLAGS:=-Wl,--gc-sections -Wl,-s -Wl,-O,2
+# Additional options for speed optimization                            #
+SPEEDFLAGS:=-O3 -ffunction-sections -fdata-sections
+# Additional options for size optimization                             #
+SIZEFLAGS:=-Os -finline-limit=20 -ffunction-sections -fdata-sections
+# Optimization, supply SPEED or SIZE to optimize the executables       #
+OPT:=
+# Platform flag, added to FLAGS, can include shell commands            #
+PLATFORM:=`uname | tr a-z A-Z` POSIX
+# Suppress all messagges                                               #
+SILENT:=0
+# Print each executed command                                          #
+ECHO:=0
+# Use dependency files. This will probably work only with gcc-like     #
+# compilers (requires -MD option). The build usually works correctly   #
+# even without specifying the dependencies unless you modify included  #
+# files (*.h, *.lay, ...) without modifying the *.c/cpp files that     #
+# include them.                                                        # 
+DEPS:=0
+# Run the executable(s) sequntially when compiled                      #
+RUN:=0
+# Override default name of final executable (absolute or relative path)
+TARGET:=
+# Add flags from based on mainconfig section (1-based index, set       #
+# to 0 to disable completely                                           #
+USEMAINCFG:=1
+# Number of parallel processes to use (like "make -jN" option).        #
+# The JOBS variable must be used instead of -j option (as -j would not #
+# work as expected). Default value is the number of cores (if it is    #
+# possible to detect) or 1.                                            #
+JOBS:=$(shell echo /sys/devices/system/cpu/cpu[0-9] | wc -w || echo 1)
+# Ask for some additional details during parsing                       #
+INTERACTIVE:=0
+# Use colorized output, recognized values are 0, 1 or auto             #
+COLOR:=auto
+# What color should be used in colorized mode, number from 0 to 7      #
+HIGHLIGHT:=4
+TIME:=TIMEFORMAT="  time taken: %Es"; time
+########################################################################
+
+m:=[ "$(SILENT)" = "1" ] || echo
+e:=@    #comment out for debugging
+dbgparser:=-DflagDEBUG -ggdb3
+
+thisfile:=$(MAKEFILE_LIST)$(.MAKEFILE_LIST)
+color:=if [ "$(COLOR)" = "auto" ]; then [ -t 1 ] && c=1 || c=0; else c="$(COLOR)"; fi
+pass:=$(color); UPP_NESTS="$(NESTS)" UPP_FLAGS="$(FLAGS)" \
+    UPP_INCPATHS="$(INCPATHS)" UPP_LIBPATHS="$(LIBPATHS)" UPP_OUT="$(OUT)" \
+    UPP_BIN="$(BIN)" UPP_AR="$(AR)" UPP_MKDIRP="$(MKDIRP)" UPP_CC="$(CC)" \
+    UPP_CXX="$(CXX)" UPP_CFLAGS="$(CFLAGS)" UPP_CXXFLAGS="$(CXXFLAGS)" \
+    UPP_LDFLAGS="$(LDFLAGS)" UPP_SPEEDFLAGS="$(SPEEDFLAGS)" \
+    UPP_SIZEFLAGS="$(SIZEFLAGS)" UPP_PLATFORM="$(PLATFORM)" \
+    UPP_SILENT="$(SILENT)" UPP_ECHO="$(ECHO)" UPP_DEPS="$(DEPS)" \
+    UPP_RUN="$(RUN)" UPP_TARGET="$(TARGET)" UPP_USEMAINCFG="$(USEMAINCFG)" \
+    UPP_OPT="$(OPT)" UPP_INTERACTIVE="$(INTERACTIVE)" UPP_COLOR="$$c" \
+    UPP_HIGHLIGHT="$(HIGHLIGHT)"
+
+all: no-package-specified build
+
+do-build: $(OUT)/parser $(OUT)/brc.sh $(OUT)/color.sh
+	+$e set -e; $(color); B=""; N=""; C=""; color=""; \
+	[ $$c -eq 1 ] && color="$(SHELL) $(OUT)/color.sh" && B="\e[1m" && N="\e[0m" && C="\e[1;3$(HIGHLIGHT)m"; \
+	for pkg in $(PKG) ; do \
+		$m $${B}Parsing package $$C$$pkg$$N $$B...$$N; \
+		$(TIME) $(pass) $$color $(OUT)/parser $$pkg; \
+		$m $${B}Building package$$N $$C$$pkg$$N $$B...$$N; \
+		$(TIME) $$color $(MAKE) -j $(JOBS) -f $(OUT)/Makefile && \
+		$m $${B}Package$$N $$C$$pkg$$N$$B finished ...$$N; \
+	done; set +e
+
+no-package-specified:
+	$e if [ -z "$(PKG)" ]; then sed '/^$$/{s/.*//;q;}' $(thisfile) && false; fi
+
+$(OUT)/parser: $(OUT)/parser.cpp
+	@$m Compiling parser...
+	+$e $(TIME) $(CXX) -x c++ -o $@ $^ $(dbgparser)
+
+$(OUT)/parser.cpp: $(thisfile)
+	@$m "Extracting parser..."
+	+$e [ -d $(OUT) ] || $(MKDIRP) $(OUT)
+	+$e $(TIME) sed -n 's/^#://p;' $< | base64 -d | gzip -d > $@
+
+$(OUT)/brc.sh: $(thisfile)
+	@$m "Extracting brc parser..."
+	+$e [ -d $(OUT) ] || $(MKDIRP) $(OUT)
+	+$e $(TIME) sed -n 's/^#~//p;' $< | base64 -d | gzip -d > $@
+
+$(OUT)/color.sh: $(thisfile)
+	@$m "Extracting colorizer script..."
+	+$e [ -d $(OUT) ] || $(MKDIRP) $(OUT)
+	+$e $(TIME) sed -n 's/^#%//p;' $< | base64 -d | gzip -d > $@
+
+build: do-build
+	$e for pkg in $(PKG); do \
+		if [ "$(RUN)" = "1" ]; then \
+			for target in "$(TARGET)" "$(BIN)/$(TARGET)" "$(BIN)/$$pkg"; do \
+				[ -f "$$target" ] && break; \
+			done; \
+			[ -e "$$target" ] && { $m "Running $$target"; } && $$target; \
+		fi; \
+	done
+
+simulate: $(OUT)/Makefile
+	+$e for pkg in $(PKG) ; do \
+		$m Parsing package $$pkg ... && \
+		$(pass) $(OUT)/parser $$pkg && \
+		$m Building package $$pkg ... && \
+		$(MAKE) -nf $(OUT)/Makefile; \
+	done
+
+help:
+	$e sed '/^$$/{s/.*//;q;}' $(thisfile);
+
+clean:
+	+$e for pkg in $(PKG); do \
+		$m Parsing package $$pkg... && \
+		$(pass) $(OUT)/parser $$pkg && \
+		$m Cleaning package $$pkg && \
+		$(MAKE) -f $(OUT)/Makefile clean; \
+	done
+
+dist-clean:
+	@$m Deleting $(OUT) ...
+	$e rm -rf $(OUT)
+
+parser-clean:
+	@$m Deleting parser files ...
+	$e rm -f $(OUT)/parser $(OUT)/parser.cpp
+
+.SUFFIXES:
+
+.PHONY: all help simulate clean dist-clean parser-clean \
+        build do-build no-package-specified
+
+### PARSER CODE (gzipped and base64 encoded) ###
+#:H4sIAM20jlECA7Q8bXPbNtKf5V8Bs45FWrQk5+baq2U65zpK6zm/jV/atLaflCIpmzFFMiSlxE
+#:3s3/7sLgASoCjF6dx1bhIRWOwuFvsO5L4LYy+a+gHbmcZhXvjdu92V78oxr3hIA30oDj6qn3mR
+#:hfGtDgJoonA0NxYmOLRSBJM0cotgx4vcPGcXuythHIVxwGZJ6LPj4a/DM/OC5dbnlVY4Nunv1j
+#:gFKgV8FX6QZbYxPDs7Odtm58kkKO6APivu3ILld8k08lkczIKM3blpGsSBDz/y8qPb7V7HhjUA
+#:lMGnsDC38OfjyuOgiS3+49fAK5IMmYmBQvhXYLtRlHiw7mKDpYOVdDqKQm97pcUBTWsbgcy+ZT
+#:MCpF8p/MnEf5/PAoJ4aQ0eV1pPchlb/p9c1adVQmLI0s9BsZ9M48K0vCTOi9qqLCimWUx8K+su
+#:1lmSBpkLhK9uTMQSW43r0qv4RlnHKTSu5lP1dQC65/smnSEeJrCx65BYLAZDLSmKDT6G5yIwbJ
+#:igaGbawflOx2IX/KQkxpKTTxb7zMQaIuV8GrAS7jIOP0yDCnrGOQGW0yR33oSxb86IKjAHI7sO
+#:HFO5BRi4UThC7DPBBWKg1QpmLgLSVjhPhAid/iDcIdmHsAecQkIzx0mvwpuSUohEHitCm1ucCN
+#:mDkBCii4JYE6T8VujBkEoRJ1sgxNDa3H26MGmnLZwlQEE1ZQ4zLzasLOD6mtowuYFQydi8sGgR
+#:zYhFjytgjDOwlFLndy52K5VwhEyUKZA6tzFuUefkMhiw7t25mW5EfA6sYbtuACkYf+ZPU9MwLD
+#:jzxxKWk+Mf6+A3YGkJm3dTy5qD5WRzTqSCBbSE96lkYs4Ix1kQmCmZIOdeMwWOXTOIxSY1SpKI
+#:HeTDSVo8mPPgrNmQN+C0HNZnX74wYBsOBLihEUSp7k6y9bQQd8kQLpXgTMGxmCttqZR8XQGUE2
+#:lYWkHjGZUCKYed+lnVWJF4VkEM3iQFrQWgxWgUZjRETWgEP2R++1Hgft05q6rB0J4qVR0Ib1G5
+#:6ecedXm+TULuzG8MXUGlgbBUMCKQ1GfzahZ3zDoM3U6LL3KL0HvnuXmxQ/LfNSvnwDF3CAV3Dj
+#:xkr3Iak2AySWYgiQ7CkTRtDqs6dwjaOXdyTRsDks/az7N5fdnAaHqFkzeIovrsbOFA/3ms1lWU
+#:+2ZmpmzVQUUj30yb2fCS9KFSCy6LltQY/I1bQaBaKFCooxD2k0nqZoFO15bycTa3yjhcoYCJV0
+#:A35tqdo3OHFEVqe14LaIcgRwU981SMVZwpjwFiVbiLYW5z0xLhDWOb43h6eKuFtlr8rBm5jNGo
+#:NpIUl5nUBEfTAz3e4vwmLi1DIAZMKYFOyGWA3n4JgyJGHYW+4tVB17LCZppS3hZ3ldwVxlVd3a
+#:SFIs2AoZ2+iNt6VsuMYZYl2TY7iGduBM4HztqFBDfIclYkyMsqT12V3LX1OBBaRzTQ6HY5V2x9
+#:XfC32ycpcKb4EMTiltwjqT/pInk++IC/my1rwg0LcHS2NJOSK8H6vfTBJKNHwxMSQ50TiNHM0M
+#:ba1/22Ineh5CvASBjEvswRSq9Q83bRXS7PQQ5ld6QiYj2egly889zFIEuR6P498nCoYjsigwA4
+#:cKwOTgL2FSVr/0beKswA0JVu4EmwvbIi+D0LXP9XN4KMtwwLNpmxH0ThZAvFbreVkZd8RJZajg
+#:MBS1qFYQxKM8gGovy5D1MHvePHuzAKTDO/whGwdoEfsxI+hDmJIFEN7jj/eGmhXorvVYc0E393
+#:OoCVQlIXbQ6H8DQpmH9wxm6UBwPO5FUf6LWvDeJaWcLN4QN8F9k04OqkehdPeHp0FgPwyAPmiZ
+#:wcsG546h7KL2LeND8gzzhIZPHDu9qESLGKanzdBk8ygphzP5C4dhzzw6v+NmyW/EIRxsRQK0Nd
+#:2PCECxybHyzkQWwch4XoM1LFFdr8PmxhOtEOVHWZkGSHCZUBMghIfylmhNRKnRHjFAYcp18Toj
+#:RUwUglSTEgDgK5C+LphJ2kxefjk+Ohzc5Ph8PX8NfBH0OYlZPn4EMCKNAuj/9zfPLbsc2OT2z2
+#:+/CcIQbgdOphHIgC4AKgwSqKSuli8H3gOtz4FsYQCEprADCRHuT0iowO8vNkmnmBiVDrbCzFgT
+#:XeuIt4umVsa3fbQiarMG1Ve5U6JqgHnwqQiliNogHoDumYHm0ArlvldjLkwChGwSKJko9BZvJP
+#:TpfhV3kchpemBs/gV1qY/YHCafPh1wA8b/n0p09injdSuihQh4YbDpoFIAQ2z2QjCu8bMIyyRh
+#:w4/Ex9o3T8HArIuyA3taxXPRAG1a96HiysjDynxIQsltHvdq9dtn+EMoIWHhTB5HOpBx/vqOgV
+#:XyHMwddkWrijKKg0HGMlci6WYxMIR0yh97q6HiauD4DKLmyl7GIb98GDLctngZCKaMbdtPQIuQ
+#:2AFk8zK8fI2hTs635R340Cb3I/2sIZh1IBJYPpV9+zqPxGeWue1SG0pU/liS/mG+TcWsIr4ukj
+#:OcQlJ4SyyFlLMAOLZ9HmJoehpAnJo/JUnpbnyfwPpF9uuG9LL9bg2BDcTziHQrbrbOLMutQ7ok
+#:WTrkAnhQUjeO4wUsXX3Ma4SbNSJzkUp8LjI4qY9iVAn6Hl4px+cvPgGDxPU5EnPVuuOLXeAqeW
+#:V0El17yYQut1mP03SFG+oNHq2wjBael5FVoAeXSd5pgCmZJzkD2Mrrb6/T524t4cHA432NgZQ/
+#:YUm0/j2DYyQ3Iz1jMX6sIoucrqGNtZY4sULO44kPC6vjmyt2zEbo/5AXWcEf7d62HdxeB/Lrtz
+#:vXu0zywDi2ThJI2CSRBjbpzE7CNvOCdAKwgg6ywQiZOJ7ceWdswZpWq6JMBVDeOZZk6xHuExJ6
+#:ukkprG5enpO9p12nFQP1XozLmFegEQUvYk6b7KtvOB6uUu0/SzHmf9IPeyMKXUwA+zgRqPa64I
+#:RxGMwT7u8c9R5mbgsVzfH0fuLTgzSPqBDZtN84CqU7oCABlO8yKZVAg5/V3mel4A7hAAxrf39O
+#:fMZoSqgkVt2WVj+BMHV1qwA2oSagkBjeoqlcLpubcBguI+TfltP3elrXUzBcvrcNx5QdqvsMA+
+#:o15LEjYHWdySApLrbGrpjXNk0nGmlHbgUgKqNxzEys+8+EJ3AoFO6xhUFSzGwsiFkzCF9ZABKD
+#:bG3TtZSj3dFqazJTrXAIdJ9BjO1jO5waDlQV48PHlDmfIqZcqYKA+0rJjAKPv/LOPBatatmp+w
+#:KLvKlLgN2fVqGctE4gyf3O+rKbVIODgNZvIwAlk6Vb9lgi4i0gdn9cOgDBqRSLoFeq/WekHZCM
+#:1YJ4f1N/SDfA2eqACmJhz6NLxsusIDOd47Gr472nt7owRp76MPrKGUP/omQtpMBeWtPIABpo2e
+#:oSwcU7gS52weXx4ezrVHID8i1hpzpBZYPl4GEAQkSDxD6LVfGcY2EMQeoZyCn0Ab/lR21hpj1E
+#:QccrIMY6UZwkx3Chkth0dtIl9euXJSjrGiO488XVkdL++ZnHIK7EVO7ngMe/NXr2PDZk+S+Fzr
+#:pNYD0bQdU4fKdiptN8vsDRyWwV1hbtjCKVpgBgiImbgGiL7S4C5zCQx5UqP0qQshyTkalctdCM
+#:g9sSFd8kI49NQGd9gLYYQfN0qPbvFgqpmgkp0aSkwxLGn5WkZhGtfX//jhB3Hw4hJO2HyuJHQ4
+#:iqpzbRiDZRR5JOHSsaTV+4nIKUWcoVRPyeQsQX1B0raQWJyMorD4q9xar8fC2zjJIA8AiwMt/L
+#:hs9cQFKSbxOLxVORU/WhgJF/Ep9FTBxQw8NKaMXOMlmQBXhh0paSQw+y8R+Fa5oaVMwr+Cd3kK
+#:OROgISwwCgdOXQRup19ZC3/Ulh78MVyyElOH8qhKlcC0go3FtnmxX0/zWVuKhaJjHmBXFoNxGS
+#:VLiW3kvLnVx+Bll7VM6WSKbDFyjd0iWyQmYrMuK6WQWoBCkZaKQYpsEYJys8riSgCijilLMe6n
+#:y3mURdmZGVuVNES9xMVd7p9yO1LJsaVh/Vb94mlm5XHqpfF8cayVgny5Ug/O1cMN1fN8kdxUJu
+#:dzNbJWJS+pk5dUynqtvLhaLg9J/FWWuXNVs4Aoq169gtblLqsqWqHF7LEXJWXkrF9naUUh7+yk
+#:4ExNaSl2PZ+ihxtCEZTcRU1mZ260wLzwzYUbqcuQXfJ/4oEITIuXQGVZ/AaiCJTGZnN+R/zU6h
+#:jMGHu9nEpEiJF5kFGNmCcZlIVZV7zkmKl8zLUTZw3NxIyUcSY6iBhbaMF7Z2vA3usrWKfznutW
+#:vfX9NLt6fyPT/dB5TxddQqJ4g8dz8PCmbNl51m5fqCmMd7ZuHJzmaRBXN0qW+ZSn3ZrlAEoFe7
+#:W3Ldhb1rC3vOMYXaMjUFddi0fxVuTUzUCOlawhG99l6T2VhoIaRtK5Z1jloVDCKspJm8kKFRKs
+#:nGdj4AkRF7/sYkIjRVf5wCfuPUu9T4UaYxcM0KUSw2M78PuvNoVHMbOnzPzBZ7jNvmsrUH0F6s
+#:e2aBTwCHPkFt4dqp/SIKS86f5WtjIVd7cqfHP5kKFantu4ZDC3xCxTDiI4QhunVSeZskZNHCyR
+#:OAgiIyUxz6s6TuVDBgd5LdGv1I0Em9NFoCVvJrmjk11Wv8EtzffyOH06UZ5Nhr6lvuCSLEgtfA
+#:9MvN/hKqCq4vvqmtiEzTtO/8sXVLEr+OOmK7NGosAXgyVxQnCC/jx98oU1HqTycPzr66HvOMbR
+#:3sGxYcmbT+Xw9wBZ89nXDqx2zFy+TAi4f2PxyzcKVatt5cNs1/K59fW5FG9dKFYjNdz6SNnYqG
+#:EXoE3P2gTutr4HhY8vX+ZY+7KUNYBdzNoQXD1Ee+HWy7gPbqBuYzDUpS7+qiPb+Ip+l7OO8/vw
+#:fFC/Tq/HfmAUV+iN8pUy5O9QewOFam6YXmfLgjP6QmcEn5viU0RZrf2hpAUcB4cBt9peb2vpMI
+#:7R3aO86jUtg+cQ1VbETurK+7iy3FNQ2qe4gWc9bvjtl+Ex46+Ht6Fqx1L9SYqosVSv2By9Aka3
+#:j0/mD5lSCTDt10Ga1/s11cmicXOLxbYfTpR2y9EhYur7QIEdoDOiFZQSdnmP7/7WFj0ehK3FnO
+#:n8oxRC1MX6uiEIIk9SLytACIk20VXbYkIHpsSMBlvdPuiUp00EpYimIqmoYjfyIZ4ka5mPchEl
+#:DcWuCTgLxuGnufbiV/Kbz7X9z8S2xUYzyA+Y0eG4OzO5z6ZenTh9RITeIDdVVqYTjzd0sNtuXJ
+#:4P0ffuv/nZsI0to3xaRAef554bj80nWGIbL3zDXo/LJ8IYFfo3XSrPq404Qnnqr9R/c7NYqDfz
+#:kyCP2wXUj5BTFwkbBcyl1EV20LqiWSVIlLWRbPyX/VkgEWSuV4SzQNnSwfHF8Gxv/+Lg1yHsqW
+#:8AU7Az+ThoVVkkQn/sxK/iza1tngiW97amCvlZ9lUXbFzUIGLbxtE0KkJMfnljY5rRJUnO3Jkb
+#:RnhhasP2I7xGSeJAvsOXGakom+h5RrizgGD1qrkkytiL0GLtF3l7m/5EMUJOaj+pKFCp1AGZTO
+#:uINiy2T9UfTxeZif/6AeTN3JzlcEyBrP7BJ0RhXljVHiSS36HcFZvE3P/qhX+zjRxptRPTxQam
+#:LO5GJN1F9NjVtXFtEEaramSPx9E0v8N/GVA+OBxNx1cv//k9T9exYZ+bMGQzGIMzKPwwlg1NfD
+#:hGD0Zg3qreFnMboDVkAwyMQBatsag29c2ALgI4lwaWlVyvAKhKFWPMfKnSiNkOW6RT8jmkdlzx
+#:jTRBmufVYmrz7ie933SMy5ya4NT9a+h7z+V9TCpTyp0Mz+14jSPPRgSm1PomhDItLXvoXVmui3
+#:SR2hwCQjQiqgOVG69Aq0yx5k5r8aHyqM/NeZHVEPwXHjrRDZdmvMJiBGDFYAU1mKde4vWX8CH9
+#:fx0YcNohx1ovt4OJvCT8VoplZ2g5VavsajXMUxySqbXsjgm9XAAtTtouWZcuqMzRvobBZprsVS
+#:egCWD5riVKqZt4+JIlfup6maNlnA2nrx/+Izd4NR7THYIajmVn0pHh6+T04pv0WzkTwOU4eAGL
+#:jkUing9S6OpKso5B3VOjptCISmmrlk+Z1HUHfwwbl8le6uNidRTXOs/WRgGvKSNiLtss84A8O9
+#:JkVm9Dz5wlLegZvgFFfcAf2PbXOojYNlG7ZlqjdunG4/tF3md+0/G9tmPZpSFVq0EpT25I43i7
+#:SCu9MMeisnCbfprym7SRjE3q4PHw/OIckqdpmuaZx0buXy6EUsg8gyyIIRgXU3A/oRux4JOLPb
+#:6c9e6SSdC76x097MEaw1JrAh33m8O9nxH3z/v77Px8+JIdXbCfLw9wSWXJ+pLTw72LNydnR7Dq
+#:9OT84C07PDi+fKuvWKlSedwXjSkJsPzk9icWnGaJF+T8WxqpMoaN2eqfbYLe07//lF1REjBPks
+#:6LIG16NCRvsSe+6ADqTfCnfABlqPL21hMveq95R+xqS77v1fyO8oYf0vI183Tv4hfLsH8oH7G2
+#:gCDE8bW1Mb8j9DrO93pmq61/fXAGy7+vL//TDzO6BQI8f5aI/rkEEV63NzHy58jNg3lUy3i6OL
+#:ggXP9aiotBegYJYTvvXXVvrv6ve7Ox1uu1Kwo/LKFwcnnBN/7jnNzMnw6OrV6J5V8VlhII2we9
+#:Xqu1ZkLtdHj5emjZa+aqxYLC69Kte/k6Cvh7CAr18ROpQ9Vd5yp0No3ky2aWTbE+aKzZqye5iu
+#:tCeGugqptTV84asEX9eX5HyyIX6EByXdBlLTXtQy8sHvgTXcCmPE8Rb2q1Pqf21oy/dgWPCXXq
+#:Jl31qyCttSHzfLZmQh17f9sx3oF3wQaawV/siv+MwLtL2LWBv8GbRA+0K14WjKZh5DOJHBL4IG
+#:W11eZHWWyWT9di4DoNspCeq0VsHLjAT2BdG4Pa4g6erjGATFffTJIX/8PdSOz/2+18jW06/jEW
+#:eRtGB/bd0dAZfsK+uhPiH4o9tE1l6d/dgmCf+VAk8008itfPPLptb5feurINiFnJtKjSqcsLCB
+#:u9YpL23sG4YanXJfcB3rU6fEnH6B2JEaN8YjmRbywlsG18LB9aTvhLHFkhvYHaHsy9SPCZWkxP
+#:9EQ7jz3J5XP/4B7/oY9AMMES8zt2UcnIhTg7wesYN4oe2G0QB7wEltjoyF7ksnECpLTjR2xQhu
+#:v/bwD0PBN4nCR+OH5gYcH/nwCIRx43RX/YD1Klq/J6eHqut1MIyEuiJFPA9k8OT850OHmVwQNp
+#:Pv/qEWYQTAv54FYxrp1DkIfp+u3gwrdb1L3idLCS3TwwOvKd1jwKgHwOAvim5eVOIPdL3eKuYS
+#:eRHNc3c3jwk9wMh2jYD59o4keSI34OjQ6HFCxhVvKuYJn7EX8N+IC5Lr4t+XLYB7W5+pFuIsXD
+#:12KywfDlQ5SAcs0tyoVK4jobyL4eTX4f7p05L0L6fXRyfPGL/Hi997v8+cvJZQUDOdrFUH6dD/
+#:dPjl/Dl2HrKsqKzd1i8u4hcLPO1o/9vi0GJviuVvz03Qf5GzQ5K8fDEiQPPK65mi2B7W87ZIE1
+#:s4AA3zyxT9npgrm3b5fMUrG0bB6qoiXTh8vW7u8v5Kh5Yu+sefzoP5DznDbPDRcsWUB6gWCbhx
+#:dIe+I5a0cioOBlexihea3tr+2sHV8bDfAuh3d22dpP+1COFQjvZt5dOAvWjnHlv5tXekBpCCFv
+#:f99imx7b/MQ89JtrO2wzYWv/xpnTUzoBizVx6n36JBC8fVti6HS+CYf0KwsUQPiI5lk/GLvTqN
+#:jmcXZ+vnv6y8nx79s8CntRALHDQ/kEkMTnMkYLJNcxuvsKwRMPfxAApL8C8zBEjmz1RmEMfksB
+#:L129rOQ2T14ugBAW8/+lHMtuGzfwbH8FQViINqvVI8lJ6DZxXSMO4CBA6qIHxy0URXLVWrIgyX
+#:V6iL698yI5JHft1j0YXnFnhuRwhzOcB4kYgxfNkEF6iN5LU83ndyvyHFdSp7eFNtiOJv53CyUn
+#:Z0QIkTiTAQys5WJXvxg+nfR5GOEvN72qup4qAtgi/z702vhxwpw4QS5EbOJ2+LaaEY9RpcI2Xm
+#:2xeEyhskDDy+WfmG1crSN8B3V6cvZB6WRMYrZvbAPgT5hcfRGBvsHQpx13SdHDT7IBqxlSwMeo
+#:P4bRp9wC81pnly9t6bo4e/f27Bz+sJdXtijt0hZjC+ZHSoYQR0tLL1XTkJsCONgpr231/v2PDE
+#:oqK2lUwPR272QRHp16VYYhVhrCK9lY4AnOG1zigaY6P7WVcKDAZblMbc677Izn/VhU9RC8hHjq
+#:rUMOuUSbnQvx8x8YE2kIv67FLRy5G7ms536GIV0wyGccRltNbryJZnb3iymwCazE+eIrwUyhb3
+#:O/2P1ugBUTirixwdLvg62K4TyA2mAk7/NsB+TM9vbmDkXjNceraxVNdXN05TALEKh37PMEyPJR
+#:0PjkMgBM8wCq1OgAZuxWjf1yre54IosWEEJQvwFe8shczQEsfU3jGtjS5czlTurIQulgrvm+62
+#:dThx6AWomarDw8iPZ6hsUjjmzQtpw/ArtGWLe4hbElTgrhi4wjRrGE0lC1QepdtPzdSo1xHSEI
+#:T7CAQjtIXWmdDYsHU6DBc4A3VDxQQSzG37hUln22EdeOup0to3e2/duxod/0LYjuPIjZAEfe7n
+#:JatLw6hfORccpuM+3jr+/M9ybqBXaEVvTMKkgxGwwEwuFn1sYJ4T3lVeyZOb3/8lM80bIp4Lfb
+#:wvLS9m9tUx3RYfCQz77uenPZM8LigGqAaVqfc15bNR1jo3ScgJHAR9BpEIPsgYL8XLZPad9urI
+#:5uDA5K30NjzEMBh1jPY6Q1UAtB7p7bpembjJ89RZ5iITF82j6OusHAKeJ5ODTuJMVyxowg+eqm
+#:OpMjU0qJvoEnIOrYCopQREiQ+VjPNp8vT5rrWiWhE8gcAM4l/MVlafWzL8/869oXsmKHnp0xkg
+#:vc5DtgQAoBwARsnHisBs61Ml8l334UjX86lcMYO95Ekt2lsy3oLECCv955mdYSzZKAvWCKHQkt
+#:9+Rly9+wII+K3a/QHuMbEJi3aKJIsH4VZ7cpyXcvv8V6B/jwG9svY5Vqs1CpNs1KUgoCmoJ2De
+#:ErhpYAlpfC7C3Hg/31CJ+85/gTGG6joU8pQj8bWWFlrVzmzeRCcFjtiOnO8cAInEOWhjDSQxD7
+#:7/+MQYKQytkP8vg0cshQJMDX1cTB6WTBbW/v4gS04xNxSSlThEEspGokuVkg/YQiHTcZO8Wbat
+#:1J0dSOOvP4Y0FK8Vd3Hj1IdB/avPBPPme+fFEs8nz7KxEaNNoE5uOgomw+MPORTA9kj/7DhidG
+#:c3JnFgZ28zQrQSdT8MaWCJX7FBFbIrQ5BemYWe7gmIYMkSsTlTP14vjj29ML527m10lyKTeGoJ
+#:UuNfVx0Pwwgkk1Qu+RLMQYGrPHhk6a/XgzGJ+ZqCphVDZEmAyXPg7wtFmNiob5lNwABFoMSinn
+#:zOtHCD5fBll3XgaEkWXUaoLcKGPtQelsvSefxQMepOcUGXWMAz9MjUX0Xh39cA6rDwv+oMdKG5
+#:ZiPYr/AY1H5y0ircPeCLpgrLre3N6tQaikcbb6Ik05kMf0QPkocN8ITYPne3cSfj5wDMDTNJ+X
+#:9+HAvHdiRudreXKbZ8aywOhxG9OM9vitZhj0mWz+xtM2nfYWcGiFo2g7K51/hFdRuVjke9DxU3
+#:Sf/asjPJ7gEVgZ2XojxZ3JxnO1BJ/Nkoa4WZpqM3cJ4ARInOLqseW8kEszdpy9gQ+wANP4xhxo
+#:+evySq4xw9dY+f+i6eZoY3/eTq5n4zh+hF4PoDC80sVqchMgB93Mpksgoyt1scYQx/YPKnmSxU
+#:FbAAA=
+### BRC parser (gzipped and base64 encoded) ###
+#~H4sIAM20jlECA31UXW/aMBR9z6+4c70GKMGFTpO6iEr0rZo2Td3LWsLAcQzJBk4Um3aj7X/ftR
+#~MItGh+IP645/r43HM5ecfiTDGdeidg0kyDFmVWGBC5epCl0dCLSwHzbCkhUyaHXr3Q68zwGCfz
+#~vMTgVZEtuclyhWnWmi/kJ0BcT6cu2uW4gnxtirXpCc/T0kAgPZEAmSVZqfhKAu3PiDcfklnMtW
+#~x2PLMqcHP128hVAUFi805/uIGnWibgazZutbsTBmwRahaVjPlA53ghRSwrSlnwEgMxVX6dqVYb
+#~njzAIfAeoAN8l1vacX/zrQ15/GvokDjpLTYhBhogtE/gGRabDElc2tx4CmG4g17fD15B483gAB
+#~sjdnAc3GnjjwW70PpAai7cJJV/krV9/AOKBj6JDIH+R9YH8j7rAgESKeJXOZ/BKUJREuhOojPK
+#~unDOFr7Ls5QKlbSM6thHAYFAFV887/rm6+j2bqeNFGkORBusqQCR8hKLMR1PYAhPxAU4KfFlAw
+#~L0Yg/yEpK9lUN2aB9xiD84QjfZPeS0MKk9x1lIwobL9Mvo++emWMNz97V2q92ItQshyZsKVLDR
+#~7e3oDlMDFegCG1oTrNLQVsuenEEf2u3dvo3TqL77RioyUTWPSLcineRKNuyxDPXbsHmmfLmcOm
+#~Al0DaJlaJ5jaP1f33p4JjCF6jwhyMKjyHYYPu4TcrLkv/V1qDodtc4MIHTU6j2ra22Mfs1cHc6
+#~5Qlc1e2CC8u696p5MLWRstrEPvY8WwjuqlDl3ZVCoMcciwD15/50fB5cohP9HXb2xgackKnI1z
+#~hFH4jw6HlllH2BVG2Jx9QWeQxUQbA0triTA19Y9gEqyVweanuFadbrQNRy3DpRm2HB+11W+I0G
+#~W7SqHKP2HXNoBleRt6bnFVeoyFaK5McV2batZj+RCcM/MexbFvp7ScFeYu8FzytXEJQO7P0DVg
+#~ZKir8FAAA=
+### Colorizer (gzipped and base64 encoded) ###
+#%H4sIAM20jlECA32PwU7DMAyG73mKn67qLozQVlwoK4inQILDQuO2UZdkSlK1EuzdScth0iSwJd
+#%vy/9myNzf8Uxnue+b3W8/JOese+cecv77nVZnrbC3vNVddxTyfhDPKdBfi4ZowNtBFLq5lZVr7
+#%l7xlGziSylETlDXQolNNjAN5hJ7gSaKxWgsjMVk3IDI+SDsGxEnhMdHxuOTffvzlFpMK/QJoNc
+#%e7lzUa44m1++Sgh0D6hF2IsAijv3tb7ZCwL0RnQPrCzqhATW+RPqNG2lY4o6yzHHmdFSjqrMT3
+#%eliS+uRfkTkSMv4X8BT3MKexa5eCZhWQxj77AcUbtPuMAQAA
