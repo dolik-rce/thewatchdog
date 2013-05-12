@@ -14,7 +14,7 @@
 </script>
 </head>
 <body>
-<h1><img src="$CachedStatic("img/favicon.png")" height="16" width="16" alt="icon"> #TITLE</h1>
+<h1><img src="$CachedStatic("img/logo128.png")" height="16" width="16" class="logo" alt="icon"> #TITLE</h1>
 
 <ul class="menu">
 <li><a href=$HomePage>Homepage</a></li>
