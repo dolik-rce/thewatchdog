@@ -1,4 +1,4 @@
-DESTDIR:=/tmp/wd
+DESTDIR:=
 
 SERVER_DEPS:= uppsrc/Core uppsrc/Skylark uppsrc/MySql uppsrc/Sql uppsrc/plugin/z uppsrc/uppconfig.h
 CLIENT_DEPS:= uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
