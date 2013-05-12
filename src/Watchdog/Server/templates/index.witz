@@ -1,7 +1,7 @@
-#include base
+#include templates/base
 #define TITLE Watchdog
 #define BODY
-#include intro
+#include templates/intro
 <div class="ldiv">
 <h3>Now</h3>
 <table>

@@ -157,9 +157,9 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SQLR.Fetch(data);
 	data.Add("STATUSSTR",status(data["STATUS"]));
 	http("DATA", data)("SELF", String(Ini::server_url));
-	String html = http.RenderString("Watchdog/Server/resultmail");
+	String html = http.RenderString("templates/resultmail");
 	http("PLAIN",1);
-	String text = http.RenderString("Watchdog/Server/resultmail");
+	String text = http.RenderString("templates/resultmail");
 	
 	ValueMap m;
 	Vector<String> to, tokens;

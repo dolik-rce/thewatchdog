@@ -6,10 +6,10 @@ UPPSVN=http://upp-mirror.googlecode.com/svn/trunk
 
 all: bin/wds bin/wdc
 
-bin/wds: $(SERVER_DEPS)
+bin/wds: $(SERVER_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" TARGET=$@
 
-bin/wdc: $(CLIENT_DEPS)
+bin/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" TARGET=$@
 
 uppsrc/%:
@@ -31,14 +31,23 @@ dist-clean: clean
 	rm -rf uppsrc
 
 install: bin/wdc bin/wds
-	install -d $(DESTDIR)/usr/bin
+	install -d $(DESTDIR)/etc/watchdog \
+	           $(DESTDIR)/usr/bin \
+	           $(DESTDIR)/usr/share/watchdog/output \
+	           $(DESTDIR)/usr/share/watchdog/css \
+	           $(DESTDIR)/usr/share/watchdog/img \
+	           $(DESTDIR)/usr/share/watchdog/js \
+	           $(DESTDIR)/usr/share/watchdog/templates \
+	           $(DESTDIR)/usr/share/watchdog/usermods/css \
+	           $(DESTDIR)/usr/share/watchdog/usermods/img \
+	           $(DESTDIR)/usr/share/watchdog/usermods/js \
+	           $(DESTDIR)/usr/share/watchdog/usermods/templates \
+	           $(DESTDIR)/var/log/watchdog
 	install bin/* $(DESTDIR)/usr/bin/
-	install -D src/Watchdog/Server/Server.ini $(DESTDIR)/etc/watchdog/wds.ini
-	install -D src/Watchdog/Client/Client.ini $(DESTDIR)/etc/watchdog/wdc.ini
-	install -d $(DESTDIR)/usr/share/watchdog/Watchdog/Server
-	install src/Watchdog/Server/static/* $(DESTDIR)/usr/share/watchdog/
-	install src/Watchdog/Server/*.witz $(DESTDIR)/usr/share/watchdog/Watchdog/Server/
-	install -d $(DESTDIR)/var/log/watchdog
+	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/watchdog/wds.ini
+	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/watchdog/wdc.ini
+	install src/Watchdog/Server/static/* $(DESTDIR)/usr/share/watchdog/static
+	install src/Watchdog/Server/templates/* $(DESTDIR)/usr/share/watchdog/templates
 
 uninstall:
 	rm $(DESTDIR)/usr/bin/wdc
@@ -46,5 +55,7 @@ uninstall:
 	rm -r $(DESTDIR)/etc/watchdog
 	rm -r $(DESTDIR)/usr/share/watchdog
 	rm -r $(DESTDIR)/var/log/watchdog
+
+FORCE::
 
 .PHONY: all clean dist-clean update-uppsrc install uninstall

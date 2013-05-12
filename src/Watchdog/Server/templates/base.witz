@@ -4,17 +4,17 @@
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 <title>#TITLE</title>
 <style>
-#include static/style.css
+#include css/style.css
 </style>
 #HEAD
-<link rel="icon" type="image/png" href="$CachedStatic("favicon.png")"/>
+<link rel="icon" type="image/png" href="$CachedStatic("img/favicon.png")"/>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss"/>
 <script type="text/javascript">
-#include static/watchdog.js
+#include js/watchdog.js
 </script>
 </head>
 <body>
-<h1><img src="$CachedStatic("favicon.png")" height="16" width="16" alt="icon"> #TITLE</h1>
+<h1><img src="$CachedStatic("img/favicon.png")" height="16" width="16" alt="icon"> #TITLE</h1>
 
 <ul class="menu">
 <li><a href=$HomePage>Homepage</a></li>

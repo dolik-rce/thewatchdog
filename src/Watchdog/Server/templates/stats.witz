@@ -1,10 +1,10 @@
-#include base
+#include templates/base
 #define TITLE Statistics for $CLIENT.NAME
 #define HEAD
-<script src="$CachedStatic("d3.v2.min.js")"></script>
-<script src="$CachedStatic("rickshaw.min.js")"></script>
+<script src="$CachedStatic("js/d3.v2.min.js")"></script>
+<script src="$CachedStatic("js/rickshaw.min.js")"></script>
 <style>
-#include static/graphs.css
+#include css/graphs.css
 #results, #duration {
 	width: 800px;
 	height: 250px;

@@ -1,4 +1,4 @@
-#include base
+#include templates/base
 #define TITLE 404 Not found
 #define BODY
 Sorry, we looked twice, but we couldn't find the page <strong>$PAGE</strong> anywhere.

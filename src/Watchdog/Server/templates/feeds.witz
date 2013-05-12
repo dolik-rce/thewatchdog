@@ -1,4 +1,4 @@
-#include base
+#include templates/base
 #define TITLE RSS feeds
 #define BODY
 

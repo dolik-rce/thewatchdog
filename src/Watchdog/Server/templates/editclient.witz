@@ -1,4 +1,4 @@
-#include base
+#include templates/base
 #define TITLE
 $if(CLIENT.ID > 0)
   Edit <a href="/client/$CLIENT.ID">$CLIENT.NAME</a>

@@ -37,7 +37,7 @@ SKYLARK(RssFeed, "rss")
 
 	http("ITEMS", results)("SELF", String(Ini::server_url))
 	 .ContentType("application/rss+xml")
-	 .RenderResult("Watchdog/Server/rss");
+	 .RenderResult("templates/rss");
 }
 
 SKYLARK(Feeds, "feeds")
@@ -54,7 +54,7 @@ SKYLARK(Feeds, "feeds")
 		authors.Add(vm);
 	}
 	http("CLIENTS", clients)("AUTHORS",authors)("SELF", String(Ini::server_url))
-	 .RenderResult("Watchdog/Server/feeds");
+	 .RenderResult("templates/feeds");
 }
 
 SKYLARK(Subscribe, "subscribe:POST")
@@ -73,7 +73,7 @@ SKYLARK(Subscribe, "subscribe:POST")
 	SQLR * Select(ACTIVE).From(MAIL).Where(UNIQ == int(CRC32(email+filter)));
 	if(SQLR.Fetch()){
 		http("ACTION",-2)("STATE",SQLR[0])
-		 .RenderResult("Watchdog/Server/subscription");
+		 .RenderResult("templates/subscription");
 		return;
 	}
 	SQL * Insert(MAIL)(EMAIL, email)
@@ -84,9 +84,9 @@ SKYLARK(Subscribe, "subscribe:POST")
 	String md5 = MD5String(email+filter+token);
 	
 	http("ACTION",1)("EMAIL",email)
-	 .RenderResult("Watchdog/Server/subscription");
+	 .RenderResult("templates/subscription");
 	http.Finalize();
-	SendEmail(email, md5, "Verify Watchdog subscription", http.RenderString("Watchdog/Server/verifymail"));
+	SendEmail(email, md5, "Verify Watchdog subscription", http.RenderString("templates/verifymail"));
 }
 
 SKYLARK(Verify, "verify")
@@ -95,12 +95,12 @@ SKYLARK(Verify, "verify")
 	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
 	if(!SQL.GetRowsProcessed()){
 		http("ACTION",-1)
-		 .RenderResult("Watchdog/Server/subscription");
+		 .RenderResult("templates/subscription");
 		return;
 	}
 	String unsubscribe = String(Ini::server_url) + "/unsubscribe?v=" + String(http["v"]);
 	http("LINK",unsubscribe)("ACTION",2)
-	 .RenderResult("Watchdog/Server/subscription");
+	 .RenderResult("templates/subscription");
 }
 
 SKYLARK(Unsubscribe, "unsubscribe")
@@ -109,7 +109,7 @@ SKYLARK(Unsubscribe, "unsubscribe")
 	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
 	if(SQL.GetRowsProcessed())
 	http("FILTER",String("???"))("ACTION",3)
-	 .RenderResult("Watchdog/Server/subscription");
+	 .RenderResult("templates/subscription");
 	else
 		http << "Unsubscribing failed. Possible reasons for this are:<br>The subscription was already canceled<br>The link was corupted";
 }
@@ -155,5 +155,5 @@ SKYLARK(Sitemap, "sitemap.xml")
 	}
 	
 	http("URLS",urls)("SELF",Ini::server_url)
-	 .RenderResult("Watchdog/Server/sitemap");
+	 .RenderResult("templates/sitemap");
 }

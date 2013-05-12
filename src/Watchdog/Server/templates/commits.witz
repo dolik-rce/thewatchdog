@@ -1,7 +1,7 @@
-#include base
+#include templates/base
 #define TITLE Commits
 #define BODY
-#include paging
+#include templates/paging
 <table border="1">
 <tr>
  <th>Revision</th>
@@ -28,4 +28,4 @@ $for(i in COMMITS)
     </tr>    
 $/
 </table>
-#include paging
+#include templates/paging

@@ -1,4 +1,4 @@
-#include base
+#include templates/base
 #define TITLE Authorization required
 #define BODY
 <script src=$CachedStatic("md5.js") type="text/javascript"></script>

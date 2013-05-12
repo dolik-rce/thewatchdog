@@ -184,7 +184,8 @@ CONSOLE_APP_MAIN{
 	
 	//InitDB(); //only for development phase
 #ifdef _DEBUG
-	Ini::path = String(Ini::path) + ";" + GetFileDirectory(__FILE__) + "static";
+//	Ini::path = String(Ini::path) + ";" + GetFileDirectory(__FILE__) + "static"
+//	          + ";" + GetFileDirectory(__FILE__);
 #endif
 	RLOG(" === STARTING WATCHDOG === ");
 	RLOG(GetIniInfoFormatted());

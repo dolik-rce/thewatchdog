@@ -46,7 +46,7 @@ SKYLARK(HomePage, "") {
 	
 	
 	http("MISC", misc)("STATS", stats)("REVS", commits)
-	    .RenderResult("Watchdog/Server/index");
+	    .RenderResult("templates/index");
 }
 
 SKYLARK(Clients, "clients") {
@@ -58,7 +58,7 @@ SKYLARK(Clients, "clients") {
 		client.Add(vm);
 	
 	http("CLIENT", client)
-	    .RenderResult("Watchdog/Server/clients");
+	    .RenderResult("templates/clients");
 }
 
 SKYLARK(EditClient, "editclient/*") {
@@ -83,7 +83,7 @@ SKYLARK(EditClient, "editclient/*") {
 	}
 
 	http("CLIENT", client)("WD_ID", id)
-	    .RenderResult("Watchdog/Server/editclient");
+	    .RenderResult("templates/editclient");
 }
 
 SKYLARK(SaveClient, "saveclient:POST"){
@@ -143,7 +143,7 @@ SKYLARK(Client, "client/*") {
 		results.Add(vm);
 	}
 	http("CLIENT", client)("RESULTS",results)
-	    .RenderResult("Watchdog/Server/client");
+	    .RenderResult("templates/client");
 }
 
 SKYLARK(Commits, "commits") {
@@ -165,7 +165,7 @@ SKYLARK(Commits, "commits") {
 		commits.Add(vm);
 	}
 	http("COMMITS", commits)
-	    .RenderResult("Watchdog/Server/commits");
+	    .RenderResult("templates/commits");
 }
 
 SKYLARK(Commit, "commit/*") {
@@ -190,7 +190,7 @@ SKYLARK(Commit, "commit/*") {
 		results.Add(vm);
 	}
 	http("COMMIT", commit)("RESULTS", results)
-	    .RenderResult("Watchdog/Server/commit");
+	    .RenderResult("templates/commit");
 }
 
 SKYLARK(Results, "results") {
@@ -225,7 +225,7 @@ SKYLARK(Results, "results") {
 		results_.Add(results.GetKey(i), results[i]);
 	}
 	http("RESULTS", results_)("CLIENTS", clients)("COMMITS", commits_)
-	    .RenderResult("Watchdog/Server/results");
+	    .RenderResult("templates/results");
 }
 
 SKYLARK(Result, "result/*/*") {
@@ -250,7 +250,7 @@ SKYLARK(Result, "result/*/*") {
 	result.Set("STATUS", status(result["STATUS"]));
 	String output = Format("%s/%d/%d.log",(String)Ini::output_dir,rev,cid);
 	http("RESULT", result)("OUTPUT", LoadFile(output))
-	    .RenderResult("Watchdog/Server/result");
+	    .RenderResult("templates/result");
 }
 
 void Auth(Http& http, int cid){
@@ -287,7 +287,7 @@ void Auth(Http& http, int cid){
 	    ("WD_NONCE", nonce)
 	    ("CLIENTS", clients)
 	    ("TARGET", target)
-	    .RenderResult("Watchdog/Server/auth");
+	    .RenderResult("templates/auth");
 }
 
 SKYLARK(WebAuth, "auth/**"){
@@ -387,15 +387,15 @@ SKYLARK(Stats, "stats/*") {
 	    ("SKIP", ValueArray(stats[4]))
 	    ("DURATION", ValueArray(stats[5]))
 	    ("REVLOG", revlog)
-	 .RenderResult("Watchdog/Server/stats");
+	 .RenderResult("templates/stats");
 }
 
 SKYLARK(Favicon, "favicon.ico") {
-	http.Redirect(ServeStaticPage, "favicon.png");
+	http.Redirect(ServeStaticPage, "img/favicon.png");
 }
 
 SKYLARK(Robots, "robots.txt") {
-	http.Redirect(ServeStaticPage, "robots.txt");
+	http.Redirect(ServeStaticPage, "misc/robots.txt");
 }
 
 SKYLARK(NotFound, "**") {
@@ -403,6 +403,6 @@ SKYLARK(NotFound, "**") {
 	for(int i = 0; i < http.GetParamCount(); ++i)
 		target.Cat() << "/" << http[i];
 	http("PAGE", target)
-	 .RenderResult("Watchdog/Server/404")
+	 .RenderResult("templates/404")
 	 .Response(404, "Not found");
 }

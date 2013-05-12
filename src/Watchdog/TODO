@@ -1,8 +1,6 @@
 SERVER
 ------
 Extend graphing, link graphs from more places
-User editable content, overridable templates
-  (e.g. to allow linking to issue tracker, changing welcome page)
 Git support
 Setup helper (create tables on first run, create admin user, get svn history)
 Nicer icons, real css styling	

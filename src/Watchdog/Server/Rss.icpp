@@ -42,7 +42,7 @@ SKYLARK(RssFeed, "rss")
 
 	http("ITEMS", results)("SELF", String(Ini::server_url))
 	 .ContentType("application/rss+xml")
-	 .RenderResult("Watchdog/Server/rss");
+	 .RenderResult("templates/rss");
 }
 
 SKYLARK(Feeds, "feeds")
@@ -60,5 +60,5 @@ SKYLARK(Feeds, "feeds")
 		authors.Add(vm);
 	}
 	http("CLIENTS", clients)("AUTHORS",authors)("SELF", String(Ini::server_url))
-	 .RenderResult("Watchdog/Server/feeds");
+	 .RenderResult("templates/feeds");
 }
