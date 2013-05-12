@@ -7,10 +7,10 @@ UPPSVN=http://upp-mirror.googlecode.com/svn/trunk
 all: bin/wds bin/wdc
 
 bin/wds: $(SERVER_DEPS)
-	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 FLAGS="GCC SSE2 MT" TARGET=$@
+	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" TARGET=$@
 
 bin/wdc: $(CLIENT_DEPS)
-	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 FLAGS="GCC SSE2 MT" TARGET=$@
+	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" TARGET=$@
 
 uppsrc/%:
 	mkdir -p $@
@@ -41,7 +41,8 @@ install: bin/wdc bin/wds
 	install -d $(DESTDIR)/var/log/watchdog
 
 uninstall:
-	rm $(DESTDIR)/usr/bin/{wdc,wds}
+	rm $(DESTDIR)/usr/bin/wdc
+	rm $(DESTDIR)/usr/bin/wds
 	rm -r $(DESTDIR)/etc/watchdog
 	rm -r $(DESTDIR)/usr/share/watchdog
 	rm -r $(DESTDIR)/var/log/watchdog
