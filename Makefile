@@ -18,11 +18,11 @@ uppsrc/%:
 
 uppsrc/uppconfig.h:
 	mkdir -p uppsrc
-	svn export '$(UPPSVN)/$@' uppsrc
+	svn export '$(UPPSVN)/$@' uppsrc/uppconfig.h
 
 update-uppsrc: $(CLIENT_DEPS) $(SERVER_DEPS)
 	for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do svn up $$d; done;
-	svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc
+	svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h
 
 clean:
 	rm -rf obj bin
