@@ -8,7 +8,7 @@
 $if(count(CLIENTS)>1)
  $for(i in CLIENTS)
   $if(i._key > 0)
-   <th><a href=$Client(i._key)>$i</a><a href=$Stats(i._key)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" class="icon"></a></th>
+   <th><a href=$Client(i._key)>$i</a><a href=$Stats(i._key)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" class="icon" width=16 height=16></a></th>
   $/
  $/
 $else

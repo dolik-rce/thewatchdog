@@ -14,7 +14,7 @@
 <h3>Client</h3>
 <table class="indent">
 <tr><td>Client:</td><td><a href=$Client(RESULT.ID)>$RESULT.NAME</a>
-<a href=$Stats(RESULT.ID)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics"></a></td></tr>
+<a href=$Stats(RESULT.ID)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" width=16 height=16></a></td></tr>
 <tr><td>Client description:</td><td>$raw(RESULT.DESCR)</td></tr>
 <tr><td>Followed path:</td><td>$RESULT.SRC</td></tr>
 </table>
@@ -31,7 +31,7 @@ $if(RESULT.STATUSN>1)
 <tr><td>End time:</td><td>$RESULT.FINISHED</td></tr>
 $endif
 <tr><td>Duration:</td><td>$Duration(RESULT.DURATION)</td></tr>
-<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.REVISION?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon">Delete</a></td></tr>
+<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.REVISION?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" width=16 height=16>Delete</a></td></tr>
 </table>
 </div>
 $if(RESULT.STATUSN>1)
