@@ -46,7 +46,10 @@ install: bin/wdc bin/wds
 	install bin/* $(DESTDIR)/usr/bin/
 	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/watchdog/wds.ini
 	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/watchdog/wdc.ini
-	install src/Watchdog/Server/static/* $(DESTDIR)/usr/share/watchdog/static
+	install src/Watchdog/Server/css/* $(DESTDIR)/usr/share/watchdog/css
+	install src/Watchdog/Server/img/* $(DESTDIR)/usr/share/watchdog/img
+	install src/Watchdog/Server/js/* $(DESTDIR)/usr/share/watchdog/js
+	install src/Watchdog/Server/misc/* $(DESTDIR)/usr/share/watchdog/misc
 	install src/Watchdog/Server/templates/* $(DESTDIR)/usr/share/watchdog/templates
 
 uninstall:
