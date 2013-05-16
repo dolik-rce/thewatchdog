@@ -86,7 +86,7 @@ CFLAGS:=
 # Options for C++ compiler                                             #
 CXXFLAGS:=
 # Options for linker                                                   #
-LDFLAGS:=-Wl,--gc-sections -Wl,-s -Wl,-O,2
+LDFLAGS:=-Wl,--gc-sections -Wl,-O,2
 # Additional options for speed optimization                            #
 SPEEDFLAGS:=-O3 -ffunction-sections -fdata-sections
 # Additional options for size optimization                             #

@@ -43,6 +43,7 @@ file
 	js/md5.js,
 	js/rickshaw.min.js,
 	js/d3.v2.min.js,
+	img/logo.svg,
 	img/logo128.png,
 	img/logo512.png,
 	img/favicon.png,

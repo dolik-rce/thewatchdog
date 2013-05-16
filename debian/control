@@ -1,0 +1,22 @@
+Source: thewatchdog
+Section: devel
+Priority: optional
+Maintainer: Jan Dolinar <dolik.rce@seznam.cz>
+Standards-Version: 3.9.1
+Build-Depends: g++ (= 4.1) | g++ (>= 4.3), debhelper (>= 7.0.50~)
+Homepage: https://github.com/dolik-rce/thewatchdog
+
+Package: thewatchdog
+Architecture: amd64
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Lean and mean continuos integration server
+ Todo: Here should be some longer description
+
+Package: thewatchdog-dbg
+Architecture: amd64
+Depends: thewatchdog (= ${binary:Version}), ${misc:Depends}
+Section: debug
+Priority: extra
+Description: Debug symbols for thewatchdog package
+ Detached debugging symbols for easier debugging of errors in the watchdog.
+

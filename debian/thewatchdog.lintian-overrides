@@ -1,0 +1,11 @@
+thewatchdog binary: extended-description-is-probably-too-short
+
+thewatchdog binary: binary-without-manpage usr/bin/wdc
+thewatchdog binary: binary-without-manpage usr/bin/wds
+
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/output/
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/usermods/css/
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/usermods/img/
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/usermods/js/
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/usermods/misc/
+thewatchdog binary: package-contains-empty-directory usr/share/thewatchdog/usermods/templates/

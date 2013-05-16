@@ -1,6 +1,10 @@
 init
 .SyncID
 .SyncIgnore
+.SyncTrash/
 obj/
 bin/
 uppsrc/
+debian/tmp
+debian/thewatchdog
+debian/thewatchdog-dbg

@@ -263,7 +263,7 @@ void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const St
 			mail.Body(htmlbody, "text/html");
 		}
 		if(mail.Send())
-		    RLOG("Email succesfully sent to " << to[i]);
+		    RLOG("Email successfully sent to " << to[i]);
 		else
 		    RLOG("Email sending failed: " << mail.GetError());
 	}
