@@ -1,7 +1,7 @@
 #include templates/base
 #define TITLE Authorization required
 #define BODY
-<script src=$CachedStatic("md5.js") type="text/javascript"></script>
+<script src=$CachedStatic("js/md5.js") type="text/javascript"></script>
 <script type="text/javascript">
 function updateForm(){
   s=document.getElementById('id').value.split(';')
