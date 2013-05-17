@@ -1,0 +1,108 @@
+#include "Server.h"
+
+SKYLARK(Config, "config") {
+	//TODO: this code is largely duplicate of Auth method...
+	String nonce = AsString(Uuid::Create());
+	SQLR * Select(ID,NAME,SALT).From(CLIENT).Where(ID == 0);
+	ValueMap clients;
+	String salts;
+	ValueMap vm;
+	while(SQLR.Fetch(vm)){
+		salts.Cat() << vm["ID"] << ':' << vm["SALT"] << '|';
+		clients.Add(IntStr(vm["ID"])+";"+String(vm["SALT"]),vm["NAME"]);
+	}
+	String id = http[".__identity__"];
+	if(id.IsEmpty()) {
+		id = AsString(Uuid::Create());
+		http.SessionSet("__identity__", id);
+	}
+	
+	String target="import";
+	
+	Time t = GetSysTime();
+	
+	SQL * Insert(AUTH)(NONCE, nonce)(VALID, t);
+	http("WD_ID", id)
+	    ("WD_NONCE", nonce)
+	    ("CLIENTS", clients)
+	    ("TARGET", target)
+	    ("IMPORT", http["import"])
+	    ("FILENAME", Format("wd_%d-%02d-%02d_%02d:%02d.sql",t.year,t.month,t.day,t.hour,t.minute));
+
+	http.RenderResult("templates/config");
+}
+
+SKYLARK(Export, "export:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/export"))
+		return;
+	
+	String out;
+	String cmd = "mysqldump";
+	if (Ini::sql_user!="")
+		cmd << " -u " << Ini::sql_user;
+	if (Ini::sql_host!="")
+		cmd << " -h " << Ini::sql_host;
+	if (Ini::sql_password!="")
+		cmd << " -p" << Ini::sql_password;
+	if (Ini::sql_socket!="")
+		cmd << " -S " << Ini::sql_socket;
+	if (Ini::sql_port!=0)
+		cmd << " -P " << Ini::sql_port;
+	cmd << " " << Ini::sql_database;
+
+	if(Sys(cmd, out) != 0) {
+		http << "Error occured while running '" << cmd << "':\n" << out;
+		return;
+	}
+	
+	String fn=http["filename"];
+	if(fn.IsEmpty())
+		fn = "watchdog.sql";
+	
+	http.SetHeader("Content-Disposition", "attachment; filename="+fn);
+	http.ContentType("text/plain") << out;
+}
+
+SKYLARK(Import, "import:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/import"))
+		return;
+	
+	String cmd = "mysql";
+	if (Ini::sql_user!="")
+		cmd << " -u " << Ini::sql_user;
+	if (Ini::sql_host!="")
+		cmd << " -h " << Ini::sql_host;
+	if (Ini::sql_password!="")
+		cmd << " -p" << Ini::sql_password;
+	if (Ini::sql_socket!="")
+		cmd << " -S " << Ini::sql_socket;
+	if (Ini::sql_port!=0)
+		cmd << " -P " << Ini::sql_port;
+	cmd << " " << Ini::sql_database;
+	
+	// must finish transaction first, otherwise the import hangs forever,
+	// waiting for metadata lock
+	SQL.Rollback();
+	
+	RLOG("Starting import");
+	LocalProcess p;
+	p.Start(cmd);
+	p.Write(http["import"]);
+	p.Write("quit\n");
+	while(p.IsRunning()){
+		RLOG("Waiting for mysql to terminate");
+		Sleep(100);
+	}
+	
+	int res = p.GetExitCode();
+	
+	if (res == 0) {
+		http.Redirect("/config?import=1");
+	} else {
+		String out;
+		p.Read(out);
+		http << "ERROR: Import process exited with nonzero status " << res 
+		     << "\nThe output was:\n\n" << out;
+		http.ContentType("text/plain");
+	}
+}
