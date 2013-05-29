@@ -1,0 +1,10 @@
+uses
+	plugin/sqlite3;
+
+file
+	sqlite.dli,
+	sqlite.cpp;
+
+mainconfig
+	"" = "SSE2 DLL";
+

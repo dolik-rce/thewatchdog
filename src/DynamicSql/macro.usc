@@ -1,0 +1,22 @@
+fn SetOutputDir(Input, Echo) {
+	:outdir = Input("Output directory");
+	if(:outdir!="" && :outdir[-1]!='/')
+		:outdir+="/";
+	Echo("Ouput directory is set to '" + :outdir + "'.");
+}
+
+macro "Build DynamicSql libs" {
+	ClearConsole();
+	dir = PackageDir("DynamicSql");
+	if(is_void(:outdir))
+		SetOutputDir(.Input, .Echo);
+	out=:outdir;
+	BuildProject(dir + "/mysql/mysql.upp", "SSE2 DLL", out + "mysql.so");
+	BuildProject(dir + "/sqlite/sqlite.upp", "SSE2 DLL", out + "sqlite.so");
+	:outdir=out;
+}
+
+macro "Set DynamicSql output directory..." {
+	ClearConsole();
+	SetOutputDir(.Input, .Echo);
+}

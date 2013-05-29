@@ -1,0 +1,12 @@
+uses(NEVER) DynamicSql/sqlite;
+
+uses(NEVER) DynamicSql/mysql;
+
+file
+	DynamicSql.h,
+	DynamicSql.cpp,
+	sch_header.h,
+	sch_schema.h,
+	sch_source.h,
+	macro.usc;
+

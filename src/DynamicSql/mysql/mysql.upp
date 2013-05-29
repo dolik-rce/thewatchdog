@@ -1,0 +1,10 @@
+uses
+	MySql;
+
+file
+	mysql.dli,
+	mysql.cpp;
+
+mainconfig
+	"" = "SSE2 DLL";
+

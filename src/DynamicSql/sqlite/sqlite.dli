@@ -1,0 +1,3 @@
+FN(void*, GetSession, ())
+FN(bool, Open, (const char*))
+FN(void, Close, ())
