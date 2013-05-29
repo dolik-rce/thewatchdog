@@ -181,7 +181,9 @@ Watchdog::Watchdog() {
 #ifdef _DEBUG
 	use_caching = false;
 #endif
+	OpenDB(); // DynamicSql must be initialized while still single threaded
 	//UpdateDB();
+	CloseDB();
 }
 
 #ifdef flagMAIN

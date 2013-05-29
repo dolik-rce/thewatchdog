@@ -1,7 +1,8 @@
 #include "Server.h"
 
 inline SqlVal CountIf(const SqlVal& val, const SqlBool& b){
-	return SqlFunc("sum",SqlFunc("if", SqlSet(SqlVal(~b,SqlVal::HIGH),val,0)));
+//	return SqlFunc("sum",SqlFunc("if", SqlSet(SqlVal(~b,SqlVal::HIGH),val,0)));
+	return SqlFunc("sum",SqlVal("case "+~b+" when 0 then 0 else "+~val+" end" ,SqlVal::HIGH));
 }
 
 SKYLARK(HomePage, "") {
@@ -196,8 +197,8 @@ SKYLARK(Commit, "commit/*") {
 SKYLARK(Results, "results") {
 	VectorMap<String, int> pg = Paging(http);
 	SQLR * Select(REVISION, CLIENT_ID, NAME, STATUS)
-	       .From(RESULT)
-	       .RightJoin(WORK).On(REV == REVISION)
+	       .From(WORK)
+	       .LeftJoin(RESULT).On(REV == REVISION)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
 	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
 	       .OrderBy(CLIENT_ID);
