@@ -110,10 +110,7 @@ INITBLOCK {
 };
 
 void Watchdog::OpenDB(){
-	int dialect = DynamicSqlSession::StringToDialect((String)Ini::db_backend);
-	sql.SetDialect(dialect);
-
-	switch(dialect) {
+	switch(sql.GetDialect()) {
 	case MY_SQL:
 		if(!sql.MySqlConnect((String)Ini::sql_user,
 		                     (String)Ini::sql_password,
@@ -181,9 +178,9 @@ Watchdog::Watchdog() {
 #ifdef _DEBUG
 	use_caching = false;
 #endif
-	OpenDB(); // DynamicSql must be initialized while still single threaded
+	// dialect plugin must be initialized while still in single thread mode
+	sql.SetDialect(DynamicSqlSession::StringToDialect((String)Ini::db_backend));
 	//UpdateDB();
-	CloseDB();
 }
 
 #ifdef flagMAIN
