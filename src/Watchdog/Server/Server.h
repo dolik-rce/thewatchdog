@@ -2,14 +2,13 @@
 #define _Watchdog_Watchdog_h
 
 #include <Skylark/Skylark.h>
-#include <MySql/MySql.h>
+#include <DynamicSql/DynamicSql.h>
 #include <Core/SMTP/SMTP.h>
 #include <Watchdog/Watchdog.h>
 using namespace Upp;
 
 #define  MODEL <Watchdog/Server/table.sch>
-#define  SCHEMADIALECT <MySql/MySqlSchema.h>
-#include <Sql/sch_header.h>
+#include <DynamicSql/sch_header.h>
 
 #include "Util.h"
 
@@ -42,9 +41,17 @@ namespace Upp{
 
 
 struct Watchdog : SkylarkApp {
+	DynamicSqlSession sql;
+	
 	virtual void WorkThread();
 	virtual void SigUsr1();
+	
+	void OpenDB();
+	void UpdateDB();
+	void CloseDB();
+	
 	Watchdog();
+	~Watchdog();
 };
 
  

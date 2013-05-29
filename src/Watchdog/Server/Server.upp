@@ -1,9 +1,9 @@
 uses
 	Watchdog,
 	Skylark,
-	MySql,
 	Core/SMTP,
-	Core/SSL;
+	Core/SSL,
+	DynamicSql;
 
 file
 	Server.h,

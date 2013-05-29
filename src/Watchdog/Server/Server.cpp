@@ -1,11 +1,13 @@
 #include "Server.h"
 
 #define  MODEL <Watchdog/Server/table.sch>
-#define  SCHEMADIALECT <MySql/MySqlSchema.h>
-#include <Sql/sch_schema.h>
-#include <Sql/sch_source.h>
+#include <DynamicSql/sch_source.h>
+#include <DynamicSql/sch_schema.h>
 
 namespace Upp{ namespace Ini {
+	INI_STRING(db_backend, "sqlite", "Database backend (mysql, sqlite)");
+	INI_STRING(db_scripts_dir, "/tmp/wd_db", "Database update scripts directory");
+	INI_STRING(sqlite_db, "/tmp/watchdog.db", "Database file path for sqlite");
 	INI_STRING(sql_user, "root", "MySql user");
 	INI_STRING(sql_password, "", "MySql password");
 	INI_STRING(sql_database, "watchdog", "MySql database name");
@@ -29,56 +31,19 @@ namespace Upp{ namespace Ini {
 	INI_STRING(smtp_sender, "Watchdog@example.com", "E-mail to put in the From field of sent e-mails");
 }}
 
-void OpenSQL(MySqlSession& session)
-{
-	if(!session.Connect((String)Ini::sql_user,
-                        (String)Ini::sql_password,
-                        (String)Ini::sql_database,
-                        (String)Ini::sql_host,
-                        Ini::sql_port,
-                        (String)Ini::sql_socket)) {
-		RLOG("Can't connect to database");
-		RLOG(session.GetLastError());
-		Exit(1);
-	}
-	SQL = session;
-}
-
 void Watchdog::WorkThread()
 {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
-	MySqlSession mysql;
-	if(Ini::sql_log){
-		mysql.LogErrors();
-		mysql.SetTrace();
-	}
-	OpenSQL(mysql);
+	
+	OpenDB();
 	RunThread();
+	CloseDB();
 }
 
 void Watchdog::SigUsr1(){
 	RLOG("Received SIGUSR1, reopening log file");
 	ReopenLog();
 	RLOG("Log file reopened on SIGUSR1");
-}
-
-void InitDB()
-{
-	MySqlSession sqlsession;
-	OpenSQL(sqlsession);
-	SqlSchema sch(MY_SQL);
-	All_Tables(sch);
-	SqlPerformScript(sch.Upgrade());
-	SqlPerformScript(sch.Attributes());
-//	Sql sql;
-//	sql * Insert(CLIENT)(NAME, "Basic apps")
-//	                    (PASSWORD, "aaa")
-//	                    (DESCR, "Testing client")
-//	                    (SRC, "/trunk/uppsrc");
-//	sql * Insert(CLIENT)(NAME, "Launchpad")
-//	                    (PASSWORD, "bbb")
-//	                    (DESCR, "Another testing client")
-//	                    (SRC, "/trunk/");
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)
@@ -144,13 +109,79 @@ INITBLOCK {
 	Compiler::Register("dbg", Dbg);
 };
 
+void Watchdog::OpenDB(){
+	int dialect = DynamicSqlSession::StringToDialect((String)Ini::db_backend);
+	sql.SetDialect(dialect);
+
+	switch(dialect) {
+	case MY_SQL:
+		if(!sql.MySqlConnect((String)Ini::sql_user,
+		                     (String)Ini::sql_password,
+		                     (String)Ini::sql_database,
+		                     (String)Ini::sql_host,
+		                     Ini::sql_port,
+		                     (String)Ini::sql_socket)) {
+			RLOG("Can't connect to database '" << (String)Ini::sql_database << "'");
+			RLOG(sql.GetSession().GetLastError());
+			Exit();
+		}
+		sql.MySqlAutoReconnect();
+		SQL = sql.GetMySqlSession();
+		break;
+	case SQLITE3:
+		if(!sql.SqliteOpen((String)Ini::sqlite_db)){
+			RLOG("Can't create or open database file '" << (String)Ini::sqlite_db << "'");
+			Exit();
+		}
+		SQL = sql.GetSqlite3Session();
+		break;
+	default:
+		RLOG("Sorry, SQL dialect '" << (String)Ini::db_backend << "' is not yet supported");
+		Exit();
+	}
+	SQL.GetSession().LogErrors(true);
+	SQL.GetSession().SetTrace();
+}
+
+void Watchdog::UpdateDB(){
+	OpenDB();
+	SqlSchema sch;
+	All_Tables(sch);
+	String schdir=AppendFileName(Ini::db_scripts_dir, sql.DialectToString());
+	RealizeDirectory(schdir);
+	if(sch.ScriptChanged(SqlSchema::UPGRADE, schdir))
+		SqlPerformScript(sch.Upgrade());
+	if(sch.ScriptChanged(SqlSchema::ATTRIBUTES, schdir))
+		SqlPerformScript(sch.Attributes());
+	if(sch.ScriptChanged(SqlSchema::CONFIG, schdir)) {
+		SqlPerformScript(sch.ConfigDrop());
+		SqlPerformScript(sch.Config());
+	}
+	sch.SaveNormal(schdir);
+	CloseDB();
+}
+
+void Watchdog::CloseDB(){
+	int dialect = DynamicSqlSession::StringToDialect((String)Ini::db_backend);
+	switch(dialect) {
+	case MY_SQL:
+		sql.MySqlClose();
+		break;
+	case SQLITE3:
+		sql.SqliteClose();
+		break;
+	default:
+		NEVER();
+	}
+}
+
+
 Watchdog::Watchdog() {
 	root = "";
 #ifdef _DEBUG
 	use_caching = false;
 #endif
-	MySqlSession sqlsession;
-	OpenSQL(sqlsession);
+	//UpdateDB();
 }
 
 #ifdef flagMAIN
@@ -182,11 +213,6 @@ CONSOLE_APP_MAIN{
 	           , (String)Ini::log_file);
 	Smtp::Trace(Ini::log_level == 2);
 	
-	//InitDB(); //only for development phase
-#ifdef _DEBUG
-//	Ini::path = String(Ini::path) + ";" + GetFileDirectory(__FILE__) + "static"
-//	          + ";" + GetFileDirectory(__FILE__);
-#endif
 	RLOG(" === STARTING WATCHDOG === ");
 	RLOG(GetIniInfoFormatted());
 	
