@@ -1,8 +1,9 @@
 SERVER
 ------
+Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
 Setup helper (create tables on first run, create admin user, get svn history)
-Import/export data
+Import/export data as csv in zip
 Git support
 Nicer icons, real css styling
 
@@ -10,9 +11,11 @@ Nicer icons, real css styling
 CLIENT
 ------
 Client should send WD_ERROR on error (implement as bash trap in shell, exception handling in python)
-Publish the usage examples
+Parsing XUnit files
+Publish some usage examples
 
 
 GENERAL
 -------
 Update documentation
+Implement Skylark/TcpSocket option to listen on specific IP
