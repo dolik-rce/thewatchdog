@@ -2,6 +2,7 @@ SERVER
 ------
 Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
+Multiple repository support
 Setup helper (create tables on first run, create admin user, get svn history)
 Import/export data as csv in zip
 Git support
