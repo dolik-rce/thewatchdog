@@ -22,6 +22,7 @@ namespace Upp{
 		extern IniInt    sql_port;
 		extern IniString sql_socket;
 		extern IniBool   sql_log;
+		extern IniBool   debug;
 		extern IniString log_file;
 		extern IniInt    log_level;
 		extern IniString output_dir;

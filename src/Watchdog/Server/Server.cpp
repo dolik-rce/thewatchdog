@@ -46,69 +46,6 @@ void Watchdog::SigUsr1(){
 	RLOG("Log file reopened on SIGUSR1");
 }
 
-Value Duration(const Vector<Value>& arg, const Renderer *)
-{
-	int t = arg[0];
-	if (t<=0)
-		return "";
-	else if (t<60)
-		return Format("%d`s", t);
-	else if (t<3600)
-		return Format("%d`m %d`s", t/60, t%60);
-	else
-		return Format("%d`h %d`m %d`s", t/3600, (t%3600)/60, (t%3600)%60);
-}
-
-Value Email(const Vector<Value>& arg, const Renderer *)
-{
-	String name;
-	switch(arg.GetCount()) {
-	case 1:
-		name = arg[0];
-		break;
-	case 2:
-		name = arg[1];
-		break;
-	case 0:
-	default:
-		throw Exc("email: wrong number of arguments");
-	}
-	String addr;
-	addr.Cat() << "<a href=\"mailto:" << arg[0] << "\">" << name << "</a>";
-	RawHtmlText r;
-	r.text.Cat("<script type=\"text/javascript\">document.write('");
-	for(int i = addr.GetCount()-1; i >= 0; --i)
-		r.text.Cat(addr[i]);
-	r.text.Cat("'.split('').reverse().join(''));</script>");
-	return RawPickToValue(r);
-}
-
-Value Dbg(const Vector<Value>& arg, const Renderer *r)
-{
-	if(!Ini::debug)
-		return Value();
-	String html;
-	if(r) {
-		const VectorMap<String, Value>& set = r->Variables();
-		html << "<div class=\"dbg\"><table border='1'><tr><th>ID</th><th>VALUE</th></tr>";
-		for(int i = 0; i < set.GetCount(); i++)
-			html << "<tr><td>"
-			     << EscapeHtml(set.GetKey(i))
-			     << "</td><td><pre class=\"prewrap\">"
-			     << EscapeHtml(AsString(set[i]))
-			     << "</pre></td></tr>"
-			;
-		html << "</table></div>";
-	}
-	return Raw(html);
-}
-
-INITBLOCK {
-	Compiler::Register("Duration", Duration);
-	Compiler::Register("email", Email);
-	Compiler::Register("dbg", Dbg);
-};
-
 void Watchdog::OpenDB(){
 	switch(sql.GetDialect()) {
 	case MY_SQL:
