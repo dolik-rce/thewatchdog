@@ -1,11 +1,9 @@
 #include "DynamicSql.h"
 
-#define DLLFILENAME DLLFILENAME_SQLITE
 #define DLIMODULE   SQLITE_DLL
 #define DLIHEADER   <DynamicSql/sqlite/sqlite.dli>
 #include <Core/dli_source.h>
 
-#define DLLFILENAME DLLFILENAME_MYSQL
 #define DLIMODULE   MYSQL_DLL
 #define DLIHEADER   <DynamicSql/mysql/mysql.dli>
 #include <Core/dli_source.h>

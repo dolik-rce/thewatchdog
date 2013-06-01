@@ -6,16 +6,10 @@
 
 using namespace Upp;
 
-#define DLLFILENAME_SQLITE "/tmp/sqlite.so"
-#define DLLFILENAME_MYSQL "/tmp/mysql.so"
-
-
-#define DLLFILENAME DLLFILENAME_SQLITE
 #define DLIMODULE   SQLITE_DLL
 #define DLIHEADER   <DynamicSql/sqlite/sqlite.dli>
 #include <Core/dli_header.h>
 
-#define DLLFILENAME DLLFILENAME_MYSQL
 #define DLIMODULE   MYSQL_DLL
 #define DLIHEADER   <DynamicSql/mysql/mysql.dli>
 #include <Core/dli_header.h>
@@ -34,6 +28,7 @@ inline unsigned int lg2(unsigned int v){
 
 class DynamicSqlSession : public SqlSession {
 private:
+	String libpath;
 	T_SQLITE_DLL& sqlite;
 	T_MYSQL_DLL& mysql;
 	
@@ -129,18 +124,20 @@ public:
 		return 0;
 	}
 	
-	DynamicSqlSession(int _dialect = -1) :
-	    sqlite(SQLITE_DLL_()), mysql(MYSQL_DLL_())
+	DynamicSqlSession(int _dialect = -1, const String path = ".") :
+	    libpath(path), sqlite(SQLITE_DLL_()), mysql(MYSQL_DLL_())
 	{
 		if(_dialect>=0)
 			SetDialect(_dialect);
 	}
 	~DynamicSqlSession() {}
 	
+	void SetLibraryPath(const String path) { libpath = path; }
+	
 	void SetDialect(int _dialect){
 		switch(_dialect) {
-			case MY_SQL: mysql.Load(); break;
-			case SQLITE3: sqlite.Load(); break;
+			case MY_SQL: mysql.Load(libpath+"/mysql.so"); break;
+			case SQLITE3: sqlite.Load(libpath+"/sqlite.so"); break;
 			default: NEVER_("Unknown SQL dialect");
 		}
 		Dialect(_dialect);
