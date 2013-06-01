@@ -21,7 +21,7 @@ ifeq ($(USESVN),true)
   UPPTAR:=
 else
   $(UPPTAR):
-	wget -O $@ '$(UPPSRC)'
+	wget -nv -O $@ '$(UPPSRC)'
 endif
 
 # enable control of paralel building from dpkg-buildpackage
@@ -34,7 +34,7 @@ else
   JOBS:=
 endif
 
-all: bin/wds bin/wdc lib/mysql.so lib/sqlite.so
+all: $(BIN)/wds $(BIN)/wdc $(LIB)/mysql.so $(LIB)/sqlite.so
 
 deb:
 	dpkg-buildpackage -j$(JNUM)
@@ -76,12 +76,12 @@ update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
 	fi
 
 clean:
-	rm -rf obj bin lib
+	rm -rf $(OBJ) $(BIN) $(LIB)
 
 dist-clean: clean
 	rm -rf uppsrc upp-x11-src-*.tar.gz
 
-install: bin/wdc bin/wds
+install: all
 	install -d $(DESTDIR)/etc/thewatchdog \
 	           $(DESTDIR)/usr/bin \
 	           $(DESTDIR)/usr/share/thewatchdog/lib \
