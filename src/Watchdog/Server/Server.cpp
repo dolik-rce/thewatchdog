@@ -151,6 +151,7 @@ CONSOLE_APP_MAIN{
 	
 	RLOG(" === STARTING WATCHDOG === ");
 	RLOG(GetIniInfoFormatted());
+	RDUMPM(Environment());
 	
 	Watchdog().Run();
 }
