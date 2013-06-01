@@ -7,6 +7,7 @@
 namespace Upp{ namespace Ini {
 	INI_STRING(db_backend, "sqlite", "Database backend (mysql, sqlite)");
 	INI_STRING(db_scripts_dir, "/tmp/wd_db", "Database update scripts directory");
+	INI_STRING(dsql_plugin_path, "/tmp", "Directory containing DynamicSql plugins");
 	INI_STRING(sqlite_db, "/tmp/watchdog.db", "Database file path for sqlite");
 	INI_STRING(sql_user, "root", "MySql user");
 	INI_STRING(sql_password, "", "MySql password");
@@ -17,8 +18,8 @@ namespace Upp{ namespace Ini {
 	INI_BOOL(sql_log, true, "Activates logging of MySql queries");
 	INI_STRING(log_file, GetExeDirFile("log")+"/"+GetExeTitle()+".log", "Path for the log file");
 	INI_INT(log_level, 2, "Logging verbosity (0,1,2)");
-	INI_STRING(output_dir,GetExeFilePath()+"/output","Directory where the output logs are stored");
-	INI_STRING(server_url,"http://localhost:8001", "Url of the server where the application runs.");
+	INI_STRING(output_dir, GetExeFilePath()+"/output","Directory where the output logs are stored");
+	INI_STRING(server_url, "http://localhost:8001", "Url of the server where the application runs.");
 	INI_STRING(svn, ".", "URL/path of the svn repository");
 	INI_INT(max_test_time, 86400, "Number of seconds before an 'In progress' record is deleted from results");
 	INI_BOOL(debug, false, "Activates debug functions");
@@ -116,6 +117,7 @@ Watchdog::Watchdog() {
 	use_caching = false;
 #endif
 	// dialect plugin must be initialized while still in single thread mode
+	sql.SetLibraryPath(Ini::dsql_plugin_path);
 	sql.SetDialect(DynamicSqlSession::StringToDialect((String)Ini::db_backend));
 	//UpdateDB();
 }
