@@ -1,9 +1,12 @@
 # configuration
 DESTDIR:=
+OBJ:=obj
+BIN:=bin
+LIB:=lib
 
 # dependencies
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
-SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark
+SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3
 CLIENT_DEPS:=$(COMMON_DEPS)
 DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
 DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
@@ -18,37 +21,35 @@ ifeq ($(USESVN),true)
   UPPTAR:=
 else
   $(UPPTAR):
-	if $(USESVN); then \
-		touch $@; \
-	else \
-		wget -O $@ '$(UPPSRC)'; \
-	fi
+	wget -O $@ '$(UPPSRC)'
 endif
 
 # enable control of paralel building from dpkg-buildpackage
 DEB_BUILD_OPTIONS?=
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-  JOBS:=JOBS=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  JNUM:=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  JOBS:=JOBS=$(JNUM)
 else
+  JNUM:=1
   JOBS:=
 endif
 
 all: bin/wds bin/wdc lib/mysql.so lib/sqlite.so
 
 deb:
-	dpkg-buildpackage -j25
+	dpkg-buildpackage -j$(JNUM)
 
-bin/wds: $(SERVER_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+$(BIN)/wds: $(SERVER_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
-bin/wdc: $(CLIENT_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+$(BIN)/wdc: $(CLIENT_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
-lib/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
+$(LIB)/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
 
-lib/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
+$(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
 
 uppsrc/%: $(UPPTAR)
 	if $(USESVN); then \
@@ -96,8 +97,8 @@ install: bin/wdc bin/wds
 	           $(DESTDIR)/usr/share/thewatchdog/usermods/misc \
 	           $(DESTDIR)/usr/share/thewatchdog/usermods/templates \
 	           $(DESTDIR)/var/log/thewatchdog
-	install bin/* $(DESTDIR)/usr/bin/
-	install lib/* $(DESTDIR)/usr/share/thewatchdog/lib/
+	install $(BIN)/* $(DESTDIR)/usr/bin/
+	install $(LIB)/* $(DESTDIR)/usr/share/thewatchdog/lib/
 	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/thewatchdog/wds.ini
 	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/thewatchdog/wdc.ini
 	install src/Watchdog/Server/css/* $(DESTDIR)/usr/share/thewatchdog/css
