@@ -6,7 +6,8 @@ SERVER_DEPS:= uppsrc/Core uppsrc/Skylark uppsrc/MySql uppsrc/Sql uppsrc/plugin/z
 CLIENT_DEPS:= uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
 UPPVER:=6128
 UPPFILE:=upp-x11-src-$(UPPVER)
-UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR).tar.gz
+UPPTAR:=$(UPPFILE).tar.gz
+UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN=which svn &> /dev/null
 
@@ -29,34 +30,31 @@ bin/wds: $(SERVER_DEPS) FORCE
 bin/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
-uppsrc/%: $(UPPFILE).tar.gz
+uppsrc/%: $(UPPTAR)
 	if $(USESVN); then \
 		mkdir -p $@; \
 		svn co '$(UPPSVN)/$@' $@; \
 	else \
-		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/$@; \
+		tar -xzmf $(UPPTAR) --strip 1 $(UPPFILE)/$@; \
 	fi
 
-uppsrc/uppconfig.h: $(UPPFILE).tar.gz
+uppsrc/uppconfig.h: $(UPPTAR)
 	if $(USESVN); then \
 		mkdir -p uppsrc; \
 		svn export '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
 	else \
-		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/$@; \
+		tar -xzmf $(UPPTAR) --strip 1 $(UPPFILE)/$@; \
 	fi
 
-$(UPPFILE).tar.gz:
-	$(USESVN) || wget -O $(UPPFILE).tar.gz '$(UPPSRC)'
+$(UPPTAR):
+	$(USESVN) || wget -O $@ '$(UPPSRC)'
 
-update-uppsrc: $(UPPFILE).tar.gz $(CLIENT_DEPS) $(SERVER_DEPS)
+update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS)
 	if $(USESVN); then \
 		for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
 			svn up $$d; \
 		done; \
 		svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h; \
-	else \
-		rm -rf uppsrc; \
-		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/uppsrc; \
 	fi
 
 clean:
