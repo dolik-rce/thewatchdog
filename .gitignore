@@ -4,6 +4,7 @@ init
 .SyncTrash/
 obj/
 bin/
+lib/
 uppsrc/
 debian/tmp
 debian/thewatchdog

@@ -2,24 +2,38 @@
 DESTDIR:=
 
 # dependencies
-SERVER_DEPS:= uppsrc/Core uppsrc/Skylark uppsrc/MySql uppsrc/Sql uppsrc/plugin/z uppsrc/uppconfig.h
-CLIENT_DEPS:= uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
+COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
+SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark
+CLIENT_DEPS:=$(COMMON_DEPS)
+DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
+DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
 UPPVER:=6128
 UPPFILE:=upp-x11-src-$(UPPVER)
 UPPTAR:=$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
-USESVN=which svn &> /dev/null
+USESVN:=$(shell which svn &> /dev/null && echo "true")
+
+ifeq ($(USESVN),true)
+  UPPTAR:=
+else
+  $(UPPTAR):
+	if $(USESVN); then \
+		touch $@; \
+	else \
+		wget -O $@ '$(UPPSRC)'; \
+	fi
+endif
 
 # enable control of paralel building from dpkg-buildpackage
 DEB_BUILD_OPTIONS?=
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-    JOBS:=JOBS=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  JOBS:=JOBS=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 else
-    JOBS:=
+  JOBS:=
 endif
 
-all: bin/wds bin/wdc
+all: bin/wds bin/wdc lib/mysql.so lib/sqlite.so
 
 deb:
 	dpkg-buildpackage -j25
@@ -29,6 +43,12 @@ bin/wds: $(SERVER_DEPS) FORCE
 
 bin/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+
+lib/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
+
+lib/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
 
 uppsrc/%: $(UPPTAR)
 	if $(USESVN); then \
@@ -41,15 +61,12 @@ uppsrc/%: $(UPPTAR)
 uppsrc/uppconfig.h: $(UPPTAR)
 	if $(USESVN); then \
 		mkdir -p uppsrc; \
-		svn export '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
+		svn export --force '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
 	else \
 		tar -xzmf $(UPPTAR) --strip 1 $(UPPFILE)/$@; \
 	fi
 
-$(UPPTAR):
-	$(USESVN) || wget -O $@ '$(UPPSRC)'
-
-update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS)
+update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
 	if $(USESVN); then \
 		for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
 			svn up $$d; \
@@ -58,7 +75,7 @@ update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS)
 	fi
 
 clean:
-	rm -rf obj bin
+	rm -rf obj bin lib
 
 dist-clean: clean
 	rm -rf uppsrc upp-x11-src-*.tar.gz
@@ -66,6 +83,7 @@ dist-clean: clean
 install: bin/wdc bin/wds
 	install -d $(DESTDIR)/etc/thewatchdog \
 	           $(DESTDIR)/usr/bin \
+	           $(DESTDIR)/usr/share/thewatchdog/lib \
 	           $(DESTDIR)/usr/share/thewatchdog/output \
 	           $(DESTDIR)/usr/share/thewatchdog/css \
 	           $(DESTDIR)/usr/share/thewatchdog/img \
@@ -79,6 +97,7 @@ install: bin/wdc bin/wds
 	           $(DESTDIR)/usr/share/thewatchdog/usermods/templates \
 	           $(DESTDIR)/var/log/thewatchdog
 	install bin/* $(DESTDIR)/usr/bin/
+	install lib/* $(DESTDIR)/usr/share/thewatchdog/lib/
 	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/thewatchdog/wds.ini
 	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/thewatchdog/wdc.ini
 	install src/Watchdog/Server/css/* $(DESTDIR)/usr/share/thewatchdog/css
