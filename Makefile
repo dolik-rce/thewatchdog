@@ -12,7 +12,7 @@ UPPFILE:=upp-x11-src-$(UPPVER)
 UPPTAR:=$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
-USESVN:=$(shell which svn &> /dev/null && echo "true")
+USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 
 ifeq ($(USESVN),true)
   UPPTAR:=
