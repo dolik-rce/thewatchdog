@@ -4,7 +4,11 @@ DESTDIR:=
 # dependencies
 SERVER_DEPS:= uppsrc/Core uppsrc/Skylark uppsrc/MySql uppsrc/Sql uppsrc/plugin/z uppsrc/uppconfig.h
 CLIENT_DEPS:= uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
-UPPSVN=http://upp-mirror.googlecode.com/svn/trunk
+UPPVER:=6128
+UPPFILE:=upp-x11-src-$(UPPVER)
+UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR).tar.gz
+UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
+USESVN=which svn &> /dev/null
 
 # enable control of paralel building from dpkg-buildpackage
 DEB_BUILD_OPTIONS?=
@@ -25,23 +29,41 @@ bin/wds: $(SERVER_DEPS) FORCE
 bin/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=obj BIN=bin COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
-uppsrc/%:
-	mkdir -p $@
-	svn co '$(UPPSVN)/$@' $@
+uppsrc/%: $(UPPFILE).tar.gz
+	if $(USESVN); then \
+		mkdir -p $@; \
+		svn co '$(UPPSVN)/$@' $@; \
+	else \
+		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/$@; \
+	fi
 
-uppsrc/uppconfig.h:
-	mkdir -p uppsrc
-	svn export '$(UPPSVN)/$@' uppsrc/uppconfig.h
+uppsrc/uppconfig.h: $(UPPFILE).tar.gz
+	if $(USESVN); then \
+		mkdir -p uppsrc; \
+		svn export '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
+	else \
+		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/$@; \
+	fi
 
-update-uppsrc: $(CLIENT_DEPS) $(SERVER_DEPS)
-	for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do svn up $$d; done;
-	svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h
+$(UPPFILE).tar.gz:
+	$(USESVN) && wget -O $(UPPFILE).tar.gz '$(UPPSRC)'
+
+update-uppsrc: $(UPPFILE).tar.gz $(CLIENT_DEPS) $(SERVER_DEPS)
+	if $(USESVN); then \
+		for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
+			svn up $$d; \
+		done; \
+		svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h; \
+	else \
+		rm -rf uppsrc; \
+		tar -xzmf $(UPPFILE).tar.gz --strip 1 $(UPPFILE)/uppsrc; \
+	fi
 
 clean:
 	rm -rf obj bin
 
 dist-clean: clean
-	rm -rf uppsrc
+	rm -rf uppsrc upp-x11-src-*.tar.gz
 
 install: bin/wdc bin/wds
 	install -d $(DESTDIR)/etc/thewatchdog \
