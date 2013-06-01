@@ -126,6 +126,13 @@ namespace Upp { namespace Ini {
 	extern IniString path;
 }}
 
+void ProcessIniFile(const String& fn){
+	String ini = LoadFile(fn);
+	ini = ReplaceVars(ini, Environment(), '$');
+	SaveFile(fn+".preprocessed", ini);
+	SetIniFile(fn+".preprocessed");
+}
+
 CONSOLE_APP_MAIN{
 	const Vector<String>& cmd = CommandLine();
 	
@@ -134,9 +141,8 @@ CONSOLE_APP_MAIN{
 		ini = cmd[0];
 	else
 		ini = GetDataFile("Server.ini");
-	
 	RLOG("Loading configuration from '" << ini << "'");
-	SetIniFile(ini);
+	ProcessIniFile(ini);
 	
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
 	
