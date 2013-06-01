@@ -46,7 +46,7 @@ uppsrc/uppconfig.h: $(UPPFILE).tar.gz
 	fi
 
 $(UPPFILE).tar.gz:
-	$(USESVN) && wget -O $(UPPFILE).tar.gz '$(UPPSRC)'
+	$(USESVN) || wget -O $(UPPFILE).tar.gz '$(UPPSRC)'
 
 update-uppsrc: $(UPPFILE).tar.gz $(CLIENT_DEPS) $(SERVER_DEPS)
 	if $(USESVN); then \
