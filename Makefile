@@ -3,6 +3,7 @@ DESTDIR:=
 OBJ:=obj
 BIN:=bin
 LIB:=lib
+TMP:=.
 
 # dependencies
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
@@ -12,10 +13,12 @@ DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
 DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
 UPPVER:=6128
 UPPFILE:=upp-x11-src-$(UPPVER)
-UPPTAR:=$(UPPFILE).tar.gz
+UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
+
+all: $(BIN)/wds $(BIN)/wdc $(LIB)/mysql.so $(LIB)/sqlite.so
 
 ifeq ($(USESVN),true)
   UPPTAR:=
@@ -34,8 +37,6 @@ else
   JOBS:=
 endif
 
-all: $(BIN)/wds $(BIN)/wdc $(LIB)/mysql.so $(LIB)/sqlite.so
-
 deb:
 	dpkg-buildpackage -j$(JNUM)
 
@@ -46,25 +47,26 @@ $(BIN)/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
 $(LIB)/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
+	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession"
 
 $(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-Wl,--gc-sections -Wl,-O,2 -shared"
+	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession"
 
 uppsrc/%: $(UPPTAR)
 	if $(USESVN); then \
 		mkdir -p $@; \
 		svn co '$(UPPSVN)/$@' $@; \
 	else \
-		tar -xzmf $(UPPTAR) --strip 1 $(UPPFILE)/$@; \
+		tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@; \
 	fi
+	[ -e patch/$*.patch ] && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
 
 uppsrc/uppconfig.h: $(UPPTAR)
 	if $(USESVN); then \
 		mkdir -p uppsrc; \
 		svn export --force '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
 	else \
-		tar -xzmf $(UPPTAR) --strip 1 $(UPPFILE)/$@; \
+		tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@; \
 	fi
 
 update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
@@ -79,7 +81,7 @@ clean:
 	rm -rf $(OBJ) $(BIN) $(LIB)
 
 dist-clean: clean
-	rm -rf uppsrc upp-x11-src-*.tar.gz
+	rm -rf uppsrc $(TMP)/upp-x11-src-*.tar.gz
 
 install: all
 	install -d $(DESTDIR)/etc/thewatchdog \
