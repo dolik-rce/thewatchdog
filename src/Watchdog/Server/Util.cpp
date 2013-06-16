@@ -62,12 +62,13 @@ void SvnLog::Load(String& log) {
 void SvnLog::Store() {
 	if(IsNull(date))
 		date=Time(0,0,0);
-	Sql sql;
-	sql * Insert(WORK)(REVISION,revision)
+	SQL * Insert(WORK)(REVISION,revision)
 	                  (DT,date)
 	                  (AUTHOR,author)
 	                  (MSG, msg)
 	                  (PATH, AffectedPath());
+	SQL.Commit();
+	SQL.Begin();
 }
 
 void SvnLog::Clear() {
@@ -102,7 +103,6 @@ void UpdateLogs(){
 	String xml;
 	SvnLog svnlog;
 	while(Sys(cmd, xml) == 0){
-		svnlog.Load(xml);
 		lastrev()++;
 		if(xml!="") {
 			svnlog.Load(xml);
