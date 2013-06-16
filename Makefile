@@ -49,10 +49,10 @@ $(BIN)/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
 $(LIB)/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession"
+	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="g++ -fPIC" CC="gcc -fPIC"
 
 $(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession"
+	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="g++ -fPIC" CC="gcc -fPIC"
 
 uppsrc/%: $(UPPTAR)
 	if $(USESVN); then \
