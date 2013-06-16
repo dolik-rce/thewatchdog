@@ -9,16 +9,18 @@ TMP:=.
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
 SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3
 CLIENT_DEPS:=$(COMMON_DEPS)
+DSQL:=mysql sqlite
+DSQL_LIBS:=$(foreach d,$(DSQL), $(LIB)/$d.so)
 DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
 DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
-UPPVER:=6128
+UPPVER:=6149
 UPPFILE:=upp-x11-src-$(UPPVER)
 UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 
-all: $(BIN)/wds $(BIN)/wdc $(LIB)/mysql.so $(LIB)/sqlite.so
+all: $(BIN)/wds $(BIN)/wdc $(DSQL_LIBS)
 
 ifeq ($(USESVN),true)
   UPPTAR:=
