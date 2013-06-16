@@ -4,10 +4,12 @@
 namespace SqliteSchema {
 #define SCHEMADIALECT <plugin/sqlite3/Sqlite3Schema.h>
 #include <Sql/sch_schema.h>
+#undef SCHEMADIALECT
 }
 namespace MySqlSchema {
 #define SCHEMADIALECT <MySql/MySqlSchema.h>
 #include <Sql/sch_schema.h>
+#undef SCHEMADIALECT
 }
 
 static void All_Tables(SqlSchema& sch, int dialect = SQL.GetDialect()) {
