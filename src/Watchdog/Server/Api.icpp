@@ -1,5 +1,12 @@
 #include "Server.h"
 
+inline SqlVal Concat(const SqlVal& val1, const SqlVal& val2){
+	//sqlite compatible concat function
+	if(SQL.GetDialect() == SQLITE3)
+		return SqlVal(val1, "||", val2, SqlS::HIGH);
+	return SqlFunc("concat", SqlSet(val1, val2));
+}
+
 SKYLARK(GetWork, "api/getwork/*:POST")
 {
 	int cid = http.Int(0);
@@ -18,7 +25,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
 	       .InnerJoin(CLIENT).On(ID == cid)
 	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
-	              && Like(PATH,SqlFunc("concat",SqlSet(SRC,"%"))) 
+	              && Like(PATH,Concat(SRC,"%"))
 	              && DT >= (GetSysDate()-max_age))
 	       .OrderBy(REVISION);
 	while(SQLR.Fetch())
