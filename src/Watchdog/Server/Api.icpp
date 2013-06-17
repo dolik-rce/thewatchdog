@@ -173,16 +173,18 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SendEmails(to, tokens, Format("%s %d", data["NAME"], revision), text, html);
 }
 
-SKYLARK(Update, "api/update") {
-	if(!CheckLocal(http)) return;
-	http << "OK";
+SKYLARK(Update, "api/update:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/api/update"))
+		return;
+	http << "OK\n";
 	http.Finalize();
 	UpdateLogs();
 }
 
-SKYLARK(Clean, "api/clean") {
-	if(!CheckLocal(http)) return;
-	http << "OK";
+SKYLARK(Clean, "api/clean:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/api/clean"))
+		return;
+	http << "OK\n";
 	http.Finalize();
 	CleanResults();
 	CleanAuth();
