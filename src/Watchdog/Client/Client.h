@@ -31,7 +31,7 @@ struct WatchdogClient {
 	void SetAction(const String& value);
 	char GetAction() const;
 	
-	virtual void ParseArgument(int i, const Vector<String>& cmd);
+	virtual void ParseArgument(int& i, const Vector<String>& cmd);
 	virtual bool ProcessAction();
 	virtual void SetConfig(const String& fn);
 	virtual void Execute(const Vector<String>& cmd);

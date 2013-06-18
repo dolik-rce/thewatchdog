@@ -207,7 +207,7 @@ char WatchdogClient::GetAction() const {
 	return action;
 }
 
-void WatchdogClient::ParseArgument(int i, const Vector<String>& cmd){
+void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 	if(cmd[i] == "--help" || cmd[i] == "-h") {
 		Usage(0);
 	} else if(cmd[i] == "--get" || cmd[i] == "-g") {
@@ -223,7 +223,7 @@ void WatchdogClient::ParseArgument(int i, const Vector<String>& cmd){
 		result = StrInt(cmd[++i]);
 		duration = StrInt(cmd[++i]);
 		output = cmd[++i];
-	} else if(cmd[i] == "--command" || cmd[i] == "-c") {
+	} else if(cmd[i] == "--run" || cmd[i] == "-r") {
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 1);
 		command = cmd[++i];
@@ -317,8 +317,8 @@ void WatchdogClient::Usage(int exitcode) const {
 		s << actions[i];
 	}
 	s << "Options:\n";
-	for(int i = 0; i < actions.GetCount(); i++){
-		s << actions[i];
+	for(int i = 0; i < options.GetCount(); i++){
+		s << options[i];
 	}
 	Exit(exitcode);
 }

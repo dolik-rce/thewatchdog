@@ -20,7 +20,7 @@ UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 
-all: $(BIN)/wds $(BIN)/wdc $(DSQL_LIBS)
+all: $(BIN)/wds $(BIN)/wdc $(BIN)/wda $(DSQL_LIBS)
 
 ifeq ($(USESVN),true)
   UPPTAR:=
@@ -47,6 +47,9 @@ $(BIN)/wds: $(SERVER_DEPS) FORCE
 
 $(BIN)/wdc: $(CLIENT_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+
+$(BIN)/wda: $(CLIENT_DEPS) FORCE
+	$(MAKE) -f src/mkfile PKG=Watchdog/Admin NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
 
 $(LIB)/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
 	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="g++ -fPIC" CC="gcc -fPIC"
@@ -105,6 +108,7 @@ install: all
 	install $(LIB)/* $(DESTDIR)/usr/share/thewatchdog/lib/
 	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/thewatchdog/wds.ini
 	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/thewatchdog/wdc.ini
+	install src/Watchdog/Admin/Admin.ini $(DESTDIR)/etc/thewatchdog/wda.ini
 	install src/Watchdog/Server/css/* $(DESTDIR)/usr/share/thewatchdog/css
 	install src/Watchdog/Server/img/* $(DESTDIR)/usr/share/thewatchdog/img
 	install src/Watchdog/Server/js/* $(DESTDIR)/usr/share/thewatchdog/js
@@ -114,8 +118,9 @@ install: all
 	find $(DESTDIR) -type d -exec chmod 755 {} \; -o -type f -exec chmod 644 {} \;
 
 uninstall:
-	rm $(DESTDIR)/usr/bin/wdc
 	rm $(DESTDIR)/usr/bin/wds
+	rm $(DESTDIR)/usr/bin/wdc
+	rm $(DESTDIR)/usr/bin/wda
 	rm -r $(DESTDIR)/etc/watchdog
 	rm -r $(DESTDIR)/usr/share/thewatchdog
 	rm -r $(DESTDIR)/var/log/thewatchdog

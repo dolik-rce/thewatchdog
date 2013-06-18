@@ -1,0 +1,12 @@
+uses
+	Watchdog/Client;
+
+file
+	Admin.h,
+	Admin.cpp,
+	main.cpp,
+	Admin.ini;
+
+mainconfig
+	"" = "MT SSE2";
+
