@@ -11,7 +11,7 @@ struct SvnLog{
 	void Clear();
 	String AffectedPath();
 	String ToString() const;
-	SvnLog():msg("None"){};
+	SvnLog(){ Clear(); };
 };
 
 Time XmlToTime(const String& text) {
@@ -51,7 +51,7 @@ void SvnLog::Load(String& log) {
 		} else if (p.Tag("msg")){
 			msg = p.ReadText();
 			if(IsNull(msg))
-				msg = "None";
+				msg = "*** no commit message ***";
 			p.SkipEnd();
 		} else {
 			p.Skip();
@@ -102,15 +102,16 @@ void UpdateLogs(){
 	String cmd = "svn log --xml --verbose --incremental --revision " + IntStr(lastrev()+1) + " " + Ini::svn;
 	String xml;
 	SvnLog svnlog;
+	DUMP(cmd);
 	while(Sys(cmd, xml) == 0){
 		lastrev()++;
+		DUMP(xml);
 		if(xml!="") {
 			svnlog.Load(xml);
-		} else {
-			svnlog.Clear();
-			svnlog.revision=lastrev();
+			DUMP(svnlog);
+			svnlog.Store();
 		}
-		svnlog.Store();
+		svnlog.Clear();
 		cmd = "svn log --xml --verbose --incremental --revision " + IntStr(lastrev()+1) + " " + Ini::svn;
 	}
 }
