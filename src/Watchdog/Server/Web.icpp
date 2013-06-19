@@ -1,8 +1,8 @@
 #include "Server.h"
 
 inline SqlVal CountIf(const SqlVal& val, const SqlBool& b){
-//	return SqlFunc("sum",SqlFunc("if", SqlSet(SqlVal(~b,SqlVal::HIGH),val,0)));
-	return SqlFunc("sum",SqlVal("case "+~b+" when 0 then 0 else "+~val+" end" ,SqlVal::HIGH));
+	SqlBool cond = (!b || SqlBool(b(SqlS::COMP) + " is NULL", SqlS::COMP));
+	return SqlFunc("sum", Case(cond, SqlVal(0))(val));
 }
 
 SKYLARK(HomePage, "") {
