@@ -323,7 +323,7 @@ void WatchdogClient::Usage(int exitcode) const {
 	Exit(exitcode);
 }
 
-WatchdogClient::WatchdogClient() : lock(true), action(0) {
+WatchdogClient::WatchdogClient() : lock(true), action(0), maxage(-1) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
 	actions.Add() = "\t-g --get\n"
