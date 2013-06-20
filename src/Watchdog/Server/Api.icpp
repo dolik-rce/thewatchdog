@@ -39,16 +39,14 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 	}
 	SQL * Update(CLIENT)(LAST_WORK,GetSysTime())(LAST_ACTIVITY,GetSysTime())
 	       .Where(ID==cid);
-	SqlStatement insert = 
-	      Insert(RESULT)(REV,http.Int("revision"))
+	SqlInsert insert = Insert(RESULT)(REV,http.Int("revision"))
 	                    (CLIENT_ID,cid)
 	                    (START,start)
 	                    (STATUS,WD_INPROGRESS);
-	SQL * SqlStatement(insert.Get()+" on duplicate key update "
-	         "STATUS=values(STATUS),"
-	         "START=values(START),"
-	         "FINISHED=NULL,"
-	         "DURATION=NULL");
+	SqlUpdate update = Update(RESULT)(START,start)
+		                    (STATUS,WD_INPROGRESS)
+		        .Where(REV == http.Int("revision") && CLIENT_ID == cid);
+	Upsert(SQL, insert, update);
 	http.Response(200, "OK");
 }
 
@@ -121,7 +119,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 		}
 	}
 	
-	SqlStatement insert = 
+	SqlInsert insert = 
 	      Insert(RESULT)(REV, revision)
 	                    (CLIENT_ID, cid)
 	                    (STATUS, result)
@@ -132,15 +130,18 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (ERR_COUNT, errors)
 	                    (FAIL_COUNT, failures)
 	                    (SKIP_COUNT, skipped);
-	SQL * SqlStatement(insert.Get()+" on duplicate key update "
-	         "STATUS=values(STATUS),"
-	         "DURATION=values(DURATION),"
-	         "START=if(START is NULL, values(START), START),"
-	         "FINISHED=values(FINISHED),"
-	         "TEST_COUNT=values(TEST_COUNT),"
-	         "ERR_COUNT=values(ERR_COUNT),"
-	         "FAIL_COUNT=values(FAIL_COUNT),"
-	         "SKIP_COUNT=values(SKIP_COUNT)");
+	SqlUpdate update = 
+	      Update(RESULT)(STATUS, result)
+	                    (DURATION, http.Int("time"))
+	                    (START, start)
+	                    (FINISHED, end)
+	                    (TEST_COUNT, tests)
+	                    (ERR_COUNT, errors)
+	                    (FAIL_COUNT, failures)
+	                    (SKIP_COUNT, skipped)
+	        .Where(REV == revision && CLIENT_ID == cid);
+	Upsert(SQL, insert, update);
+	
 	http.Response(200,"OK");
 	http.Finalize();
 	
