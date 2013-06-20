@@ -12,11 +12,10 @@ Nicer icons, real css styling
 CLIENT
 ------
 Client should send WD_ERROR on error (implement as bash trap in shell, exception handling in python)
-Parsing XUnit files
 Publish some usage examples
 
 
 GENERAL
 -------
 Update documentation
-Implement Skylark/TcpSocket option to listen on specific IP
+Add and document the surrounding scripts (XUnit parser, fakesvn, ...)
