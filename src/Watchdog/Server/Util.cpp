@@ -371,7 +371,8 @@ Value Email(const Vector<Value>& arg, const Renderer *)
 
 Value Dbg(const Vector<Value>& arg, const Renderer *r)
 {
-	if(!Ini::debug && arg.GetCount()>=1 && arg[0]==1)
+	int force = arg.GetCount() ? int(arg[0]) : -1;
+	if (!(force == 1 || (force != 0 && Ini::debug)))
 		return Value();
 	String html;
 	if(r) {
