@@ -1,12 +1,5 @@
 #include "Server.h"
 
-inline SqlVal Concat(const SqlVal& val1, const SqlVal& val2){
-	//sqlite compatible concat function
-	if(SQL.GetDialect() == SQLITE3)
-		return SqlVal(val1, "||", val2, SqlS::HIGH);
-	return SqlFunc("concat", SqlSet(val1, val2));
-}
-
 SKYLARK(GetWork, "api/getwork/*:POST")
 {
 	int cid = http.Int(0);

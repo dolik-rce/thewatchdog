@@ -12,6 +12,8 @@ file
 	Api.icpp,
 	Feeds.icpp,
 	Config.icpp,
+	Sql.h,
+	Sql.cpp,
 	Util.h,
 	Util.cpp,
 	table.sch,

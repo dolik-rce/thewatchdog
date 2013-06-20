@@ -1,10 +1,5 @@
 #include "Server.h"
 
-inline SqlVal CountIf(const SqlVal& val, const SqlBool& b){
-	SqlBool cond = (!b || SqlBool(b(SqlS::COMP) + " is NULL", SqlS::COMP));
-	return SqlFunc("sum", Case(cond, SqlVal(0))(val));
-}
-
 SKYLARK(HomePage, "") {
 	SQLR * Select(CountIf(TEST_COUNT, START > (GetSysTime()-86400)).As("TESTS_DAILY"),
 	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  START > (GetSysTime()-86400)).As("OK_DAILY"),

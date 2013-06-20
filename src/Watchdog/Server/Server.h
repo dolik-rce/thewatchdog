@@ -2,14 +2,11 @@
 #define _Watchdog_Watchdog_h
 
 #include <Skylark/Skylark.h>
-#include <DynamicSql/DynamicSql.h>
 #include <Core/SMTP/SMTP.h>
 #include <Watchdog/Watchdog.h>
 using namespace Upp;
 
-#define  MODEL <Watchdog/Server/table.sch>
-#include <DynamicSql/sch_header.h>
-
+#include "Sql.h"
 #include "Util.h"
 
 namespace Upp{ 
