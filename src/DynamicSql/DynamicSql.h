@@ -111,7 +111,17 @@ public:
 		return names;
 	}
 	
+	static const int* SupportedDialects(){
+		static const int dialects[] = { SQLITE3, MY_SQL, 0 };
+		return dialects;
+	}
+	
 	String DialectToString() const {
+		ASSERT(lg2(dialect)>=0 && lg2(dialect)<5);
+		return Dialects()[lg2(dialect)];
+	}
+	
+	static String DialectToString(int dialect) {
 		ASSERT(lg2(dialect)>=0 && lg2(dialect)<5);
 		return Dialects()[lg2(dialect)];
 	}

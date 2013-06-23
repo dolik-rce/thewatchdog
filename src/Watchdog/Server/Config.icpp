@@ -33,6 +33,44 @@ SKYLARK(Config, "config") {
 	http.RenderResult("templates/config");
 }
 
+String SqlEscape(const String& in){
+	const char* s = in.Begin();
+	const char* lim = in.End();
+	String t;
+	t.Cat('\'');
+	while(s < lim) {
+		switch(*s) {
+		case '\a': t.Cat("\\a"); break;
+		case '\b': t.Cat("\\b"); break;
+		case '\f': t.Cat("\\f"); break;
+		case '\t': t.Cat("\\t"); break;
+		case '\v': t.Cat("\\v"); break;
+		case '\r': t.Cat("\\r"); break;
+//		case '\"': t.Cat("\\\""); break;
+		case '\'': t.Cat("''"); break;
+		case '\\': t.Cat("\\\\"); break;
+		case '\n': t.Cat("\\n"); break;
+		default:
+			if(byte(*s) < 32 || (byte)*s >= 0x7f) {
+				char h[4];
+				int q = (byte)*s;
+				h[0] = '\\';
+				h[1] = (3 & (q >> 6)) + '0';
+				h[2] = (7 & (q >> 3)) + '0';
+				h[3] = (7 & q) + '0';
+				t.Cat(h, 4);
+			}
+			else {
+				t.Cat(*s);
+			}
+			break;
+		}
+		s++;
+	}
+	t.Cat('\'');
+	return t;
+}
+
 String ExportTable(const SqlId& table, const SqlSet& columns) {
 	StringStream data;
 	
@@ -44,7 +82,7 @@ String ExportTable(const SqlId& table, const SqlSet& columns) {
 		for(int i = 0; i < row.GetCount(); i++){
 			if(i)
 				data << '\t';
-			data << AsCString(row[i].ToString());
+			data << SqlEscape(row[i].ToString());
 		}
 		data << '\n';
 	}
@@ -60,11 +98,13 @@ SKYLARK(Export, "export:POST") {
 	zip.WriteFolder("schema", GetSysTime());
 	zip.WriteFolder("data", GetSysTime());
 	
-	SqlSchema sch;
-	All_Tables(sch);
-	
-	for(int i = SqlSchema::SCHEMA; i <= SqlSchema::DROPCONFIG; i++){
-		zip.WriteFile(sch.Script(i), sch.NormalFileName(i,"schema"));
+	const int* dialects = DynamicSqlSession::SupportedDialects();
+	for(int j = 0; dialects[j]; j++){
+		String dir = "schema/" + DynamicSqlSession::DialectToString(dialects[j]);
+		SqlSchema sch;
+		All_Tables(sch, dialects[j]);
+		for(int i = SqlSchema::SCHEMA; i <= SqlSchema::DROPCONFIG; i++)
+			zip.WriteFile(sch.Script(i), sch.NormalFileName(i,dir));
 	}
 	
 	#define EXPORT_TABLE(T) zip.WriteFile(ExportTable(T, SqliteSchema::S_##T::ColumnSet()), "data/" #T ".tsv")
@@ -78,6 +118,8 @@ SKYLARK(Export, "export:POST") {
 	
 	#undef EXPORT_TABLE
 	
+	// TODO: pack also output files
+	
 	String fn=http["filename"];
 	if(fn.IsEmpty())
 		fn = "watchdog.zip";
@@ -90,42 +132,63 @@ SKYLARK(Import, "import:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/import"))
 		return;
 	
-	String cmd = "mysql";
-	if (Ini::sql_user!="")
-		cmd << " -u " << Ini::sql_user;
-	if (Ini::sql_host!="")
-		cmd << " -h " << Ini::sql_host;
-	if (Ini::sql_password!="")
-		cmd << " -p" << Ini::sql_password;
-	if (Ini::sql_socket!="")
-		cmd << " -S " << Ini::sql_socket;
-	if (Ini::sql_port!=0)
-		cmd << " -P " << Ini::sql_port;
-	cmd << " " << Ini::sql_database;
+	//we must finish the previous session, otherwise block table would fail
+	SQL.Commit();
+	SQL.Begin();
 	
-	// must finish transaction first, otherwise the import hangs forever,
-	// waiting for metadata lock
-	SQL.Rollback();
+	VectorMap<String, String> scripts;
+	String schdir = "schema/" + DynamicSqlSession::DialectToString(SQL.GetDialect()) + "/";
 	
-	RLOG("Starting import");
-	LocalProcess p;
-	p.Start(cmd);
-	p.Write(http["import"]);
-	p.Write("quit\n");
-	while(p.IsRunning()){
-		RLOG("Waiting for mysql to terminate");
-		Sleep(100);
+	StringUnZip unzip(http["import"]);
+	
+	while(!(unzip.IsEof() || unzip.IsError())) {
+		if(unzip.IsFolder()) {
+			unzip.SkipFile();
+			continue;
+		}
+		String path = unzip.GetPath();
+		if(path.StartsWith(schdir)) {
+			scripts.Add(path.Mid(schdir.GetCount()), unzip.ReadFile());
+			continue;
+		}
+		unzip.SkipFile();
 	}
 	
-	int res = p.GetExitCode();
+	SqlPerformScript(scripts[SqlSchema::DROPSCHEMA]);
+	SqlPerformScript(scripts[SqlSchema::SCHEMA]);
 	
-	if (res == 0) {
-		http.Redirect("/config?import=1");
-	} else {
-		String out;
-		p.Read(out);
-		http << "ERROR: Import process exited with nonzero status " << res 
-		     << "\nThe output was:\n\n" << out;
-		http.ContentType("text/plain");
+	unzip.Create(http["import"]);
+	while(!(unzip.IsEof() || unzip.IsError())) {
+		if(unzip.IsFolder()) {
+			unzip.SkipFile();
+			continue;
+		}
+		String path = unzip.GetPath();
+		if(path.StartsWith("data/")) {
+			StringStream s(unzip.ReadFile());
+			StringStream data;
+			String table = path.Mid(5, path.GetCount() - 9);
+			while (!(s.IsEof() || s.IsError())){
+				Vector<String> line = Split(s.GetLine(), "\t", false);
+				data << "insert into \"" << table << "\" values (";
+				for(int i = 0; i < line.GetCount(); i++){
+					if (i)
+						data << ",";
+					data << line[i];
+				}
+				data << ");\n";
+			}
+			RLOG("Loading data into "<<table);
+			SqlPerformScript(data.GetResult());
+			continue;
+		}
+		unzip.SkipFile();
 	}
+	
+	SqlPerformScript(scripts[SqlSchema::ATTRIBUTES]);
+	SqlPerformScript(scripts[SqlSchema::CONFIG]);
+	
+	// TODO: unpack also output files
+	
+	http.Redirect("/config?import=1");
 }
