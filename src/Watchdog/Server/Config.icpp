@@ -1,4 +1,5 @@
 #include "Server.h"
+#include <plugin/zip/zip.h>
 
 SKYLARK(Config, "config") {
 	//TODO: this code is largely duplicate of Auth method...
@@ -27,40 +28,58 @@ SKYLARK(Config, "config") {
 	    ("CLIENTS", clients)
 	    ("TARGET", target)
 	    ("IMPORT", http["import"])
-	    ("FILENAME", Format("wd_%d-%02d-%02d_%02d:%02d.sql",t.year,t.month,t.day,t.hour,t.minute));
+	    ("FILENAME", Format("wd_%d-%02d-%02d_%02d:%02d.zip",t.year,t.month,t.day,t.hour,t.minute));
 
 	http.RenderResult("templates/config");
+}
+
+String ExportTable(const SqlId& table, const SqlSet& columns) {
+	StringStream data;
+	
+	SQL * Select(columns)
+	        .From(table);
+	
+	Vector<Value> row;
+	while(SQL.Fetch(row)) {
+		for(int i = 0; i < row.GetCount(); i++){
+			if(i)
+				data << '\t';
+			data << AsCString(row[i].ToString());
+		}
+		data << '\n';
+	}
+	return data.GetResult();
 }
 
 SKYLARK(Export, "export:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/export"))
 		return;
 	
-	String out;
-	String cmd = "mysqldump";
-	if (Ini::sql_user!="")
-		cmd << " -u " << Ini::sql_user;
-	if (Ini::sql_host!="")
-		cmd << " -h " << Ini::sql_host;
-	if (Ini::sql_password!="")
-		cmd << " -p" << Ini::sql_password;
-	if (Ini::sql_socket!="")
-		cmd << " -S " << Ini::sql_socket;
-	if (Ini::sql_port!=0)
-		cmd << " -P " << Ini::sql_port;
-	cmd << " " << Ini::sql_database;
-
-	if(Sys(cmd, out) != 0) {
-		http << "Error occured while running '" << cmd << "':\n" << out;
-		return;
+	StringZip zip;
+	
+	zip.WriteFolder("schema", GetSysTime());
+	zip.WriteFolder("data", GetSysTime());
+	
+	SqlSchema sch;
+	All_Tables(sch);
+	
+	for(int i = SqlSchema::SCHEMA; i <= SqlSchema::DROPCONFIG; i++){
+		zip.WriteFile(sch.Script(i), sch.NormalFileName(i,"schema"));
 	}
+	
+	zip.WriteFile(ExportTable(SESSION, SqliteSchema::S_SESSION::ColumnSet()), "data/SESSION.tsv");
+	zip.WriteFile(ExportTable(CLIENT, SqliteSchema::S_CLIENT::ColumnSet()), "data/CLIENT.tsv");
+	zip.WriteFile(ExportTable(AUTH, SqliteSchema::S_AUTH::ColumnSet()), "data/AUTH.tsv");
+	zip.WriteFile(ExportTable(WORK, SqliteSchema::S_WORK::ColumnSet()), "data/WORK.tsv");
+	zip.WriteFile(ExportTable(RESULT, SqliteSchema::S_RESULT::ColumnSet()), "data/RESULT.tsv");
+	zip.WriteFile(ExportTable(MAIL, SqliteSchema::S_MAIL::ColumnSet()), "data/MAIL.tsv");
 	
 	String fn=http["filename"];
 	if(fn.IsEmpty())
-		fn = "watchdog.sql";
+		fn = "watchdog.zip";
 	
 	http.SetHeader("Content-Disposition", "attachment; filename="+fn);
-	http.ContentType("text/plain") << out;
+	http.Content("text/plain", zip.Finish());
 }
 
 SKYLARK(Import, "import:POST") {

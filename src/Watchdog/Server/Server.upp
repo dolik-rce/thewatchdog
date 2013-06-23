@@ -3,7 +3,8 @@ uses
 	Skylark,
 	Core/SMTP,
 	Core/SSL,
-	DynamicSql;
+	DynamicSql,
+	plugin/zip;
 
 file
 	Server.h,

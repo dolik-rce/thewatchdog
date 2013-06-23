@@ -17,7 +17,7 @@ function setAction(a,t){
  document.getElementById('wd_action').value=a
  updateForm()
  if(t=='_new')
-   setTimeout(function(){location.reload(true);},100)
+   setTimeout(function(){location.reload(true);},1000)
 }
 </script>
 
@@ -39,7 +39,7 @@ $/
       <td>Admin password:</td>
       <td><input id="pwd" onchange='updateForm();' onkeypress='updateForm();' type="password"></td>
     </tr>
-<tr><td>Export filename:</td><td><input type="text" name="filename" value="$FILENAME"></td><td><input type="submit" value="Export" onclick="setAction('/export','_new');"></td></tr>
+<tr><td>Export filename:</td><td><input type="text" name="filename" value="$FILENAME"></td><td><input type="submit" value="Export" onclick="setAction('/export','_self');"></td></tr>
 <tr><td colspan=3><span style="color:red;">WARNING: Import is potentionaly very dangerous operation,<br> all data in the database will be overwritten!</span></td></tr>
 <tr><td>Import file:</td><td><input type="file" name="import"></td><td><input type="submit" value="Import" onclick="setAction('/import','_self');"></td></tr>
 </table>
