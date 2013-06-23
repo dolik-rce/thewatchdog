@@ -33,9 +33,18 @@ SKYLARK(Config, "config") {
 	http.RenderResult("templates/config");
 }
 
-String SqlEscape(const String& in){
-	const char* s = in.Begin();
-	const char* lim = in.End();
+String SqlEscape(const Value& in){
+	if(in.IsNull() && !in.Is<String>() && !in.Is<WString>()) {
+		return "NULL";
+	}
+	if(in.Is<int>() || in.Is<int64>() || in.Is<double>())
+		return in.ToString();
+	if(in.Is<Time>() || in.Is<Date>())
+		return "\'" + in.ToString() + "\'";
+	
+	String str = in.ToString();
+	const char* s = str.Begin();
+	const char* lim = str.End();
 	String t;
 	t.Cat('\'');
 	while(s < lim) {
@@ -46,7 +55,6 @@ String SqlEscape(const String& in){
 		case '\t': t.Cat("\\t"); break;
 		case '\v': t.Cat("\\v"); break;
 		case '\r': t.Cat("\\r"); break;
-//		case '\"': t.Cat("\\\""); break;
 		case '\'': t.Cat("''"); break;
 		case '\\': t.Cat("\\\\"); break;
 		case '\n': t.Cat("\\n"); break;
@@ -74,6 +82,8 @@ String SqlEscape(const String& in){
 String ExportTable(const SqlId& table, const SqlSet& columns) {
 	StringStream data;
 	
+	data << ~columns << "\n";
+	
 	SQL * Select(columns)
 	        .From(table);
 	
@@ -82,7 +92,7 @@ String ExportTable(const SqlId& table, const SqlSet& columns) {
 		for(int i = 0; i < row.GetCount(); i++){
 			if(i)
 				data << '\t';
-			data << SqlEscape(row[i].ToString());
+			data << SqlEscape(row[i]);
 		}
 		data << '\n';
 	}
@@ -92,6 +102,8 @@ String ExportTable(const SqlId& table, const SqlSet& columns) {
 SKYLARK(Export, "export:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/export"))
 		return;
+	
+	SetDateFormat("%1:4d/%2:02d/%3:02d");
 	
 	StringZip zip;
 	
@@ -168,9 +180,11 @@ SKYLARK(Import, "import:POST") {
 			StringStream s(unzip.ReadFile());
 			StringStream data;
 			String table = path.Mid(5, path.GetCount() - 9);
+			String columns = s.GetLine();
 			while (!(s.IsEof() || s.IsError())){
 				Vector<String> line = Split(s.GetLine(), "\t", false);
-				data << "insert into \"" << table << "\" values (";
+				data << "insert into \"" << table << "\" (" << columns
+				     << ") values (";
 				for(int i = 0; i < line.GetCount(); i++){
 					if (i)
 						data << ",";
@@ -178,7 +192,7 @@ SKYLARK(Import, "import:POST") {
 				}
 				data << ");\n";
 			}
-			RLOG("Loading data into "<<table);
+			RLOG("Loading data into " << table);
 			SqlPerformScript(data.GetResult());
 			continue;
 		}
