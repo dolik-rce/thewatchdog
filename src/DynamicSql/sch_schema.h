@@ -12,7 +12,7 @@ namespace MySqlSchema {
 #undef SCHEMADIALECT
 }
 
-static void All_Tables(SqlSchema& sch, int dialect = SQL.GetDialect()) {
+void All_Tables(SqlSchema& sch, int dialect) {
 	switch(dialect) {
 		case MY_SQL: MySqlSchema::All_Tables(sch); break;
 		case SQLITE3: SqliteSchema::All_Tables(sch); break;

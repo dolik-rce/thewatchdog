@@ -16,4 +16,6 @@ namespace MySqlSchema {
 #define DOID(x) extern SqlId ADD_SCHEMA_PREFIX_CPP(x);
 #include <plugin/sqlite3/Sqlite3Schema.h>
 
+void All_Tables(SqlSchema& sch, int dialect = SQL.GetDialect());
+
 #endif
