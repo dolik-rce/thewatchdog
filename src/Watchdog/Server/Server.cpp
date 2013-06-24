@@ -69,6 +69,7 @@ void Watchdog::OpenDB(){
 			Exit();
 		}
 		SQL = sql.GetSqlite3Session();
+		AddSqliteCompatibilityFunctions(sql.GetSqlite3Session());
 		break;
 	default:
 		RLOG("Sorry, SQL dialect '" << (String)Ini::db_backend << "' is not yet supported");

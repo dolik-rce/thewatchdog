@@ -4,7 +4,8 @@ uses
 	Core/SMTP,
 	Core/SSL,
 	DynamicSql,
-	plugin/zip;
+	plugin/zip,
+	plugin/sqlite3;
 
 file
 	Server.h,

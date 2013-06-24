@@ -18,7 +18,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
 	       .InnerJoin(CLIENT).On(ID == cid)
 	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
-	              && Like(PATH,Concat(SRC,"%"))
+	              && Like(PATH,Concat(SqlSet(SRC, "%")))
 	              && DT >= (GetSysDate()-max_age))
 	       .OrderBy(REVISION);
 	while(SQLR.Fetch())
@@ -164,7 +164,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	ValueMap m;
 	Vector<String> to, tokens;
-	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
+	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
 	while(SQLR.Fetch(m)){
 		if(MatchFilter(m, revision, cid, result, data["AUTHOR"], data["PATH"])){
 			to.Add(m["EMAIL"]);

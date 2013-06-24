@@ -9,6 +9,7 @@
 SqlStatement InsertIgnore(int dialect, const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
 SqlVal CountIf(const SqlVal& val, const SqlBool& b);
-SqlVal Concat(const SqlVal& val1, const SqlVal& val2);
+SqlVal Concat(const SqlSet& set);
+void AddSqliteCompatibilityFunctions(sqlite3* db);
 
 #endif

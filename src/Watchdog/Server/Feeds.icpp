@@ -92,7 +92,7 @@ SKYLARK(Subscribe, "subscribe:POST")
 SKYLARK(Verify, "verify")
 {
 	SQL * Update(MAIL)(ACTIVE,true)
-	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
+	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))));
 	if(!SQL.GetRowsProcessed()){
 		http("ACTION",-1)
 		 .RenderResult("templates/subscription");
@@ -106,7 +106,7 @@ SKYLARK(Verify, "verify")
 SKYLARK(Unsubscribe, "unsubscribe")
 {
 	SQL * Delete(MAIL)
-	 .Where(http["v"]==SqlFunc("md5",SqlFunc("concat",SqlSet(EMAIL,FILTER,TOKEN))));
+	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))));
 	if(SQL.GetRowsProcessed())
 	http("FILTER",String("???"))("ACTION",3)
 	 .RenderResult("templates/subscription");
