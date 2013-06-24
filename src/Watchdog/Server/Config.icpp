@@ -170,14 +170,12 @@ SKYLARK(Import, "import:POST") {
 			continue;
 		}
 		String path = unzip.GetPath();
-		DUMP(path);
 		if(path.StartsWith(schdir)) {
 			scripts.Add(path.Mid(schdir.GetCount()), unzip.ReadFile());
 			continue;
 		}
 		if(path.StartsWith("output/")) {
 			String fn = String(Ini::output_dir)+path.Mid(6);
-			DUMP(fn);
 			RealizePath(fn);
 			SaveFile(fn, unzip.ReadFile());
 			continue;
