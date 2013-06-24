@@ -106,9 +106,10 @@ SKYLARK(Export, "export:POST") {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
 	
 	StringZip zip;
+	Time now = GetSysTime();
 	
-	zip.WriteFolder("schema", GetSysTime());
-	zip.WriteFolder("data", GetSysTime());
+	zip.WriteFolder("schema", now);
+	zip.WriteFolder("data", now);
 	
 	const int* dialects = DynamicSqlSession::SupportedDialects();
 	for(int j = 0; dialects[j]; j++){
@@ -130,8 +131,16 @@ SKYLARK(Export, "export:POST") {
 	
 	#undef EXPORT_TABLE
 	
-	// TODO: pack also output files
-	
+	zip.WriteFolder("output", now);
+	for(FindFile ff((String)Ini::output_dir+"/*"); ff; ff.Next()) {
+		if(ff.IsFolder()){
+			String dir = "output/"+ff.GetName();
+			zip.WriteFolder(dir, now);
+			for(FindFile f(ff.GetPath()+"/*"); f; f.Next())
+				if(f.IsFile())
+					zip.WriteFile(LoadFile(f.GetPath()), AppendFileName(dir,f.GetName()));
+		}
+	}
 	String fn=http["filename"];
 	if(fn.IsEmpty())
 		fn = "watchdog.zip";
@@ -153,14 +162,24 @@ SKYLARK(Import, "import:POST") {
 	
 	StringUnZip unzip(http["import"]);
 	
+	DeleteFolderDeep(String(Ini::output_dir));
+	
 	while(!(unzip.IsEof() || unzip.IsError())) {
 		if(unzip.IsFolder()) {
 			unzip.SkipFile();
 			continue;
 		}
 		String path = unzip.GetPath();
+		DUMP(path);
 		if(path.StartsWith(schdir)) {
 			scripts.Add(path.Mid(schdir.GetCount()), unzip.ReadFile());
+			continue;
+		}
+		if(path.StartsWith("output/")) {
+			String fn = String(Ini::output_dir)+path.Mid(6);
+			DUMP(fn);
+			RealizePath(fn);
+			SaveFile(fn, unzip.ReadFile());
 			continue;
 		}
 		unzip.SkipFile();
@@ -201,8 +220,6 @@ SKYLARK(Import, "import:POST") {
 	
 	SqlPerformScript(scripts[SqlSchema::ATTRIBUTES]);
 	SqlPerformScript(scripts[SqlSchema::CONFIG]);
-	
-	// TODO: unpack also output files
 	
 	http.Redirect("/config?import=1");
 }
