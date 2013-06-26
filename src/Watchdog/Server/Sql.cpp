@@ -25,19 +25,7 @@ bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update) {
 	return true;
 }
 
-SqlVal CountIf(const SqlVal& val, const SqlBool& b){
-	SqlBool cond = (!b || SqlBool(b(SqlS::COMP) + " is NULL", SqlS::COMP));
-	return SqlFunc("sum", Case(cond, SqlVal(0))(val));
-}
 
-SqlVal Concat(const SqlSet& set){
-//	//sqlite compatible concat function
-//	if(SQL.GetDialect() == SQLITE3){
-//		String s = ~set;
-//		s.Replace(",","||");
-//		return SqlVal(s, SqlS::FN);
-//	}
-	return SqlFunc("concat", set);
 }
 
 //add some compatibility functions to sqlite3
