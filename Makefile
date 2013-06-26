@@ -4,27 +4,37 @@ OBJ:=obj
 BIN:=bin
 LIB:=lib
 TMP:=.
-
-# dependencies
-COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
-SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3
-CLIENT_DEPS:=$(COMMON_DEPS)
 DSQL:=mysql sqlite
-DSQL_LIBS:=$(foreach d,$(DSQL), $(LIB)/$d.so)
-DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
-DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
-UPPVER:=6149
+UPPVER:=6151
 UPPFILE:=upp-x11-src-$(UPPVER)
 UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 
+# dependencies
+COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
+SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3 uppsrc/plugin/zip
+CLIENT_DEPS:=$(COMMON_DEPS)
+
+#internal variables
+DSQL_LIBS:=$(foreach d,$(DSQL), $(LIB)/$d.so)
+DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
+DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
+
+MAKE_WD=$(MAKE) -f src/mkfile NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+MAKE_DSQL=$(MAKE_WD) LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="$(CXX) -fPIC" CC="$(CC) -fPIC"
+
+
 all: $(BIN)/wds $(BIN)/wdc $(BIN)/wda $(DSQL_LIBS)
 
 ifeq ($(USESVN),true)
   UPPTAR:=
+  GETUPPDEP=mkdir -p $@; svn co '$(UPPSVN)/$@' $@;
+  GETUPPDEPFILE=mkdir -p uppsrc; svn export --force '$(UPPSVN)/$@' $@
 else
+  GETUPPDEP=tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@;
+  GETUPPDEPFILE=$(GETUPPDEP)
   $(UPPTAR):
 	wget -nv -O $@ '$(UPPSRC)'
 endif
@@ -43,44 +53,33 @@ deb:
 	dpkg-buildpackage -j$(JNUM)
 
 $(BIN)/wds: $(SERVER_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=Watchdog/Server NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+	$(MAKE_WD) PKG=Watchdog/Server
 
 $(BIN)/wdc: $(CLIENT_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=Watchdog/Client NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+	$(MAKE_WD) PKG=Watchdog/Client
 
 $(BIN)/wda: $(CLIENT_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=Watchdog/Admin NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
+	$(MAKE_WD) PKG=Watchdog/Admin
 
 $(LIB)/mysql.so: $(DSQL_MYSQL_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/mysql NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="g++ -fPIC" CC="gcc -fPIC"
+	$(MAKE_DSQL) PKG=DynamicSql/mysql
 
 $(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
-	$(MAKE) -f src/mkfile PKG=DynamicSql/sqlite NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 DLL" $(JOBS) TARGET=$@ LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="g++ -fPIC" CC="gcc -fPIC"
+	$(MAKE_DSQL) PKG=DynamicSql/sqlite
 
 uppsrc/%: $(UPPTAR)
-	if $(USESVN); then \
-		mkdir -p $@; \
-		svn co '$(UPPSVN)/$@' $@; \
-	else \
-		tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@; \
-	fi
+	$(GETUPPDEP)
 	[ -e patch/$*.patch ] && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
 
 uppsrc/uppconfig.h: $(UPPTAR)
-	if $(USESVN); then \
-		mkdir -p uppsrc; \
-		svn export --force '$(UPPSVN)/$@' uppsrc/uppconfig.h; \
-	else \
-		tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@; \
-	fi
+	$(GETUPPDEPFILE)
 
 update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
-	if $(USESVN); then \
-		for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
-			svn up $$d; \
-		done; \
-		svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h; \
-	fi
+	$(USESVN) || (echo "ERROR: 'update-uppsrc' goal should be only used when USESVN=true" && exit 1)
+	for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
+		svn up $$d; \
+	done;
+	svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h;
 
 clean:
 	rm -rf $(OBJ) $(BIN) $(LIB)
