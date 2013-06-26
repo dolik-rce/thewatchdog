@@ -58,7 +58,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	Time start;
 	if(IsNull(http["start"])){
-		start.Set(GetSysTime().Get()-http.Int("time"));
+		start.Set(GetSysTime().Get()-http.Int("duration"));
 	} else {
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
@@ -123,7 +123,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      Insert(RESULT)(REV, revision)
 	                    (CLIENT_ID, cid)
 	                    (STATUS, result)
-	                    (DURATION, http.Int("time"))
+	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
 	                    (TEST_COUNT, tests)
@@ -132,7 +132,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (SKIP_COUNT, skipped);
 	SqlUpdate update = 
 	      Update(RESULT)(STATUS, result)
-	                    (DURATION, http.Int("time"))
+	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
 	                    (TEST_COUNT, tests)
