@@ -3,6 +3,7 @@
 
 #include <MySql/MySql.h>
 #include <plugin/sqlite3/Sqlite3.h>
+#include <plugin/sqlite3/lib/sqlite3.h>
 
 using namespace Upp;
 
@@ -142,15 +143,27 @@ public:
 	}
 	~DynamicSqlSession() {}
 	
-	void SetLibraryPath(const String path) { libpath = path; }
+	void SetLibraryPath(const String& path) { libpath = path; }
 	
 	void SetDialect(int _dialect){
+		bool loaded;
 		switch(_dialect) {
-			case MY_SQL: mysql.Load(libpath+"/mysql.so"); break;
-			case SQLITE3: sqlite.Load(libpath+"/sqlite.so"); break;
+			case MY_SQL: loaded = mysql.Load(libpath+"/mysql.so"); break;
+			case SQLITE3: loaded = sqlite.Load(libpath+"/sqlite.so"); break;
 			default: NEVER_("Unknown SQL dialect");
 		}
+		if(!loaded){
+			RLOG("ERROR: failed to load dsql plugin");
+			Exit(1);
+		}
 		Dialect(_dialect);
+	}
+	
+	T_SQLITE_DLL& GetSqliteDli(){
+		return sqlite;
+	}
+	T_MYSQL_DLL& GetMysqlDli(){
+		return mysql;
 	}
 };
 

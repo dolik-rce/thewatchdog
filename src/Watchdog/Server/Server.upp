@@ -4,8 +4,7 @@ uses
 	Core/SMTP,
 	Core/SSL,
 	DynamicSql,
-	plugin/zip,
-	plugin/sqlite3;
+	plugin/zip;
 
 file
 	Server.h,
@@ -16,6 +15,7 @@ file
 	Config.icpp,
 	Sql.h,
 	Sql.cpp,
+	SqliteCompat.cpp,
 	Util.h,
 	Util.cpp,
 	table.sch,

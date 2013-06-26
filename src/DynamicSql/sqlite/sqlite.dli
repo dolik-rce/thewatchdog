@@ -1,3 +1,10 @@
 FN(void*, GetSession, ())
 FN(bool, Open, (const char*))
 FN(void, Close, ())
+
+FN(int, sqlite3_create_function, (::sqlite3*, const char*, int, int, void*, void*, void*, void (*)(sqlite3_context*) ))
+FN(const unsigned char*, sqlite3_value_text, (sqlite3_value*))
+FN(int, sqlite3_value_int, (sqlite3_value*))
+FN(void, sqlite3_result_null, (sqlite3_context*))
+FN(void, sqlite3_result_text, (sqlite3_context*, const char*, int, void(*)(void*)))
+FN(void, sqlite3_result_value, (sqlite3_context*, sqlite3_value*))

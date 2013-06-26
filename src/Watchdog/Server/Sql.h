@@ -8,7 +8,6 @@
 
 SqlStatement InsertIgnore(int dialect, const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
-void AddSqliteCompatibilityFunctions(sqlite3* db);
 
 inline SqlVal If(const SqlBool& b, const SqlVal& trueval, const SqlVal& falseval) {
 	return SqlFunc("if", SqlSet(SqlVal(~b, SqlS::HIGH), trueval, falseval));
@@ -22,5 +21,7 @@ inline SqlVal CountIf(const SqlVal& val, const SqlBool& b){
 inline SqlVal Concat(const SqlSet& set){
 	return SqlFunc("concat", set);
 }
+
+void AddSqliteCompatibilityFunctions(DynamicSqlSession& dsql);
 
 #endif

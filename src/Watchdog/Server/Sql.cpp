@@ -24,37 +24,3 @@ bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update) {
 	}
 	return true;
 }
-
-
-}
-
-//add some compatibility functions to sqlite3
-#include <plugin/sqlite3/lib/sqlite3.h>
-
-extern "C" {
-void sqlite_md5(sqlite3_context *context, int argc, sqlite3_value **argv) {
-	if (argc == 1) {
-		String s((const char*)sqlite3_value_text(argv[0]));
-		String md5 = MD5StringS(s);
-		sqlite3_result_text(context, md5.Begin(), md5.GetCount(), SQLITE_TRANSIENT);
-		return;
-	}
-	sqlite3_result_null(context);
-}
-void sqlite_concat(sqlite3_context *context, int argc, sqlite3_value **argv) {
-	if(argc==0) {
-		sqlite3_result_null(context);
-		return;
-	}
-	String s;
-	for(int i = 0; i < argc; i++)
-		s.Cat((const char*)sqlite3_value_text(argv[0]));
-	sqlite3_result_text(context, s.Begin(), s.GetCount(), SQLITE_TRANSIENT);
-}
-}
-
-void AddSqliteCompatibilityFunctions(sqlite3* db){
-	sqlite3_initialize();
-	sqlite3_create_function(db, "md5", 1, SQLITE_ANY, 0, sqlite_md5, 0, 0);
-	sqlite3_create_function(db, "concat", -1, SQLITE_ANY, 0, sqlite_concat, 0, 0);
-}
