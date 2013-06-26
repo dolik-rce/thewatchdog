@@ -1,0 +1,35 @@
+Index: plugin/zip/UnZip.cpp
+===================================================================
+--- plugin/zip/UnZip.cpp	(revision 6151)
++++ plugin/zip/UnZip.cpp	(working copy)
+@@ -96,7 +96,7 @@
+ 
+ bool UnZip::IsEof() const
+ {
+-	return eof || !zip || eof || error || zip->IsEof();
++	return eof || !zip || error || zip->IsEof();
+ }
+ 
+ bool UnZip::IsFolder() const
+Index: plugin/zip/Zip.cpp
+===================================================================
+--- plugin/zip/Zip.cpp	(revision 6151)
++++ plugin/zip/Zip.cpp	(working copy)
+@@ -102,6 +102,8 @@
+ 
+ Zip::Zip(Stream& out)
+ {
++	done = 0;
++	zip = NULL;
+ 	Create(out);
+ }
+ 
+@@ -130,7 +132,7 @@
+ 
+ void StringZip::Create()
+ {
+-	zip.Create();
++	Zip::Create(zip);
+ }
+ 
+ String StringZip::Finish()

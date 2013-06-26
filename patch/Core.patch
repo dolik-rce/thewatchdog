@@ -1,0 +1,14 @@
+Index: Core/Cpu.cpp
+===================================================================
+--- Core/Cpu.cpp	(revision 6151)
++++ Core/Cpu.cpp	(working copy)
+@@ -37,7 +37,8 @@
+ #else
+ 	dword info1;
+ 	dword info2;
+-	__asm__("movl $1, %%eax\n\tcpuid" : "=d" (info1), "=c" (info2) : : "%eax", "%ebx");
++//	__asm__("movl $1, %%eax\n\tcpuid" : "=d" (info1), "=c" (info2) : : "%eax", "%ebx");
++	__asm__("pushl %%ebx\n\tmovl $1, %%eax\n\tcpuid\n\tpopl %%ebx" : "=d" (info1), "=c" (info2) : : "%eax");
+ #endif
+ 	sHasMMX = ((info1 >> 23) & 0x1);
+ 	sHasSSE = ((info1 >> 25) & 0x1);
