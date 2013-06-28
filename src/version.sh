@@ -1,7 +1,7 @@
 action="$1"
 file="$2"
 lock="/tmp/git_version_$(echo "$file" | md5sum | head -c 32).lock"
-versionfile="src/Watchdog/Version.h"
+versionfile="src/Watchdog/Version.cpp"
 
 setver() {
     sed 's/version = "[^"]*"/version = "'$(git describe --tags --dirty)'"/' $@
