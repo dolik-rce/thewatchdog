@@ -11,6 +11,12 @@ unsetver() {
     sed 's/version = "[^"]*"/version = ""/'
 }
 
+if [ $# -eq 0 ]; then
+    # manual execution, for convenience...
+    setver -i "$versionfile"
+    exit 0
+fi
+
 # git describe invokes this filter too, so we must make sure 
 # that we don't run into troubles with recursion
 if mkdir "$lock" &>/dev/null; then
