@@ -14,5 +14,6 @@ enum {
 };
 
 const char* status(int n);
+const char* WatchdogVersion();
 
 #endif
