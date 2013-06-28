@@ -158,7 +158,7 @@ CONSOLE_APP_MAIN{
 	           , (String)Ini::log_file);
 	Smtp::Trace(Ini::log_level == 2);
 	
-	RLOG(" === STARTING WATCHDOG === ");
+	RLOG(" === STARTING WATCHDOG " << WatchdogVersion() << " === ");
 	RLOG(GetIniInfoFormatted());
 	RDUMPM(Environment());
 	

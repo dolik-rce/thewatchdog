@@ -5,6 +5,7 @@ file
 	Common readonly separator,
 	Watchdog.h,
 	Watchdog.cpp,
+	Version.cpp,
 	srcdoc.tpp,
 	TODO;
 
