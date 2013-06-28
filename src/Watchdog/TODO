@@ -1,11 +1,13 @@
 SERVER
 ------
 Clean up the counters in db and in the code
+Versioning of schema and exports
+Client-server communication in json (?)
 Multiple repository support
 Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
 Setup helper (create tables on first run, create admin user, get svn history)
-Git support
+Git (and other VCS) support
 Nicer icons, real css styling
 
 
