@@ -1,6 +1,5 @@
 SERVER
 ------
-Clean up the counters in db and in the code
 Versioning of schema and exports
 Client-server communication in json (?)
 Multiple repository support

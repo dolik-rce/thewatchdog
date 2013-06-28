@@ -126,19 +126,19 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
-	                    (TEST_COUNT, tests)
-	                    (ERR_COUNT, errors)
-	                    (FAIL_COUNT, failures)
-	                    (SKIP_COUNT, skipped);
+	                    (OK, tests - (errors + failures + skipped))
+	                    (ERR, errors)
+	                    (FAIL, failures)
+	                    (SKIP, skipped);
 	SqlUpdate update = 
 	      Update(RESULT)(STATUS, result)
 	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
-	                    (TEST_COUNT, tests)
-	                    (ERR_COUNT, errors)
-	                    (FAIL_COUNT, failures)
-	                    (SKIP_COUNT, skipped)
+	                    (OK, tests - (errors + failures + skipped))
+	                    (ERR, errors)
+	                    (FAIL, failures)
+	                    (SKIP, skipped)
 	        .Where(REV == revision && CLIENT_ID == cid);
 	Upsert(SQL, insert, update);
 	

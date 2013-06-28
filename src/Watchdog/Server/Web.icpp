@@ -1,18 +1,18 @@
 #include "Server.h"
 
 SKYLARK(HomePage, "") {
-	SQLR * Select(CountIf(TEST_COUNT, START > (GetSysTime()-86400)).As("TESTS_DAILY"),
-	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  START > (GetSysTime()-86400)).As("OK_DAILY"),
-	              CountIf(ERR_COUNT,  START > (GetSysTime()-86400)).As("ERR_DAILY"),
-	              CountIf(FAIL_COUNT, START > (GetSysTime()-86400)).As("FAIL_DAILY"),
-	              CountIf(TEST_COUNT, START > (GetSysDate()-30)).As("TESTS_MONTHLY"),
-	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  START > (GetSysDate()-30)).As("OK_MONTHLY"),
-	              CountIf(ERR_COUNT,  START > (GetSysDate()-30)).As("ERR_MONTHLY"),
-	              CountIf(FAIL_COUNT, START > (GetSysDate()-30)).As("FAIL_MONTHLY"),
-	              CountIf(TEST_COUNT, SqlBool::True()).As("TESTS_TOTAL"),
-	              CountIf(TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),  SqlBool::True()).As("OK_TOTAL"),
-	              CountIf(ERR_COUNT,  SqlBool::True()).As("ERR_TOTAL"),
-	              CountIf(FAIL_COUNT, SqlBool::True()).As("FAIL_TOTAL"),
+	SQLR * Select(CountIf(OK+ERR+FAIL+SKIP, START > (GetSysTime()-86400)).As("TESTS_DAILY"),
+	              CountIf(OK,  START > (GetSysTime()-86400)).As("OK_DAILY"),
+	              CountIf(ERR,  START > (GetSysTime()-86400)).As("ERR_DAILY"),
+	              CountIf(FAIL, START > (GetSysTime()-86400)).As("FAIL_DAILY"),
+	              CountIf(OK+ERR+FAIL+SKIP, START > (GetSysDate()-30)).As("TESTS_MONTHLY"),
+	              CountIf(OK,  START > (GetSysDate()-30)).As("OK_MONTHLY"),
+	              CountIf(ERR,  START > (GetSysDate()-30)).As("ERR_MONTHLY"),
+	              CountIf(FAIL, START > (GetSysDate()-30)).As("FAIL_MONTHLY"),
+	              CountIf(OK+ERR+FAIL+SKIP, SqlBool::True()).As("TESTS_TOTAL"),
+	              CountIf(OK,  SqlBool::True()).As("OK_TOTAL"),
+	              CountIf(ERR,  SqlBool::True()).As("ERR_TOTAL"),
+	              CountIf(FAIL, SqlBool::True()).As("FAIL_TOTAL"),
 	              CountIf(1, STATUS == WD_INPROGRESS).As("RUNNING"))
 	      .From(RESULT);
 	ValueMap stats;
@@ -148,10 +148,10 @@ SKYLARK(Commits, "commits") {
 	ValueMap vm;
 	SQLR * Select(REVISION,AUTHOR,DT,PATH,MSG,
 	             CountIf(1, STATUS==WD_INPROGRESS).As("RUNNING"),
-	             SqlFunc("sum",TEST_COUNT-(FAIL_COUNT+ERR_COUNT+SKIP_COUNT)).As("SUCCESS"),
-	             SqlFunc("sum",FAIL_COUNT).As("FAIL"),
-	             SqlFunc("sum",ERR_COUNT).As("ERROR"),
-	             SqlFunc("sum",SKIP_COUNT).As("SKIP"))
+	             SqlFunc("sum",OK).As("SUCCESS"),
+	             SqlFunc("sum",FAIL).As("FAIL"),
+	             SqlFunc("sum",ERR).As("ERROR"),
+	             SqlFunc("sum",SKIP).As("SKIP"))
 	      .From(WORK)
 	      .LeftJoin(RESULT).On(REVISION==REV)
 	      .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
@@ -230,7 +230,7 @@ SKYLARK(Result, "result/*/*") {
 	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC,
 	             START, FINISHED, DURATION, STATUS,
-	             TEST_COUNT, ERR_COUNT, FAIL_COUNT, SKIP_COUNT)
+	             (OK+FAIL+ERR+SKIP).As("TOTAL"), OK, ERR, FAIL, SKIP)
 	      .From(RESULT)
 	      .InnerJoin(WORK).On(REVISION == REV)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
@@ -342,11 +342,11 @@ SKYLARK(Stats, "stats/*") {
 		return;
 	}
 	SQLR * Select(REV,
-	              TEST_COUNT, 
-	              TEST_COUNT-(ERR_COUNT+FAIL_COUNT+SKIP_COUNT),
-	              ERR_COUNT,
-	              FAIL_COUNT,
-	              SKIP_COUNT,
+	              OK + ERR + FAIL + SKIP, 
+	              OK,
+	              ERR,
+	              FAIL,
+	              SKIP,
 	              DURATION,
 	              MSG, AUTHOR, DT)
 	        .From(RESULT)
