@@ -4,7 +4,12 @@ lock="/tmp/git_version_$(echo "$file" | md5sum | head -c 32).lock"
 versionfile="src/Watchdog/Version.cpp"
 
 setver() {
-    sed 's/version = "[^"]*"/version = "'$(git describe --tags --dirty)'"/' $@
+    if git diff | grep -q '.'; then
+        dirty="-dirty" 
+    else
+        dirty=""
+    fi
+    sed 's/version = "[^"]*"/version = "'$(git describe --tags)"$dirty"'"/' $@
 }
 
 unsetver() {
