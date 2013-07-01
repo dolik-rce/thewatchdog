@@ -380,12 +380,14 @@ SKYLARK(Stats, "stats/*") {
 	Vector<Vector<Value> > stats;
 	Vector<Value> row;
 	stats.SetCount(6);
+	Vector<String> colors;
 	while(SQLR.Fetch(row)){
 		for(int i = 0; i < 6; i++){
-			point.Set("x",row[0]);
-			point.Set("y",row[1+i]);
+			point.Set("x", row[0]);
+			point.Set("y", row[1+i]);
 			stats[i].Add(point);
 		}
+		colors.Add(ComputeColor(row[2], row[4], row[3], true).To<RawHtmlText>().text);
 		vm.Set("MSG",row[7]);
 		vm.Set("AUTHOR",row[8]);
 		vm.Set("DT",row[9]);
@@ -394,6 +396,7 @@ SKYLARK(Stats, "stats/*") {
 	for(int i = 0; i < 6; i++){
 		Reverse(stats[i]);
 	}
+	Reverse(colors);
 	
 	http("CLIENT", client)
 	    ("TOTAL", ValueArray(stats[0]))
@@ -402,6 +405,7 @@ SKYLARK(Stats, "stats/*") {
 	    ("FAIL", ValueArray(stats[3]))
 	    ("SKIP", ValueArray(stats[4]))
 	    ("DURATION", ValueArray(stats[5]))
+	    ("COLORS", Raw(Join(colors, ", ")))
 	    ("REVLOG", revlog)
 	 .RenderResult("templates/stats");
 }

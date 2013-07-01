@@ -16,7 +16,7 @@ bool MatchFilter(const ValueMap& m, int revision, int client, int result, const 
 SqlVal SqlEmptyString();
 double SuccessRate(int ok, int fail, int err);
 int ComputeStatus(int ok, int fail, int err);
-Value ComputeColor(int ok, int fail, int err);
+Value ComputeColor(int ok, int fail, int err, bool quoted = false);
 
 
 namespace Upp { namespace Ini {

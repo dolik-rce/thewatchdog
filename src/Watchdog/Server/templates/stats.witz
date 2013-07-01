@@ -55,10 +55,11 @@ var g1 = new Graph({
 var g2 = new Graph({
 	element: document.getElementById("duration"),
 	legend : false,
+	renderer: colorbar,
 	xFormatter: formatx,
 	yFormatter: formaty,
 	series: [{
-			color: "#88F",
+			color: [ $COLORS ],
 			data: $DURATION,
 			name: 'Duration'
 		}]
