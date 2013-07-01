@@ -6,6 +6,7 @@
 <tr>
  <th>Revision</th>
  <th>Status</th>
+ <th>Results</th>
  <th>Author</th>
  <th>Date</th>
  <th>Path</th>
@@ -14,6 +15,11 @@
 $for(i in COMMITS)
     <tr>
       <th><a href=$Commit(i.REVISION)>$i.REVISION</a></th>
+      $if(i.COLOR!="RAW: ")
+      <td class="centered" style="background-color:$i.COLOR;">$i.RATE%</td>
+      $else
+      <td></td>
+      $endif
       <td class="centered">
       $if(i.RUNNING>0)<span title="In progress" class="status1">$i.RUNNING</span>$endif
       $if(i.FAIL>0)<span title="Failed" class="status2">$i.FAIL</span>$endif

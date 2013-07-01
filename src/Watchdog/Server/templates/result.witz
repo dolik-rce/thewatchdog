@@ -21,7 +21,7 @@
 </div><div class="ldiv">
 <h3>Result</h3>
 <table class="indent">
-<tr><td>Status:</td><td><span class="status$RESULT.STATUSN">$RESULT.STATUS</span></td></tr>
+<tr><td>Status:</td><td>$RESULT.STATUS $RESULT.RATE%<div class="icon circle" style="background-color:$RESULT.COLOR;"></div></td></tr>
 $if(RESULT.TOTAL > 1) <tr><td>Tests performed:</td><td>$RESULT.TOTAL</td></tr> $/
 $if(RESULT.TOTAL > 1) <tr><td>Tests succeeded:</td><td>$RESULT.OK</td></tr> $/
 $if(RESULT.FAIL > 0) <tr><td>Tests failed:</td><td>$RESULT.FAIL</td></tr> $/
@@ -32,7 +32,7 @@ $if(RESULT.STATUSN>1)
 <tr><td>End time:</td><td>$RESULT.FINISHED</td></tr>
 $endif
 <tr><td>Duration:</td><td>$Duration(RESULT.DURATION)</td></tr>
-<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.REVISION?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" width=16 height=16>Delete</a></td></tr>
+<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.REVISION?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" alt="Delete" title="Delete" width=16 height=16>Delete</a></td></tr>
 </table>
 </div>
 $if(RESULT.STATUSN>1)
@@ -41,3 +41,4 @@ $if(RESULT.STATUSN>1)
 <pre class="output">$OUTPUT</pre>
 </div>
 $endif
+$dbg(1)

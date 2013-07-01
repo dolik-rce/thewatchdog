@@ -22,7 +22,7 @@ $if(count(CLIENTS)>1)
   $for(i in CLIENTS)
    $if(i._key > 0)
     $if(RESULTS[j][i._key])
-     <td class="status$RESULTS[j][i._key][1]"><a href=$Result(j,i._key)>$RESULTS[j][i._key][0]</a></td>
+     <td style="background-color:$RESULTS[j][i._key][3];"><a href=$Result(j,i._key)>$RESULTS[j][i._key][0] $RESULTS[j][i._key][2]%</a></td>
     $else
      <td>&nbsp;</td>
     $endif

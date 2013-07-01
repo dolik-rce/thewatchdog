@@ -17,7 +17,7 @@ void sqlite_concat(sqlite3_context *context, int argc, sqlite3_value **argv) {
 	}
 	String s;
 	for(int i = 0; i < argc; i++)
-		s.Cat((const char*)sSqlite->sqlite3_value_text(argv[0]));
+		s.Cat((const char*)sSqlite->sqlite3_value_text(argv[i]));
 	sSqlite->sqlite3_result_text(context, s.Begin(), s.GetCount(), SQLITE_TRANSIENT);
 }
 void sqlite_if(sqlite3_context *context, int argc, sqlite3_value **argv) {

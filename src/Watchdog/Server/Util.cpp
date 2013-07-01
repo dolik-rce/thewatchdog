@@ -332,6 +332,30 @@ SqlVal SqlEmptyString(){
 	return s;
 }
 
+double SuccessRate(int ok, int fail, int err){
+	if (ok+fail+err == 0)
+		return 0;
+	return roundr(100.0*ok/(ok+fail+err), 2);
+}
+
+int ComputeStatus(int ok, int fail, int err){
+	if (err>0) 
+		return WD_ERROR;
+	if (fail>0)
+		return WD_FAILED;
+	return WD_DONE;
+}
+
+Value ComputeColor(int ok, int fail, int err){
+	if (ok+fail+err == 0)
+		return Raw("");
+	double norm =  1.0 / (ok+fail+err);
+	int r = 0x7 * fail * norm + 0x8;
+	int g = 0x7 * ok * norm + 0x8;
+	int b = 0x8;
+	return Raw(Format("#%X%X%X", r, g, b));
+}
+
 Value Duration(const Vector<Value>& arg, const Renderer *)
 {
 	int t = arg[0];

@@ -14,6 +14,10 @@ void SendEmail(const String& to, const String& token, const String& subject, con
 ValueArray ParseFilter(const String& Filter);
 bool MatchFilter(const ValueMap& m, int revision, int client, int result, const String& author, const String& path);
 SqlVal SqlEmptyString();
+double SuccessRate(int ok, int fail, int err);
+int ComputeStatus(int ok, int fail, int err);
+Value ComputeColor(int ok, int fail, int err);
+
 
 namespace Upp { namespace Ini {
 	extern IniString output_dir;

@@ -20,6 +20,9 @@ SKYLARK(HomePage, "") {
 		http << "Database error";
 		return;
 	}
+	stats.Add("RATE_DAILY", SuccessRate(stats["OK_DAILY"],stats["FAIL_DAILY"],stats["ERR_DAILY"]));
+	stats.Add("RATE_MONTHLY", SuccessRate(stats["OK_MONTHLY"],stats["FAIL_MONTHLY"],stats["ERR_MONTHLY"]));
+	stats.Add("RATE_TOTAL", SuccessRate(stats["OK_TOTAL"],stats["FAIL_TOTAL"],stats["ERR_TOTAL"]));
 	SQLR * Select(CountIf(1, DT > (GetSysTime()-86400)).As("DAILY"),
 	              CountIf(1, DT > (GetSysDate()-30)).As("MONTHLY"))
 	      .From(WORK);
@@ -122,18 +125,22 @@ SKYLARK(Client, "client/*") {
 		http << "unknown client";
 		return;
 	}
-	SQLR * Select(REVISION, START, FINISHED, DURATION, STATUS, SqlVal(Like(PATH,AsString(client["SRC"])+"%")," = ",SqlVal(1),SqlS::LOW).As("FITS"))
+	SQLR * Select(REVISION, START, FINISHED, DURATION, STATUS, OK, ERR, FAIL, SqlVal(Like(PATH,AsString(client["SRC"])+"%")," = ",SqlVal(1),SqlS::LOW).As("FITS"))
 	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
 	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
 	       .OrderBy(Descending(REVISION));
 	ValueArray results;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
+		double rate = SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]);
+		int st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
+		String full = Format("%s %d%%", status(st), rate);
 		if((bool)vm["FITS"]){
-			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Ready":status(vm["STATUS"]));
+			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Ready":full);
 		} else {
-			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Not interested":status(vm["STATUS"]));
+			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Not interested":full);
 		}
+		vm.Add("COLOR", ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
 		if(vm["STATUS"]==1)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
 		results.Add(vm);
@@ -158,6 +165,8 @@ SKYLARK(Commits, "commits") {
 	      .GroupBy(REVISION)
 	      .OrderBy(Descending(REVISION));
 	while(SQLR.Fetch(vm)) {
+		vm.Add("RATE", SuccessRate(Nvl((int)vm["SUCCESS"]), Nvl((int)vm["FAIL"]), Nvl((int)vm["ERROR"])));
+		vm.Add("COLOR", ComputeColor(Nvl((int)vm["SUCCESS"]), Nvl((int)vm["FAIL"]), Nvl((int)vm["ERROR"])));
 		commits.Add(vm);
 	}
 	http("COMMITS", commits)
@@ -191,7 +200,7 @@ SKYLARK(Commit, "commit/*") {
 
 SKYLARK(Results, "results") {
 	VectorMap<String, int> pg = Paging(http);
-	SQLR * Select(REVISION, CLIENT_ID, NAME, STATUS)
+	SQLR * Select(REVISION, CLIENT_ID, NAME, STATUS, OK, ERR, FAIL)
 	       .From(WORK)
 	       .LeftJoin(RESULT).On(REV == REVISION)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
@@ -203,10 +212,14 @@ SKYLARK(Results, "results") {
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
 		if(!AsString(vm["STATUS"]).IsEmpty()) {
+			int st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
 			ValueArray va;
-			va.Add(status(vm["STATUS"]));
-			va.Add(vm["STATUS"]);
-			results.GetAdd(vm["REVISION"]).Add(vm["CLIENT_ID"], va);
+			va.Add(status(st));
+			va.Add(st);
+			va.Add(SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]));
+			va.Add(ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
+			results.GetAdd(vm["REVISION"])
+			       .Add(vm["CLIENT_ID"], va);
 		}
 		commits.FindAdd(vm["REVISION"]);
 		clients.Set(vm["CLIENT_ID"], vm["NAME"]);
@@ -240,10 +253,17 @@ SKYLARK(Result, "result/*/*") {
 		http << "data not available";
 		return;
 	}
-	if(result["STATUS"]==1)
-		result.Set("DURATION",GetSysTime()-Time(result["START"]));
-	result.Set("STATUSN", result["STATUS"]);
-	result.Set("STATUS", status(result["STATUS"]));
+	result.Add("RATE", SuccessRate(result["OK"], result["FAIL"], result["ERR"]));
+	result.Add("COLOR", ComputeColor(result["OK"], result["FAIL"], result["ERR"]));
+	int st = result["STATUS"];
+	if(st > WD_INPROGRESS) {
+		st = ComputeStatus(result["OK"], result["FAIL"], result["ERR"]);
+		result.Set("STATUS", st);
+	}
+	if(st == WD_INPROGRESS)
+		result.Set("DURATION", GetSysTime()-Time(result["START"]));
+	result.Set("STATUSN", st);
+	result.Set("STATUS", status(st));
 	String output = Format("%s/%d/%d.log",(String)Ini::output_dir,rev,cid);
 	http("RESULT", result)("OUTPUT", LoadFile(output))
 	    .RenderResult("templates/result");

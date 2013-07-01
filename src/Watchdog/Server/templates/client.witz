@@ -30,7 +30,7 @@ $if(i.START)
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>
-      <td class="status$i.STATUS"><a href=$Result(i.REVISION,CLIENT.ID)>$i.STATUSSTR</a></td>
+      <td style="background-color:$i.COLOR;"><a href=$Result(i.REVISION,CLIENT.ID)>$i.STATUSSTR</a></td>
 $else
       <td>&nbsp;</td>
       <td>&nbsp;</td>
