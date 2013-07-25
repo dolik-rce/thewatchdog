@@ -10,3 +10,4 @@ debian/tmp
 debian/thewatchdog
 debian/thewatchdog-dbg
 upp-x11-src-*.tar.gz
+*.preprocessed
