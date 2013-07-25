@@ -1,11 +1,12 @@
 # configuration
 DESTDIR:=
+SHELL:=bash
 OBJ:=obj
 BIN:=bin
 LIB:=lib
 TMP:=.
 DSQL:=mysql sqlite
-UPPVER:=6151
+UPPVER:=6204
 UPPFILE:=upp-x11-src-$(UPPVER)
 UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
@@ -74,7 +75,7 @@ uppsrc/%: $(UPPTAR)
 uppsrc/uppconfig.h: $(UPPTAR)
 	$(GETUPPDEPFILE)
 
-update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
+update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DSQL_SQLITE_DEPS) $(DSQL_MYSQL_DEPS)
 	$(USESVN) || (echo "ERROR: 'update-uppsrc' goal should be only used when USESVN=true" && exit 1)
 	for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
 		svn up $$d; \
@@ -84,7 +85,7 @@ update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DYNSQL_DEPS)
 clean:
 	rm -rf $(OBJ) $(BIN) $(LIB)
 
-dist-clean: clean
+distclean: clean
 	rm -rf uppsrc $(TMP)/upp-x11-src-*.tar.gz
 
 install: all
