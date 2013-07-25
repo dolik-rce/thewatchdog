@@ -1,5 +1,7 @@
 #include "Server.h"
 
+#define V2N(X) Nvl(StrInt(X.ToString()))
+
 SKYLARK(HomePage, "") {
 	SQLR * Select(CountIf(OK+ERR+FAIL+SKIP, START > (GetSysTime()-86400)).As("TESTS_DAILY"),
 	              CountIf(OK,  START > (GetSysTime()-86400)).As("OK_DAILY"),
@@ -20,9 +22,9 @@ SKYLARK(HomePage, "") {
 		http << "Database error";
 		return;
 	}
-	stats.Add("RATE_DAILY", SuccessRate(stats["OK_DAILY"],stats["FAIL_DAILY"],stats["ERR_DAILY"]));
-	stats.Add("RATE_MONTHLY", SuccessRate(stats["OK_MONTHLY"],stats["FAIL_MONTHLY"],stats["ERR_MONTHLY"]));
-	stats.Add("RATE_TOTAL", SuccessRate(stats["OK_TOTAL"],stats["FAIL_TOTAL"],stats["ERR_TOTAL"]));
+	stats.Add("RATE_DAILY", SuccessRate(V2N(stats["OK_DAILY"]),V2N(stats["FAIL_DAILY"]),V2N(stats["ERR_DAILY"])));
+	stats.Add("RATE_MONTHLY", SuccessRate(V2N(stats["OK_MONTHLY"]),V2N(stats["FAIL_MONTHLY"]),V2N(stats["ERR_MONTHLY"])));
+	stats.Add("RATE_TOTAL", SuccessRate(V2N(stats["OK_TOTAL"]),V2N(stats["FAIL_TOTAL"]),V2N(stats["ERR_TOTAL"])));
 	SQLR * Select(CountIf(1, DT > (GetSysTime()-86400)).As("DAILY"),
 	              CountIf(1, DT > (GetSysDate()-30)).As("MONTHLY"))
 	      .From(WORK);
@@ -165,8 +167,8 @@ SKYLARK(Commits, "commits") {
 	      .GroupBy(REVISION)
 	      .OrderBy(Descending(REVISION));
 	while(SQLR.Fetch(vm)) {
-		vm.Add("RATE", SuccessRate(Nvl((int)vm["SUCCESS"]), Nvl((int)vm["FAIL"]), Nvl((int)vm["ERROR"])));
-		vm.Add("COLOR", ComputeColor(Nvl((int)vm["SUCCESS"]), Nvl((int)vm["FAIL"]), Nvl((int)vm["ERROR"])));
+		vm.Add("RATE", SuccessRate(V2N(vm["SUCCESS"]), V2N(vm["FAIL"]), V2N(vm["ERROR"])));
+		vm.Add("COLOR", ComputeColor(V2N(vm["SUCCESS"]), V2N(vm["FAIL"]), V2N(vm["ERROR"])));
 		commits.Add(vm);
 	}
 	http("COMMITS", commits)

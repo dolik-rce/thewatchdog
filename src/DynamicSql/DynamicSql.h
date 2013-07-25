@@ -2,8 +2,8 @@
 #define _sqlbackend_DynamicSql_h_
 
 #include <MySql/MySql.h>
-#include <plugin/sqlite3/Sqlite3.h>
 #include <plugin/sqlite3/lib/sqlite3.h>
+#include <plugin/sqlite3/Sqlite3.h>
 
 using namespace Upp;
 
