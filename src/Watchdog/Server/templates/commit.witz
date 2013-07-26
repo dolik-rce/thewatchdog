@@ -23,7 +23,7 @@ $for(i in RESULTS)
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>
-      <td class="status$i.STATUS"><a href=$Result(COMMIT.REVISION,i.CLIENT_ID)>$i.STATUSSTR</a></td>
+      <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.REVISION,i.CLIENT_ID)>$i.STATUSSTR $i.RATE%</a></td>
     </tr>    
 $/
 </table>

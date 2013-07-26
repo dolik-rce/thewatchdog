@@ -21,7 +21,7 @@
 </div><div class="ldiv">
 <h3>Result</h3>
 <table class="indent">
-<tr><td>Status:</td><td>$RESULT.STATUS $RESULT.RATE%<div class="icon circle" style="background-color:$RESULT.COLOR;"></div></td></tr>
+<tr><td>Status:</td><td><div class="icon circle $RESULT.COLOR"></div>$RESULT.STATUS $RESULT.RATE%</td></tr>
 $if(RESULT.TOTAL > 1) <tr><td>Tests performed:</td><td>$RESULT.TOTAL</td></tr> $/
 $if(RESULT.TOTAL > 1) <tr><td>Tests succeeded:</td><td>$RESULT.OK</td></tr> $/
 $if(RESULT.FAIL > 0) <tr><td>Tests failed:</td><td>$RESULT.FAIL</td></tr> $/

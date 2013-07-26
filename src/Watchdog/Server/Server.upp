@@ -21,6 +21,7 @@ file
 	Util.h,
 	Util.cpp,
 	table.sch,
+	stylegen.sh,
 	Server.ini,
 	Etc readonly separator,
 	etc/watchdog.initd,

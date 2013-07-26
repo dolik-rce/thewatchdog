@@ -25,6 +25,9 @@ SKYLARK(HomePage, "") {
 	stats.Add("RATE_DAILY", SuccessRate(V2N(stats["OK_DAILY"]),V2N(stats["FAIL_DAILY"]),V2N(stats["ERR_DAILY"])));
 	stats.Add("RATE_MONTHLY", SuccessRate(V2N(stats["OK_MONTHLY"]),V2N(stats["FAIL_MONTHLY"]),V2N(stats["ERR_MONTHLY"])));
 	stats.Add("RATE_TOTAL", SuccessRate(V2N(stats["OK_TOTAL"]),V2N(stats["FAIL_TOTAL"]),V2N(stats["ERR_TOTAL"])));
+	stats.Add("COLOR_DAILY", ComputeColor(V2N(stats["OK_DAILY"]),V2N(stats["FAIL_DAILY"]),V2N(stats["ERR_DAILY"])));
+	stats.Add("COLOR_MONTHLY", ComputeColor(V2N(stats["OK_MONTHLY"]),V2N(stats["FAIL_MONTHLY"]),V2N(stats["ERR_MONTHLY"])));
+	stats.Add("COLOR_TOTAL", ComputeColor(V2N(stats["OK_TOTAL"]),V2N(stats["FAIL_TOTAL"]),V2N(stats["ERR_TOTAL"])));
 	SQLR * Select(CountIf(1, DT > (GetSysTime()-86400)).As("DAILY"),
 	              CountIf(1, DT > (GetSysDate()-30)).As("MONTHLY"))
 	      .From(WORK);
@@ -185,12 +188,19 @@ SKYLARK(Commit, "commit/*") {
 		http << "unknown commit";
 		return;
 	}
-	SQLR * Select(CLIENT_ID, NAME, START, FINISHED, DURATION, STATUS)
+	SQLR * Select(CLIENT_ID, NAME, START, FINISHED, DURATION, STATUS, OK, FAIL, ERR)
 	       .From(RESULT).InnerJoin(CLIENT).On(ID == CLIENT_ID)
 	       .Where(REV == rev && STATUS != WD_READY);
 	ValueArray results;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
+		vm.Add("RATE", SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]));
+		vm.Add("COLOR", ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
+		int st = vm["STATUS"];
+		if(st > WD_INPROGRESS) {
+			st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
+			vm.Set("STATUS", st);
+		}
 		vm.Add("STATUSSTR", status(vm["STATUS"]));
 		if(vm["STATUS"]==1)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));

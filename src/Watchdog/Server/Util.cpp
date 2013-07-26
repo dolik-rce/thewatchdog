@@ -353,7 +353,7 @@ Value ComputeColor(int ok, int fail, int err, bool quoted){
 	int r = 0x7 * fail * norm + 0x8;
 	int g = 0x7 * ok * norm + 0x8;
 	int b = 0x8;
-	return Raw(Format(quoted?"\"#%X%X%X\"":"#%X%X%X", r, g, b));
+	return Raw(Format(quoted?"\"#%X%X%X\"":"s%X%X%X", r, g, b));
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)
