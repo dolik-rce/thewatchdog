@@ -109,10 +109,10 @@ install: all
 	install src/Watchdog/Server/Server.ini $(DESTDIR)/etc/thewatchdog/wds.ini
 	install src/Watchdog/Client/Client.ini $(DESTDIR)/etc/thewatchdog/wdc.ini
 	install src/Watchdog/Admin/Admin.ini $(DESTDIR)/etc/thewatchdog/wda.ini
-	install src/Watchdog/Server/css/* $(DESTDIR)/usr/share/thewatchdog/css
-	install src/Watchdog/Server/img/* $(DESTDIR)/usr/share/thewatchdog/img
-	install src/Watchdog/Server/js/* $(DESTDIR)/usr/share/thewatchdog/js
-	install src/Watchdog/Server/misc/* $(DESTDIR)/usr/share/thewatchdog/misc
+	install src/Watchdog/Server/static/css/* $(DESTDIR)/usr/share/thewatchdog/css
+	install src/Watchdog/Server/static/img/* $(DESTDIR)/usr/share/thewatchdog/img
+	install src/Watchdog/Server/static/js/* $(DESTDIR)/usr/share/thewatchdog/js
+	install src/Watchdog/Server/static/misc/* $(DESTDIR)/usr/share/thewatchdog/misc
 	install src/Watchdog/Server/templates/* $(DESTDIR)/usr/share/thewatchdog/templates
 	install LICENSE $(DESTDIR)/usr/share/thewatchdog/copyright
 	find $(DESTDIR) -type d -exec chmod 755 {} \; -o -type f -exec chmod 644 {} \;

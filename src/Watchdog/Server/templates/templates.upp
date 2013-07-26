@@ -1,0 +1,23 @@
+file
+	404.witz,
+	auth.witz,
+	base.witz,
+	client.witz,
+	clients.witz,
+	commit.witz,
+	commits.witz,
+	config.witz,
+	editclient.witz,
+	feeds.witz,
+	index.witz,
+	intro.witz,
+	paging.witz,
+	result.witz,
+	resultmail.witz,
+	results.witz,
+	rss.witz,
+	sitemap.witz,
+	stats.witz,
+	subscription.witz,
+	verifymail.witz;
+

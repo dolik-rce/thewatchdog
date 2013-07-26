@@ -1,0 +1,20 @@
+file
+	Scripts readonly separator,
+	js/d3.v2.min.js,
+	js/md5.js,
+	js/rickshaw.min.js,
+	js/watchdog.js,
+	Styles readonly separator,
+	css/style.css,
+	css/graphs.css,
+	Images readonly separator,
+	img/edit.png,
+	img/favicon.png,
+	img/logo.svg,
+	img/logo128.png,
+	img/logo512.png,
+	img/remove.png,
+	img/stats.png,
+	Miscellaneous readonly separator,
+	misc/robots.txt;
+

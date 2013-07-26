@@ -8,7 +8,6 @@ Extend graphing, link graphs from more places
 Setup helper (create tables on first run, create admin user, get svn history)
 Git (and other VCS) support
 Nicer icons, real css styling
-Break into subpackages (templates, css, ...)
 Duration as float
 Allow multiple paths to be watched by a client
 Log to stderr per ini option
