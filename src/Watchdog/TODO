@@ -10,7 +10,6 @@ Git (and other VCS) support
 Nicer icons, real css styling
 Duration as float
 Allow multiple paths to be watched by a client
-Log to stderr per ini option
 
 CLIENT
 ------

@@ -9,6 +9,12 @@ using namespace Upp;
 #include "Sql.h"
 #include "Util.h"
 
+#ifdef _DEBUG
+#define IFDBG(D,R) D
+#else
+#define IFDBG(D,R) R
+#endif
+
 namespace Upp{ 
 	void ReopenLog();
 	namespace Ini {

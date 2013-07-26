@@ -17,6 +17,7 @@ namespace Upp{ namespace Ini {
 	INI_STRING(sql_socket, "/var/run/mysqld/mysqld.sock", "MySql socket path");
 	INI_BOOL(sql_log, true, "Activates logging of MySql queries");
 	INI_STRING(log_file, GetExeDirFile("log")+"/"+GetExeTitle()+".log", "Path for the log file");
+	INI_BOOL(log_stderr, IFDBG(true, false), "Log to standard error stream");
 	INI_INT(log_level, 2, "Logging verbosity (0,1,2)");
 	INI_STRING(output_dir, GetExeFilePath()+"/output","Directory where the output logs are stored");
 	INI_STRING(server_url, "http://localhost:8001", "Url of the server where the application runs.");
@@ -152,9 +153,7 @@ CONSOLE_APP_MAIN{
 	StdLogSetup(LOG_FILE
 	           |LOG_TIMESTAMP
 	           |LOG_APPEND
-#ifdef _DEBUG
-	           |LOG_CERR
-#endif
+	           |(Ini::log_stderr?LOG_CERR:0)
 	           , (String)Ini::log_file);
 	Smtp::Trace(Ini::log_level == 2);
 	
