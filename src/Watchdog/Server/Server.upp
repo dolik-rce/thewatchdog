@@ -6,7 +6,8 @@ uses
 	DynamicSql,
 	plugin/zip,
 	Watchdog/Server/templates,
-	Watchdog/Server/static;
+	Watchdog/Server/static,
+	plugin/pcre;
 
 file
 	Server.h,

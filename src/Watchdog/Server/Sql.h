@@ -8,6 +8,7 @@
 
 SqlStatement InsertIgnore(int dialect, const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
+SqlBool Regexp(const SqlVal& a, const SqlVal& b);
 
 inline SqlVal If(const SqlBool& b, const SqlVal& trueval, const SqlVal& falseval) {
 	return SqlFunc("if", SqlSet(SqlVal(~b, SqlS::HIGH), trueval, falseval));

@@ -18,7 +18,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
 	       .InnerJoin(CLIENT).On(ID == cid)
 	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
-	              && Like(PATH,Concat(SqlSet(SRC, "%")))
+	              && Regexp(PATH, SRC)
 	              && DT >= (GetSysDate()-max_age))
 	       .OrderBy(REVISION);
 	while(SQLR.Fetch())

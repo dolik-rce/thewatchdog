@@ -1,4 +1,5 @@
 #include "Sql.h"
+#include <plugin/pcre/Pcre.h>
 
 namespace {
 	T_SQLITE_DLL* sSqlite = NULL;
@@ -23,9 +24,19 @@ void sqlite_concat(sqlite3_context *context, int argc, sqlite3_value **argv) {
 void sqlite_if(sqlite3_context *context, int argc, sqlite3_value **argv) {
 	bool cond = sSqlite->sqlite3_value_int(argv[0]);
 	if(cond)
-		return sSqlite->sqlite3_result_value(context, argv[1]); 
+		sSqlite->sqlite3_result_value(context, argv[1]); 
 	else
-		return sSqlite->sqlite3_result_value(context, argv[2]); 
+		sSqlite->sqlite3_result_value(context, argv[2]); 
+}
+void sqlite_regexp( sqlite3_context *context, int argc, sqlite3_value **argv ) {
+	ASSERT(argc == 2);
+	static RegExp re;
+	re.SetPattern((const char*)sSqlite->sqlite3_value_text(argv[0]));
+	bool b = re.FastMatch((const char*)sSqlite->sqlite3_value_text(argv[1]));
+	if (re.IsError())
+		sSqlite->sqlite3_result_error(context, re.GetError(), -1);
+	else
+		sSqlite->sqlite3_result_int(context, b);
 }
 }
 
@@ -36,4 +47,5 @@ void AddSqliteCompatibilityFunctions(DynamicSqlSession& dsql){
 	sSqlite->sqlite3_create_function(db, "md5", 1, SQLITE_ANY, 0, (void*)sqlite_md5, 0, 0);
 	sSqlite->sqlite3_create_function(db, "concat", -1, SQLITE_ANY, 0, (void*)sqlite_concat, 0, 0);
 	sSqlite->sqlite3_create_function(db, "if", 3, SQLITE_ANY, 0, (void*)sqlite_if, 0, 0);
+	sSqlite->sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, 0, (void*)sqlite_regexp, 0, 0);
 }
