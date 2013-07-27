@@ -3,6 +3,7 @@
 #define HEAD
 <script src="$CachedStatic("js/d3.v2.min.js")"></script>
 <script src="$CachedStatic("js/rickshaw.min.js")"></script>
+<script src="$CachedStatic("js/graphs.js")"></script>
 <style>
 #include css/graphs.css
 #results, #duration {

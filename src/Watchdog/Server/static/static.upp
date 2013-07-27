@@ -5,6 +5,7 @@ file
 	js/md5.js,
 	js/rickshaw.min.js,
 	js/watchdog.js,
+	js/graphs.js,
 	Styles readonly separator,
 	css/style.css,
 	css/graphs.css,
