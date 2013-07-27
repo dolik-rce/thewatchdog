@@ -15,7 +15,7 @@ USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 
 # dependencies
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
-SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3 uppsrc/plugin/zip
+SERVER_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/Skylark uppsrc/MySql uppsrc/plugin/sqlite3 uppsrc/plugin/zip uppsrc/plugin/pcre
 CLIENT_DEPS:=$(COMMON_DEPS)
 
 #internal variables
