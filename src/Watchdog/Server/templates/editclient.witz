@@ -1,7 +1,7 @@
 #include templates/base
 #define TITLE
 $if(CLIENT.ID > 0)
-  Edit <a href="/client/$CLIENT.ID">$CLIENT.NAME</a>
+  Edit $CLIENT.NAME
 $else
   Add new client
 $/
