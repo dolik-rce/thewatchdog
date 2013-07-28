@@ -1,4 +1,21 @@
-thewatchdog (0.1) testing; urgency=low
+thewatchdog (0.0.2) testing; urgency=low
+
+  * Graphs of past reslts
+  * System for easy user modification
+  * DynamicSql - backend to select DB engine (mysql, sqlite) in config
+  * Environment variables in config
+  * Build-dependancy on svn optional
+  * Better svn log parsing
+  * Refactored Client
+  * Added admin client
+  * Exporting/importing data into/from zip file
+  * Results are displayed as percentage instead of simple OK/Fail
+  * Configurable logging to stderr
+  * Path followed by client can be specified as regexp
+
+ -- Jan Dolinar <dolik.rce@seznam.cz>  Sat, 27 Jul 2013 23:05:22 +0200
+
+thewatchdog (0.0.1) testing; urgency=low
 
   * Pre-release version
 
