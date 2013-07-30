@@ -130,7 +130,7 @@ SKYLARK(Client, "client/*") {
 		http << "unknown client";
 		return;
 	}
-	SQLR * Select(REVISION, START, FINISHED, DURATION, STATUS, OK, ERR, FAIL, SqlVal(Like(PATH,AsString(client["SRC"])+"%")," = ",SqlVal(1),SqlS::LOW).As("FITS"))
+	SQLR * Select(REVISION, START, FINISHED, DURATION, STATUS, OK, ERR, FAIL, ToSqlVal(Regexp(PATH,client["SRC"])).As("FITS"))
 	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
 	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
 	       .OrderBy(Descending(REVISION));
