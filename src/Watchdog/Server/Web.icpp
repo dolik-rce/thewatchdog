@@ -136,15 +136,16 @@ SKYLARK(Client, "client/*") {
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
 		double rate = SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]);
-		int st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
-		String full = Format("%s %d%%", status(st), rate);
-		if((bool)vm["FITS"]){
-			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Ready":full);
+		if (IsNull(vm["STATUS"])) {
+			vm.Add("STATUSSTR", (bool)vm["FITS"]?"Ready":"Not interested");
 		} else {
-			vm.Add("STATUSSTR", IsNull(vm["STATUS"])?"Not interested":full);
+			if (vm["STAT"] == WD_INPROGRESS)
+				vm.Add("STATUSSTR", "In progress");
+			else
+				vm.Add("STATUSSTR", Format("%s %d%%", status(ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"])), rate));
 		}
 		vm.Add("COLOR", ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
-		if(vm["STATUS"]==1)
+		if(vm["STATUS"] == WD_INPROGRESS)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
 		results.Add(vm);
 	}
