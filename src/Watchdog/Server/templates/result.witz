@@ -41,4 +41,3 @@ $if(RESULT.STATUSN>1)
 <pre class="output">$OUTPUT</pre>
 </div>
 $endif
-$dbg(1)
