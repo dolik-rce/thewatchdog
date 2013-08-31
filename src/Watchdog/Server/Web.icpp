@@ -1,7 +1,5 @@
 #include "Server.h"
 
-#define V2N(X) Nvl(StrInt(X.ToString()))
-
 SKYLARK(HomePage, "") {
 	Time yesterday(GetSysTime()-86400);
 	Date monthago(GetSysDate()-30);
@@ -52,31 +50,14 @@ SKYLARK(HomePage, "") {
 }
 
 SKYLARK(Clients, "clients") {
-	SQLR * Select(ID, NAME, LAST_ACTIVITY, LAST_WORK, DESCR, SRC)
-	       .From(CLIENT).Where(ID>0).OrderBy(NAME);
-	ValueArray client;
-	ValueMap vm;
-	while(SQLR.Fetch(vm))
-		client.Add(vm);
-	
-	http("CLIENT", client)
+	http("CLIENT", Client::LoadAll())
 	    .RenderResult("templates/clients");
 }
 
 SKYLARK(EditClient, "editclient/*") {
 	int cid = -1;
-	ValueMap client;
-	if(http[0] != "new") {
-		cid = http.Int(0);
-		SQLR * Select(ID, NAME, DESCR, SRC)
-		       .From(CLIENT).Where(ID == cid);
-		if(!SQLR.Fetch(client)){
-			http << "unknown client";
-			return;
-		}
-	} else {
-		client.Set("ID", cid);
-	}
+	Client client;
+	client.Load(StrInt(http[0]));
 
 	String id = http[".__identity__"];
 	if(id.IsEmpty()) {
@@ -84,7 +65,7 @@ SKYLARK(EditClient, "editclient/*") {
 		http.SessionSet("__identity__", id);
 	}
 
-	http("CLIENT", client)("WD_ID", id)
+	http("CLIENT", client.data)("WD_ID", id)
 	    .RenderResult("templates/editclient");
 }
 
@@ -92,20 +73,18 @@ SKYLARK(SaveClient, "saveclient:POST"){
 	int cid = http.Int("client");
 	if(!CheckAuth2(http, SQL, cid, "/saveclient"))
 		return;
+	Client client;
 	if(cid>0) {
-		SqlUpdate update = Update(CLIENT)(NAME, http["name"])
-		                    (DESCR, http["description"])
-		                    (SRC, http["path"]);
-		if(http["changepwd"]=="on")
-			update(PASSWORD, http["password"])(SALT, http["salt"]);
-		SQL * update.Where(ID==cid);
-	} else {
-		SQL * Insert(CLIENT)(NAME, http["name"])
-	                    (PASSWORD, http["password"])
-	                    (DESCR, http["description"])
-	                    (SRC, http["path"])
-	                    (SALT, http["salt"]);
+		client.Load(cid);
 	}
+	client("NAME", http["name"])
+	      ("DESCR", http["description"])
+	      ("SRC", http["path"]);
+	if(cid<0 || http["changepwd"]=="on") {
+		client("PASSWORD", http["password"])
+		      ("SALT", http["salt"]);
+	}
+	client.Save();
 	http.Redirect("/clients");
 }
 
@@ -113,187 +92,72 @@ SKYLARK(RemoveClient, "removeclient/*:POST"){
 	int cid = http.Int(0);
 	if(!CheckAuth2(http, SQL, cid, "/removeclient/"+IntStr(cid)))
 		return;
-	SQL * Delete(RESULT).Where(CLIENT_ID==cid);
-	SQL * Delete(CLIENT).Where(ID==cid);
+	Result::Delete(Null ,cid)
+	Client::Delete(cid);
 	http.Redirect("/clients");
 }
 
 SKYLARK(Client, "client/*") {
 	int cid = http.Int(0);
-	VectorMap<String, int> pg = Paging(http);
-	SQLR * Select(ID, NAME, LAST_ACTIVITY, LAST_WORK, DESCR, SRC)
-	       .From(CLIENT).Where(ID == cid);
-	ValueMap client;
-	if(!SQLR.Fetch(client)){
-		http << "unknown client";
+	struct Client client;
+	if(!client.Load(cid)) {
+		http.Response(404, "Client not found");
 		return;
 	}
-	SQLR * Select(REVISION, START, FINISHED, DURATION, STATUS, OK, ERR, FAIL, ToSqlVal(Regexp(PATH,client["SRC"])).As("FITS"))
-	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
-	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
-	       .OrderBy(Descending(REVISION));
-	ValueArray results;
-	ValueMap vm;
-	while(SQLR.Fetch(vm)){
-		double rate = SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]);
-		if (IsNull(vm["STATUS"])) {
-			vm.Add("STATUSSTR", (bool)vm["FITS"]?"Ready":"Not interested");
-		} else {
-			if (vm["STAT"] == WD_INPROGRESS)
-				vm.Add("STATUSSTR", "In progress");
-			else
-				vm.Add("STATUSSTR", Format("%s %d%%", status(ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"])), rate));
-		}
-		vm.Add("COLOR", ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
-		if(vm["STATUS"] == WD_INPROGRESS)
-			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
-		results.Add(vm);
-	}
-	http("CLIENT", client)("RESULTS",results)
+	http("CLIENT", client.data)("RESULTS", client.FetchResults(Paging(http)))
 	    .RenderResult("templates/client");
 }
 
 SKYLARK(Commits, "commits") {
-	VectorMap<String,int> pg = Paging(http);
-	ValueArray commits;
-	ValueMap vm;
-	SQLR * Select(REVISION,AUTHOR,DT,PATH,MSG,
-	             CountIf(1, STATUS==WD_INPROGRESS).As("RUNNING"),
-	             SqlFunc("sum",OK).As("SUCCESS"),
-	             SqlFunc("sum",FAIL).As("FAIL"),
-	             SqlFunc("sum",ERR).As("ERROR"),
-	             SqlFunc("sum",SKIP).As("SKIP"))
-	      .From(WORK)
-	      .LeftJoin(RESULT).On(REVISION==REV)
-	      .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
-	      .GroupBy(REVISION)
-	      .OrderBy(Descending(REVISION));
-	while(SQLR.Fetch(vm)) {
-		vm.Add("RATE", SuccessRate(V2N(vm["SUCCESS"]), V2N(vm["FAIL"]), V2N(vm["ERROR"])));
-		vm.Add("COLOR", ComputeColor(V2N(vm["SUCCESS"]), V2N(vm["FAIL"]), V2N(vm["ERROR"])));
-		commits.Add(vm);
-	}
-	http("COMMITS", commits)
+	http("COMMITS", Commit::LoadPage(Paging(http)))
 	    .RenderResult("templates/commits");
 }
 
 SKYLARK(Commit, "commit/*") {
-	int rev = http.Int(0);
-	VectorMap<String,int> pg = Paging(http);
-	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH)
-	       .From(WORK).Where(REVISION == rev);
-	ValueMap commit;
-	if(!SQLR.Fetch(commit)){
-		http << "unknown commit";
-		return;
-	}
-	SQLR * Select(CLIENT_ID, NAME, START, FINISHED, DURATION, STATUS, OK, FAIL, ERR)
-	       .From(RESULT).InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	       .Where(REV == rev && STATUS != WD_READY);
-	ValueArray results;
-	ValueMap vm;
-	while(SQLR.Fetch(vm)){
-		vm.Add("RATE", SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]));
-		vm.Add("COLOR", ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
-		int st = vm["STATUS"];
-		if(st > WD_INPROGRESS) {
-			st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
-			vm.Set("STATUS", st);
-		}
-		vm.Add("STATUSSTR", status(vm["STATUS"]));
-		if(vm["STATUS"]==1)
-			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
-		results.Add(vm);
-	}
-	http("COMMIT", commit)("RESULTS", results)
-	    .RenderResult("templates/commit");
+	struct Commit commit;
+	if(!commit.Load(http.Int(0)))
+		http.Response(404, "Revision not found");
+	else
+		http("COMMIT", commit.data)("RESULTS", commit.FetchResults())
+		    .RenderResult("templates/commit");
 }
 
 SKYLARK(Results, "results") {
-	VectorMap<String, int> pg = Paging(http);
-	SQLR * Select(REVISION, CLIENT_ID, NAME, STATUS, OK, ERR, FAIL)
-	       .From(WORK)
-	       .LeftJoin(RESULT).On(REV == REVISION)
-	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
-	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
-	       .OrderBy(CLIENT_ID);
-	VectorMap<int,ValueMap> results;
-	ValueMap clients;
-	Index<int> commits;
-	ValueMap vm;
-	while(SQLR.Fetch(vm)){
-		if(!AsString(vm["STATUS"]).IsEmpty()) {
-			int st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
-			ValueArray va;
-			va.Add(status(st));
-			va.Add(st);
-			va.Add(SuccessRate(vm["OK"], vm["FAIL"], vm["ERR"]));
-			va.Add(ComputeColor(vm["OK"], vm["FAIL"], vm["ERR"]));
-			results.GetAdd(vm["REVISION"])
-			       .Add(vm["CLIENT_ID"], va);
-		}
-		commits.FindAdd(vm["REVISION"]);
-		clients.Set(vm["CLIENT_ID"], vm["NAME"]);
-	}
-	Vector<int> s = GetSortOrder(commits.GetKeys());
-	ValueArray commits_;
-	for(int i = s.GetCount()-1; i >= 0; --i){
-		commits_.Add(commits[s[i]]);
-	}
-	ValueMap results_;
-	for(int i = 0; i < results.GetCount(); i++){
-		results_.Add(results.GetKey(i), results[i]);
-	}
-	http("RESULTS", results_)("CLIENTS", clients)("COMMITS", commits_)
+	ValueMap results = Result::LoadPage(Paging(http));
+	http("RESULTS", results["RESULTS"])
+	    ("CLIENTS", results["CLIENTS"])
+	    ("COMMITS", results["COMMITS"])
+	    ("ALLCLIENTS", results["ALLCLIENTS"])
 	    .RenderResult("templates/results");
 }
 
 SKYLARK(Result, "result/*/*") {
-	int rev = http.Int(0);
-	int cid = http.Int(1);
-	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
-	             ID, NAME, DESCR, SRC,
-	             START, FINISHED, DURATION, STATUS,
-	             (OK+FAIL+ERR+SKIP).As("TOTAL"), OK, ERR, FAIL, SKIP)
-	      .From(RESULT)
-	      .InnerJoin(WORK).On(REVISION == REV)
-	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(CLIENT_ID == cid && REV == rev);
-	ValueMap result;
-	if(!SQLR.Fetch(result)){
-		http << "data not available";
+	struct Result result;
+	if(!result.Load(http.Int(0), http.Int(1))){
+		http.Response(404, "Result data not found");
 		return;
 	}
-	result.Add("RATE", SuccessRate(result["OK"], result["FAIL"], result["ERR"]));
-	result.Add("COLOR", ComputeColor(result["OK"], result["FAIL"], result["ERR"]));
-	int st = result["STATUS"];
-	if(st > WD_INPROGRESS) {
-		st = ComputeStatus(result["OK"], result["FAIL"], result["ERR"]);
-		result.Set("STATUS", st);
-	}
-	if(st == WD_INPROGRESS)
-		result.Set("DURATION", GetSysTime()-Time(result["START"]));
-	result.Set("STATUSN", st);
-	result.Set("STATUS", status(st));
-	String output = Format("%s/%d/%d.log",(String)Ini::output_dir,rev,cid);
-	http("RESULT", result)("OUTPUT", LoadFile(output))
+	http("RESULT", result.data)("OUTPUT", result.FetchOutput())
 	    .RenderResult("templates/result");
 }
 
-void Auth(Http& http, int cid){
-	String nonce = AsString(Uuid::Create());
-	SqlSet allowed;
-	allowed.Cat(0);
-	if(cid!=0)
-		allowed.Cat(cid);
-	SQLR * Select(ID,NAME,SALT).From(CLIENT).Where(In(ID, allowed));
+void Auth(Http& http, int cid) {
 	ValueMap clients;
 	String salts;
-	ValueMap vm;
-	while(SQLR.Fetch(vm)){
-		salts.Cat() << vm["ID"] << ':' << vm["SALT"] << '|';
-		clients.Add(IntStr(vm["ID"])+";"+String(vm["SALT"]),vm["NAME"]);
+	
+	struct Client admin;
+	admin.Load(0);
+	admin.SetAuthInfo(salts, clients);
+	
+	if(cid!=0) {
+		struct Client client;
+		if(!client.Load(cid)) {
+			http.Response(404, "Client not found");
+			return;
+		}
+		client.SetAuthInfo(salts, clients);
 	}
+	
 	String id = http[".__identity__"];
 	if(id.IsEmpty()) {
 		id = AsString(Uuid::Create());
@@ -303,6 +167,8 @@ void Auth(Http& http, int cid){
 	String target;
 	for(int i = 0; i < http.GetParamCount(); ++i)
 		target.Cat() << "/" << http[i];
+	
+	String nonce = AsString(Uuid::Create());
 	
 	http.SetHeader("wd_nonce",nonce)
 	    .SetHeader("wd_id", id)
@@ -347,19 +213,20 @@ SKYLARK(Remove, "remove/*/*:POST"){
 	int rev = http.Int(1);
 	if(!CheckAuth2(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+IntStr(rev)))
 		return;
-	SQL * Delete(RESULT).Where(CLIENT_ID==cid && REV==rev);
+	Result::Delete(rev, cid);
 	http.Redirect("/client/"+IntStr(cid)+"?rev="+IntStr(rev));
 }
 
 SKYLARK(Output, "output/*/*"){
-	int rev = http.Int(0);
-	int cid = http.Int(1);
-	String output = Format("%s/%d/%d.log",(String)Ini::output_dir,rev,cid);
-	if(FileExists(output)){
-		http.ContentType("text/plain");
-		http << LoadFile(output);
+	struct Result result;
+	result("CLIENT_ID", http.Int(0))("REV", http.Int(1));
+	
+	String output = result.FetchOutput();
+	if(output.IsVoid()){
+		http.Response(404, "Result log not found");
 	} else {
-		http.Response(404,"File not found");
+		http.ContentType("text/plain");
+		http << output;
 	}
 }
 

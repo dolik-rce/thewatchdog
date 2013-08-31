@@ -27,6 +27,10 @@ inline SqlVal Concat(const SqlSet& set){
 	return SqlFunc("concat", set);
 }
 
+inline SqlId SqlAll(const SqlId& tbl) {
+	return SqlId("*").Of(tbl);
+}
+
 void AddSqliteCompatibilityFunctions(DynamicSqlSession& dsql);
 
 #endif

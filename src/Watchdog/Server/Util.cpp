@@ -125,7 +125,7 @@ void CleanAuth(){
 	SQL * Delete(AUTH).Where(VALID < GetSysTime()-600);
 }
 
-VectorMap<String,int> Paging(Http& http){
+PageInfo Paging(Http& http){
 	int count = 3;
 	int pagesize = max(min(Nvl(http.Int("cnt"), Nvl(http.Int(".cnt"), 10)),100),1);
 	http.SessionSet("cnt",pagesize);
@@ -156,7 +156,7 @@ VectorMap<String,int> Paging(Http& http){
 	}
 	http("PAGING", va);
 //	http("cnt", pagesize);
-	VectorMap<String,int> result;
+	PageInfo result;
 	result.Add("min", current-pagesize+1);
 	result.Add("max", current);
 	result.Add("offfset", current-pagesize);
@@ -354,6 +354,11 @@ Value ComputeColor(int ok, int fail, int err, bool quoted){
 	int g = 0x7 * ok * norm + 0x8;
 	int b = 0x8;
 	return Raw(Format(quoted?"\"#%X%X%X\"":"s%X%X%X", r, g, b));
+}
+
+void SetComputedAttributes(ValueMap& vm) {
+	vm.Add("RATE", SuccessRate(V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
+	vm.Add("COLOR", ComputeColor(V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)

@@ -4,7 +4,8 @@
 void UpdateLogs();
 void CleanResults();
 void CleanAuth();
-VectorMap<String,int>  Paging(Http& http);
+typedef VectorMap<String,int> PageInfo;
+PageInfo Paging(Http& http);
 bool CheckLocal(Http& http);
 int& lastrev();
 bool CheckAuth(Http& http, Sql& sql);
@@ -17,10 +18,12 @@ SqlVal SqlEmptyString();
 double SuccessRate(int ok, int fail, int err);
 int ComputeStatus(int ok, int fail, int err);
 Value ComputeColor(int ok, int fail, int err, bool quoted = false);
-
+void SetComputedAttributes(ValueMap& vm);
 
 namespace Upp { namespace Ini {
 	extern IniString output_dir;
 }}
+
+#define V2N(X) Nvl(StrInt(X.ToString()))
 
 #endif

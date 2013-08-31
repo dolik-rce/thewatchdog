@@ -5,27 +5,23 @@
 <table border="1">
  <tr>
   <th>Revision</th>
-$if(count(CLIENTS)>1)
+$if(count(CLIENTS)>0)
  $for(i in CLIENTS)
-  $if(i._key > 0)
-   <th><a href=$Client(i._key)>$i</a><a href=$Stats(i._key)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" class="icon" width=16 height=16></a></th>
-  $/
+  <th><a href=$Client(i)>$ALLCLIENTS[i].NAME</a><a href=$Stats(i)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" class="icon" width=16 height=16></a></th>
  $/
 $else
- <td rowspan="$(cnt+1)">No results</td> 
+ <td rowspan="$(count(COMMITS)+1)">No results</td> 
 $/
  </tr>
-$if(count(CLIENTS)>1)
+$if(count(CLIENTS)>0)
   $for(j in COMMITS)
-   <tr>
+  <tr>
   <th><a href=$Commit(j)>$j</a></th>
   $for(i in CLIENTS)
-   $if(i._key > 0)
-    $if(RESULTS[j][i._key])
-     <td><div class="icon circle $RESULTS[j][i._key][3]"></div><a href=$Result(j,i._key)>$RESULTS[j][i._key][0] $RESULTS[j][i._key][2]%</a></td>
-    $else
-     <td>&nbsp;</td>
-    $endif
+   $if(RESULTS[j][i])
+    <td><div class="icon circle $RESULTS[j][i].COLOR"></div><a href=$Result(j,i)>$RESULTS[j][i].RATE%</a></td>
+   $else
+    <td>&nbsp;</td>
    $endif
   $/
  </tr>

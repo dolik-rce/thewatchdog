@@ -12,6 +12,8 @@ uses
 file
 	Server.h,
 	Server.cpp,
+	Entity.cpp,
+	Entity.h,
 	Web.icpp,
 	Api.icpp,
 	Feeds.icpp,

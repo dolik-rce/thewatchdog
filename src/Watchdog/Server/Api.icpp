@@ -12,7 +12,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	} else {
 		max_age = http.Int("max_age");
 	}
-	SQL * Update(CLIENT)(LAST_ACTIVITY,GetSysTime()).Where(ID == cid);
+	Client::UpdateActivity(cid);
 	SQLR * Select(REVISION)
 	       .From(WORK)
 	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
@@ -37,8 +37,7 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 	} else {
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
-	SQL * Update(CLIENT)(LAST_WORK,GetSysTime())(LAST_ACTIVITY,GetSysTime())
-	       .Where(ID==cid);
+	Client::UpdateActivity(cid, true);
 	SqlInsert insert = Insert(RESULT)(REV,http.Int("revision"))
 	                    (CLIENT_ID,cid)
 	                    (START,start)
@@ -72,8 +71,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	String outputfile = Format("%s/%d/%d.log",(String)Ini::output_dir,http.Int("revision"),cid);
 	RealizePath(outputfile);
 	SaveFile(outputfile, output);
-	SQL * Update(CLIENT)(LAST_WORK, GetSysTime())(LAST_ACTIVITY,GetSysTime())
-	       .Where(ID==cid);
+	Client::UpdateActivity(cid, true);
 	int revision = http.Int("revision");
 	int result = http.Int("result");
 	

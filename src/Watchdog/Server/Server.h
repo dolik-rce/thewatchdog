@@ -8,6 +8,7 @@ using namespace Upp;
 
 #include "Sql.h"
 #include "Util.h"
+#include "Entity.h"
 
 #ifdef _DEBUG
 #define IFDBG(D,R) D
