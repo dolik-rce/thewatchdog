@@ -6,13 +6,16 @@ SKYLARK(RssFeed, "rss")
 	int cid = http.Int("client");
 	String author = http["author"];
 	String path = http["path"];
+	String branch = http["branch"];
 	String state = ToLower(String(http["status"]));
 	if(!IsNull(cid))
 		filter = SqlBool(ID==cid);
 	if(!IsNull(author))
 		filter = SqlBool(filter && AUTHOR==author);
 	if(!IsNull(path))
-		filter = SqlBool(filter && Like(PATH,path+"%"));
+		filter = SqlBool(filter && Regexp(PATH, path));
+	if(!IsNull(path))
+		filter = SqlBool(filter && Regexp(BRANCH, branch));
 	if(state == "failed")
 		filter = SqlBool(filter && STATUS==WD_FAILED);
 	else if(state == "ok")

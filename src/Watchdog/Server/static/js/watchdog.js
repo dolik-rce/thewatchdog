@@ -7,12 +7,12 @@ function set_cnt(sel){
 function feedfilter(){
 	url=document.getElementById('url').value
 	var filter='';
-	var k = ["author","client","path","status"]
+	var k = ["author","client","path","branch","status"]
 	var s=''
 	for (var i = 0; i < k.length; i++) {
 		x=document.getElementById(k[i]).value
 		if (x!=''){
-			filter+=s+k[i]+'='+x
+			filter+=s+k[i]+'='+encodeURIComponent(x)
 			s='&'
 		}
 	}

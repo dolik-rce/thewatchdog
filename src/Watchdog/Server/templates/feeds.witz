@@ -17,6 +17,7 @@ $for(i in AUTHORS)
 $/
 </select></td></tr>
 <tr><td>Path:</td><td><input id="path" size="30" onchange="feedfilter();" onkeyup="feedfilter();"></td></tr>
+<tr><td>Branch:</td><td><input id="branch" size="30" onchange="feedfilter();" onkeyup="feedfilter();"></td></tr>
 <tr><td>Status:</td><td><select id="status" onchange="feedfilter();">
   <option value="">Any</option>
   <option value="failed">Only failed</option>
