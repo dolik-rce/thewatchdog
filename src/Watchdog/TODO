@@ -1,14 +1,17 @@
 SERVER
 ------
+Git (and other VCS) support
+Support branches
+Clean-up states (leave only READY, IN_PROGRESS, DONE)
+Replace duration by end-start
 Versioning of schema and exports
 Client-server communication in json (?)
 Multiple repository support
 Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
 Setup helper (create tables on first run, create admin user, get svn history)
-Git (and other VCS) support
 Nicer icons, real css styling
-Duration as float
+
 
 CLIENT
 ------
