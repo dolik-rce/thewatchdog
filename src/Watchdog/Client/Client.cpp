@@ -4,7 +4,6 @@ namespace Upp { namespace Ini {
 	INI_STRING(host, "http://localhost:8001/api", "Watchdog API URL");
 	INI_INT(client_id, 0, "Watchdog client ID");
 	INI_STRING(password, "", "Watchdog client password");
-	INI_INT(max_age, -1, "Only commits this many days old can be build (negative value means any age)");
 	INI_INT(log_level, 1, "Verbosity (0=errors only, 1=normal, 2=verbose)");
 	INI_STRING(session_cookie, "__watchdog_cookie__", "Skylark session cookie ID");
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
@@ -39,16 +38,12 @@ bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 	return true;
 }
 
-bool WatchdogClient::GetWork(int max_age){
+bool WatchdogClient::GetWork(){
 	String target = "/api/getwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
 	if(!Auth(req, target))
 		return false;
 	
-	if(max_age >= 0)
-		req.Post("max_age", IntStr(max_age));
-	else if (Ini::max_age >= 0)
-		req.Post("max_age", IntStr(Ini::max_age));
 	String resp = req.Execute();
 	if(!req.IsSuccess()){
 		RDUMP(resp);
@@ -143,9 +138,9 @@ bool WatchdogClient::SubmitWork(const int revision, const int result, const int 
 	return true;
 }
 
-bool WatchdogClient::Run(String command, int maxage){
+bool WatchdogClient::Run(String command){
 	// ask for work
-	if(!GetWork(maxage))
+	if(!GetWork())
 		return false;
 	
 	// select what to do
@@ -238,9 +233,6 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 	} else if(cmd[i] == "--end" || cmd[i] == "-E") {
 		CheckParamCount(cmd, i, 1);
 		end = ScanTime(cmd[++i]);
-	} else if(cmd[i] == "--age" || cmd[i] == "-A") {
-		CheckParamCount(cmd, i, 1);
-		maxage = StrInt(cmd[++i]);
 	} else {
 		Cerr() << "ERROR: Unknown argument '" << cmd[i] << "'\n\n";
 		Usage(3);
@@ -253,7 +245,7 @@ bool WatchdogClient::ProcessAction(){
 		Cerr() << "ERROR: No action given\n\n";
 		return false;
 	case 'g':
-		if(!GetWork(maxage))
+		if(!GetWork())
 			return false;
 		if(todo.IsEmpty()){
 			if(Ini::log_level > 0) 
@@ -272,7 +264,7 @@ bool WatchdogClient::ProcessAction(){
 		                  duration,
 		                  LoadFile(output));
 	case 'r':
-		return Run(command, maxage);
+		return Run(command);
 	default:
 		NEVER();
 	}
@@ -323,7 +315,7 @@ void WatchdogClient::Usage(int exitcode) const {
 	Exit(exitcode);
 }
 
-WatchdogClient::WatchdogClient() : lock(true), action(0), maxage(-1) {
+WatchdogClient::WatchdogClient() : lock(true), action(0) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
 	actions.Add() = "\t-g --get\n"
@@ -348,8 +340,6 @@ WatchdogClient::WatchdogClient() : lock(true), action(0), maxage(-1) {
 	options.Add() = "\t-E --end <time>\n"
 		"\t\tEnd date given given in \"YYYY/MM/DD hh:mm:ss\" format, only\n"
 		"\t\thonoured with --submit\n";
-	options.Add() = "\t-A --age <days>\n"
-		"\t\tMaximum age of commits, only honoured with --get and --command\n\n";
 	options.Add() = "If not supplied, server will use the time of the accept request as start time\n"
 		"and the time of submit request as end time.\n";
 }

@@ -7,7 +7,6 @@ namespace Upp { namespace Ini {
 	extern IniString host;
 	extern IniInt client_id;
 	extern IniString password;
-	extern IniInt max_age;
 	extern IniInt log_level;
 	extern IniString session_cookie;
 	extern IniString lock_file;
@@ -24,7 +23,6 @@ struct WatchdogClient {
 	String cfg;
 	Time start;
 	Time end;
-	int maxage;
 	
 	void Usage(int exitcode = 0) const;
 	void CheckParamCount(const Vector<String>& cmd, int current, int count) const;
@@ -36,10 +34,10 @@ struct WatchdogClient {
 	virtual void SetConfig(const String& fn);
 	virtual void Execute(const Vector<String>& cmd);
 	
-	virtual bool GetWork(int max_age = -1);
+	virtual bool GetWork();
 	virtual bool AcceptWork(int revision, Time start=Null);
 	virtual bool SubmitWork(const int revision, const int result, const int time, const String& output, Time start=Null, Time end=Null);
-	virtual bool Run(String command, int maxage);
+	virtual bool Run(String command);
 	
 	WatchdogClient();
 	~WatchdogClient() {};

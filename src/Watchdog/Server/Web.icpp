@@ -77,9 +77,11 @@ SKYLARK(SaveClient, "saveclient:POST"){
 	if(cid>0) {
 		client.Load(cid);
 	}
+	int maxage = http.Int("max_age");
 	client("NAME", http["name"])
 	      ("DESCR", http["description"])
-	      ("SRC", http["path"]);
+	      ("SRC", http["path"])
+	      ("MAX_AGE", maxage>=0?maxage:14);
 	if(cid<0 || http["changepwd"]=="on") {
 		client("PASSWORD", http["password"])
 		      ("SALT", http["salt"]);
@@ -92,7 +94,7 @@ SKYLARK(RemoveClient, "removeclient/*:POST"){
 	int cid = http.Int(0);
 	if(!CheckAuth2(http, SQL, cid, "/removeclient/"+IntStr(cid)))
 		return;
-	Result::Delete(Null ,cid)
+	Result::Delete(Null, cid);
 	Client::Delete(cid);
 	http.Redirect("/clients");
 }
@@ -149,7 +151,7 @@ void Auth(Http& http, int cid) {
 	admin.Load(0);
 	admin.SetAuthInfo(salts, clients);
 	
-	if(cid!=0) {
+	if(cid>0) {
 		struct Client client;
 		if(!client.Load(cid)) {
 			http.Response(404, "Client not found");

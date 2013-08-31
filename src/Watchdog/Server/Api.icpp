@@ -6,12 +6,6 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	if(!CheckAuth2(http, SQL, cid, "/api/getwork/"+IntStr(cid)))
 		return;
 	
-	int max_age;
-	if(IsNull(http["max_age"])){
-		max_age = 365;
-	} else {
-		max_age = http.Int("max_age");
-	}
 	Client::UpdateActivity(cid);
 	SQLR * Select(REVISION)
 	       .From(WORK)
@@ -19,7 +13,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	       .InnerJoin(CLIENT).On(ID == cid)
 	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
 	              && Regexp(PATH, SRC)
-	              && DT >= (GetSysDate()-max_age))
+	              && DT >= (GetSysDate()-MAX_AGE))
 	       .OrderBy(REVISION);
 	while(SQLR.Fetch())
 		http << IntStr(SQLR[0]) << ",";

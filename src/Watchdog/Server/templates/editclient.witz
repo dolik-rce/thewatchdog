@@ -31,6 +31,7 @@ $else
 $/
 <tr><td>Description:</td><td><input type="text" name="wd_description" value="$CLIENT.DESCR"></td></tr>
 <tr><td>Followed path:</td><td><input type="text" name="wd_path" value="$CLIENT.SRC"></td></tr>
+<tr><td>Maximum commit age:</td><td><input type="text" name="wd_max_age" value="$CLIENT.MAX_AGE"></td></tr>
 <tr><td>&nbsp;</td><td><input type="submit" value="$if(CLIENT.ID > 0) Save $else Add $/"></td></tr>
 </table>
 <input type="hidden" name="wd_client" value="$CLIENT.ID">
