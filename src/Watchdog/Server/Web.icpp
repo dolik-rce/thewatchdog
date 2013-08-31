@@ -81,6 +81,7 @@ SKYLARK(SaveClient, "saveclient:POST"){
 	client("NAME", http["name"])
 	      ("DESCR", http["description"])
 	      ("SRC", http["path"])
+	      ("BRANCHES", http["branches"])
 	      ("MAX_AGE", maxage>=0?maxage:14);
 	if(cid<0 || http["changepwd"]=="on") {
 		client("PASSWORD", http["password"])
