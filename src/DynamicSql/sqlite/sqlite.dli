@@ -10,3 +10,4 @@ FN(void, sqlite3_result_text, (sqlite3_context*, const char*, int, void(*)(void*
 FN(void, sqlite3_result_int, (sqlite3_context*, int))
 FN(void, sqlite3_result_value, (sqlite3_context*, sqlite3_value*))
 FN(void, sqlite3_result_error, (sqlite3_context*, const char*, int))
+FN(void*, sqlite3_user_data, (sqlite3_context*))
