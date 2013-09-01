@@ -4,6 +4,9 @@
 #include <Watchdog/Client/Client.h>
 
 struct WatchdogAdmin : public WatchdogClient {
+	String branches;
+
+	virtual bool GetState();
 	virtual bool Update();
 	virtual bool Clean();
 

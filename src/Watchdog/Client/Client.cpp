@@ -185,10 +185,10 @@ void WatchdogClient::CheckParamCount(const Vector<String>& cmd, int current, int
 	}
 }
 
-void WatchdogClient::SetAction(const String& value){
+void WatchdogClient::SetAction(const String& value, int offset){
 	if(action == 0) {
 		if (value.StartsWith("--")) {
-			action=value[2];
+			action=value[2+offset];
 		} else {
 			action=value[1];
 		}

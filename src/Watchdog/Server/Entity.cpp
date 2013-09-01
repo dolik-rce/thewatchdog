@@ -124,7 +124,8 @@ ValueArray Commit::LoadPage(const PageInfo& pg) {
 }
 
 void Commit::Save() {
-	//TODO when changing API
+	Upsert(SQL, Insert(WORK)(data),
+	            Update(WORK)(data).Where(REVISION == data["REVISION"]));
 }
 
 bool Result::Load(int rev, int id) {

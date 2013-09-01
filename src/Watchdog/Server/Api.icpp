@@ -167,12 +167,34 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SendEmails(to, tokens, Format("%s %d", data["NAME"], revision), text, html);
 }
 
+SKYLARK(GetState, "api/getstate:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/api/getstate"))
+		return;
+	SQLR * Select(BRANCH, SqlFunc("max",SqlSet(DT)).As("STATE"))
+	       .From(WORK)
+	       .Where(Regexp(BRANCH, http["branches"]))
+	       .GroupBy(BRANCH);
+	ValueMap vm;
+	while(SQLR.Fetch(vm))
+		http << vm["BRANCH"] << "\t" << vm["STATE"] << "\n";
+}
+
 SKYLARK(Update, "api/update:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/api/update"))
 		return;
+	Vector<String> data = Split(AsString(http["data"]), "\n");
+	for(int i = 0; i < data.GetCount(); i++){
+		Vector<String> line = Split(data[i], "\t");
+		Commit commit;
+		commit("REVISION", line[0])
+		      ("DT", line[1])
+		      ("AUTHOR", line[2])
+		      ("MSG", line[3])
+		      ("PATH", line[4])
+		      ("BRANCH", line[5]);
+		commit.Save();
+	}
 	http << "OK\n";
-	http.Finalize();
-	UpdateLogs();
 }
 
 SKYLARK(Clean, "api/clean:POST") {

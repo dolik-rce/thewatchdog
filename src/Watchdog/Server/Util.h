@@ -1,7 +1,6 @@
 #ifndef _Watchdog_Server_Util_h_
 #define _Watchdog_Server_Util_h_
 
-void UpdateLogs();
 void CleanResults();
 void CleanAuth();
 typedef VectorMap<String,int> PageInfo;

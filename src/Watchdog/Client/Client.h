@@ -26,7 +26,7 @@ struct WatchdogClient {
 	
 	void Usage(int exitcode = 0) const;
 	void CheckParamCount(const Vector<String>& cmd, int current, int count) const;
-	void SetAction(const String& value);
+	void SetAction(const String& value, int offset = 0);
 	char GetAction() const;
 	
 	virtual void ParseArgument(int& i, const Vector<String>& cmd);
