@@ -8,6 +8,7 @@
 <tr><td>Log&nbsp;message:</td><td>$RESULT.MSG</td></tr>
 <tr><td>Author:</td><td>$RESULT.AUTHOR</td></tr>
 <tr><td>Date:</td><td>$RESULT.DT</td></tr>
+<tr><td>Branch:</td><td>$RESLT.BRANCH</td></tr>
 <tr><td>Path:</td><td>$RESULT.PATH</td></tr>
 </table>
 </div><div class="ldiv">

@@ -10,6 +10,7 @@ Revision: $DATA.REVISION
 Log message: $DATA.MSG
 Author: $DATA.AUTHOR
 Date: $DATA.DT
+Branch: $DATA.BRANCH
 Path: $DATA.PATH
 Client: $DATA.NAME
 
@@ -36,6 +37,7 @@ $else
 	<tr><td>Log&nbsp;message:</td><td>$DATA.MSG</td></tr>
 	<tr><td>Author:</td><td>$DATA.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$DATA.DT</td></tr>
+	<tr><td>Branch:</td><td>$DATA.BRANCH</td></tr>
 	<tr><td>Path:</td><td>$DATA.PATH</td></tr>
 	<tr><td>Client:</td><td><a href="$SELF/client/$DATA.ID">$DATA.NAME</a></td></tr>
 	<tr><td>Client description:</td><td>$raw(DATA.DESCR)</td></tr>

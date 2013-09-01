@@ -29,6 +29,7 @@ $for(i in ITEMS)
 	<tr><td>Author:</td><td>$i.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$i.DT</td></tr>
 	<tr><td>Path:</td><td>$i.PATH</td></tr>
+	<tr><td>Branch:</td><td>$i.BRANCH</td></tr>
 
 	<tr><td>Client:</td><td><a href="$SELF/client/$i.ID">$i.NAME</a></td></tr>
 	<tr><td>Client description:</td><td>$raw(i.DESCR)</td></tr>

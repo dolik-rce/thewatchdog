@@ -9,6 +9,7 @@
  <th>Results</th>
  <th>Author</th>
  <th>Date</th>
+ <th>Branch</th>
  <th>Path</th>
  <th>Log message</th>
 </tr>
@@ -29,6 +30,7 @@ $for(i in COMMITS)
       </td>
       <td>$i.AUTHOR</td>
       <td>$i.DT</td>
+      <td>$i.BRANCH</td>
       <td>$i.PATH</td>
       <td>$i.MSG</td>
     </tr>    
