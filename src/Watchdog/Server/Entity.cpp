@@ -13,16 +13,23 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 }
 
 ValueArray Client::FetchResults(const PageInfo& pg) const {
-	SQLR * Select(SqlAll(RESULT), REVISION, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
+	SQLR * Select(SqlAll(RESULT), DT, REVISION, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == data["ID"])
 	       .Where(Between(REVISION, pg.Get("min"), pg.Get("max")))
 	       .OrderBy(Descending(REVISION));
 	ValueArray res;
 	ValueMap vm;
+	Time t = GetSysTime();
+	int maxage = int(data["MAX_AGE"])*24*60*60;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
 		if (IsNull(vm["STATUS"])) {
-			vm.Add("STATUSSTR", (bool)vm["FITS"]?"Ready":"Not interested");
+			if (!vm["FITS"])
+				vm.Add("STATUSSTR", "Not interested");
+			else if (t-Time(vm["DT"]) > maxage)
+				vm.Add("STATUSSTR", "Too old");
+			else
+				vm.Add("STATUSSTR", "Ready");
 		} else {
 			if (vm["STAT"] == WD_INPROGRESS)
 				vm.Add("STATUSSTR", "In progress");
