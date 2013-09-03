@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# This scripts takes same input from stdin as git post-recieve hook. That means
+# it can be simply linked or copied into hooks dir on the server and it will
+# send updates to TheWatchdog server after each push.
+
+# It needs correctly configured admin app to function. For this, you should set
+# correctly the command below. 
+WDADMIN="cat" # should be something like "/usr/bin/wda --update -C /etc/thewatchdog/wda.ini"
+
+read old new ref
+
+function common_path() {
+  lhs=$1
+  rhs=$2
+  path=
+  OLD_IFS=$IFS; IFS=/
+  for w in $rhs; do
+    test "$path" = "" && try="$w" || try="$path/$w"
+    case $lhs in
+      $try*) ;;
+      *) break ;;
+    esac
+    path=$try
+  done
+  IFS=$OLD_IFS
+  echo $path
+}
+
+function common_path_all() {
+  local path=$1
+  shift
+  for arg
+  do
+    path=$(common_path "$path" "$arg")
+  done
+  echo $path
+}
+
+function get_path() {
+  common_path_all $(git show --name-only --pretty=oneline  $1 | sed 1d)
+}
+
+print_commit() {
+  DATE="$(date -d@$DATE +"%Y/%m/%d %H:%M:%S")"
+  DIR="$(get_path $COMMIT)"
+  /bin/echo -e "$BRANCH:$COMMIT\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
+}
+
+
+BRANCH="$(echo $ref | sed 's|refs/heads/||;')"
+format='COMMIT="%H"%nABBR=%h%nMSG="%s"%nAUTHOR="%an"%nDATE="%at"%nprint_commit'
+
+[ $old = "0000000000000000000000000000000000000000" ] && range="$new" || range="$old..$new"
+
+logs="$(git log --pretty=format:"$format" $range)"
+
+eval "$logs" | $WDADMIN
