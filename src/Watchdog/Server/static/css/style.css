@@ -30,6 +30,7 @@ ul.menu { list-style-type: none; padding-left:0; }
 	-moz-border-radius: 50%;
 	border-radius: 50%;
 }
+.goto { width: 60px; }
 .s008 { background-color: #008; }
 .s018 { background-color: #018; }
 .s028 { background-color: #028; }

@@ -15,8 +15,8 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 ValueArray Client::FetchResults(const PageInfo& pg) const {
 	SQLR * Select(SqlAll(RESULT), DT, REVISION, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == data["ID"])
-	       .Where(Between(REVISION, pg.Get("min"), pg.Get("max")))
-	       .OrderBy(Descending(REVISION));
+	       .OrderBy(Descending(DT))
+	       .Limit(pg.offset, pg.limit);
 	ValueArray res;
 	ValueMap vm;
 	Time t = GetSysTime();
@@ -111,9 +111,9 @@ ValueArray Commit::LoadPage(const PageInfo& pg) {
 	             SqlFunc("sum",SKIP).As("SKIP"))
 	      .From(WORK)
 	      .LeftJoin(RESULT).On(REVISION==REV)
-	      .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
 	      .GroupBy(REVISION)
-	      .OrderBy(Descending(REVISION));
+	      .OrderBy(Descending(DT))
+	      .Limit(pg.offset, pg.limit);
 	ValueArray res;
 	ValueMap vm;
 	while (SQLR.Fetch(vm)){
@@ -151,10 +151,15 @@ bool Result::Load(int rev, int id) {
 
 ValueMap Result::LoadPage(const PageInfo& pg) {
 	SQLR * Select(SqlAll(RESULT),REVISION,CLIENT_ID)
-	       .From(WORK)
+	       .From(
+	           Select(REVISION.As("FILTER"))
+	           .From(WORK)
+	           .OrderBy(Descending(DT))
+	           .Limit(pg.offset, pg.limit)
+	       )
+	       .InnerJoin(WORK).On(SqlId("FILTER")==REVISION)
 	       .LeftJoin(RESULT).On(REV == REVISION)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
-	       .Where(Between(REVISION,pg.Get("min"),pg.Get("max")))
 	       .OrderBy(CLIENT_ID);
 	VectorMap<Tuple2<int,int>,ValueMap> rows;
 	SortedIndex<int> clients;

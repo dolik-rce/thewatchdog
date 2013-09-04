@@ -42,7 +42,7 @@ SKYLARK(HomePage, "") {
 		http << "Database error";
 		return;
 	}
-	misc.Add("LAST", lastrev());
+	misc.Add("COUNT", commitcount());
 	
 	
 	http("MISC", misc)("STATS", stats)

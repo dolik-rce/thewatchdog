@@ -3,10 +3,15 @@
 
 void CleanResults();
 void CleanAuth();
-typedef VectorMap<String,int> PageInfo;
+
+struct PageInfo {
+	int limit;
+	int offset;
+};
 PageInfo Paging(Http& http);
+
 bool CheckLocal(Http& http);
-int& lastrev();
+int& commitcount(bool force = false);
 bool CheckAuth(Http& http, Sql& sql);
 bool CheckAuth2(Http& http, Sql& sql, int client, const String& action);
 void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const String& subject, const String& text, const String& html = "");

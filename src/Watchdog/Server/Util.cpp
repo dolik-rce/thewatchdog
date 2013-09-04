@@ -13,39 +13,52 @@ PageInfo Paging(Http& http){
 	int count = 3;
 	int pagesize = max(min(Nvl(http.Int("cnt"), Nvl(http.Int(".cnt"), 10)),100),1);
 	http.SessionSet("cnt",pagesize);
-	int last = lastrev();
-	int current = Nvl(http.Int("rev"), last);
+	int total = commitcount();
+	int hi = total/pagesize;
+	int current = Nvl(http.Int("page"), hi);
+	
+	PageInfo result;
+	result.limit = pagesize;
+	result.offset = pagesize*(hi-current);
 	
 	ValueArray va;
 	ValueMap vm;
-	for(int i = min(current+count*pagesize, last); i > current+pagesize-1; i-=pagesize){
-		vm.Set("REV", i);
-		vm.Set("TEXT", Format("[%i-%i]", min(last, i), i-pagesize+1));
+	
+	if(current != hi){
+		vm.Set("TEXT", "<< Newest");
 		va.Add(vm);
 	}
-	if(current < last){
-		vm.Set("REV", current + pagesize);
+	for(int i = min(current+count, hi); i > current; --i){
+		vm.Set("PAGE", i);
+		vm.Set("TEXT", IntStr(i));
+		va.Add(vm);
+	}
+	if(current < hi){
+		vm.Set("PAGE", current + 1);
 		vm.Set("TEXT", "< Newer");
 		va.Add(vm);
 	}
-	if(current > pagesize){
-		vm.Set("REV", current - pagesize);
+	{
+		vm.Set("PAGE", "current");
+		vm.Set("TEXT", IntStr(current));
+		va.Add(vm);
+	}
+	if(current > 0){
+		vm.Set("PAGE", current - 1);
 		vm.Set("TEXT", "Older >");
 		va.Add(vm);
 	}
-	for(int i = current - pagesize; i > max(current-(count+1)*pagesize, 0); i-=pagesize){
-		vm.Set("REV", i);
-		vm.Set("TEXT", Format("[%i-%i]", i, max(i-pagesize+1,0)));
+	for(int i = current - 1; i > max(current-(count+1), 0); --i){
+		vm.Set("PAGE", i);
+		vm.Set("TEXT", IntStr(i));
+		va.Add(vm);
+	}
+	if(current != 0){
+		vm.Set("PAGE", 0);
+		vm.Set("TEXT", "Oldest >>");
 		va.Add(vm);
 	}
 	http("PAGING", va);
-//	http("cnt", pagesize);
-	PageInfo result;
-	result.Add("min", current-pagesize+1);
-	result.Add("max", current);
-	result.Add("offfset", current-pagesize);
-	result.Add("pagesize", pagesize);
-	result.Add("current", current);
 	return result;
 }
 
@@ -57,21 +70,21 @@ bool CheckLocal(Http& http){
 	return false;
 }
 
-int& lastrev(){
+int& commitcount(bool force){
 	static Time last(Null);
-	static int rev(0);
-	if(GetSysTime() - last > 60){
+	static int count(0);
+	if(force || GetSysTime() - last > 15){
 		Sql sql;
-		sql * Select(REVISION).From(WORK).OrderBy(Descending(REVISION)).Limit(1);
+		sql * Select(Count(SqlSet(1))).From(WORK);
 		if(sql.Fetch()){
-			rev = sql[0];
+			count = sql[0];
 			last = GetSysTime();
 		} else {
-			rev = 0;
+			count = 0;
 			last = Null;
 		}
 	}
-	return rev;
+	return count;
 };
 
 bool CheckAuth(Http& http, Sql& sql){

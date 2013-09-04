@@ -4,6 +4,14 @@ function set_cnt(sel){
 	window.location.replace(loc)
 }
 
+function set_page(sel,event){
+	key=event.which || event.keyCode;
+	if (key == 13)
+		window.location.replace("?page="+sel.value);
+	if (key <48 || key>57)
+		event.preventDefault();
+}
+
 function feedfilter(){
 	url=document.getElementById('url').value
 	var filter='';

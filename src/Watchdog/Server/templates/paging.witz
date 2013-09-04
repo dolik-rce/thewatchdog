@@ -1,6 +1,10 @@
 <span class="paging">
 $for(i in PAGING)
-  <a href="?rev=$i.REV">$i.TEXT</a>
+  $if(i.PAGE=="current")
+    Page&nbsp;<input class="goto" onkeypress="set_page(this,event)" type="text" value="$i.TEXT">
+  $else
+    <a href="?$if(i.PAGE>=0)page=$i.PAGE$endif">$i.TEXT</a>
+  $endif
 $/
 <select class="paging" onchange="set_cnt(this)">
 <option disabled selected>Items per page</option>
