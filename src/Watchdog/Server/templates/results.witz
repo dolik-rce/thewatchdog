@@ -4,7 +4,7 @@
 #include templates/paging
 <table border="1">
  <tr>
-  <th>Revision</th>
+  <th>Commit</th>
 $if(count(CLIENTS)>0)
  $for(i in CLIENTS)
   <th><a href=$Client(i)>$ALLCLIENTS[i].NAME</a><a href=$Stats(i)><img src="$CachedStatic("img/stats.png")" title="Statistics" alt="Statistics" class="icon" width=16 height=16></a></th>

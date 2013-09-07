@@ -202,7 +202,7 @@ ValueArray ParseFilter(const String& filter){
 	return res;
 }
 
-bool MatchFilter(const ValueMap& m, int revision, int client, int result, const String& author, const String& path){
+bool MatchFilter(const ValueMap& m, const String& commit, int client, int result, const String& author, const String& path){
 	Vector<String> v = Split(AsString(m["FILTER"]),"&");
 	if(v.IsEmpty())
 		return true;

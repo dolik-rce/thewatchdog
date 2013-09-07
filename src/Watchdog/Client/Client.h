@@ -15,7 +15,7 @@ namespace Upp { namespace Ini {
 struct WatchdogClient {
 	Vector<String> todo;
 	bool lock;
-	int revision;
+	String commit;
 	int result;
 	int duration;
 	String output;
@@ -35,8 +35,8 @@ struct WatchdogClient {
 	virtual void Execute(const Vector<String>& cmd);
 	
 	virtual bool GetWork();
-	virtual bool AcceptWork(int revision, Time start=Null);
-	virtual bool SubmitWork(const int revision, const int result, const int time, const String& output, Time start=Null, Time end=Null);
+	virtual bool AcceptWork(const String& commit, Time start=Null);
+	virtual bool SubmitWork(const String& commit, const int result, const int time, const String& output, Time start=Null, Time end=Null);
 	virtual bool Run(String command);
 	
 	WatchdogClient();

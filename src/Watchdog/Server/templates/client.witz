@@ -17,7 +17,7 @@
 #include templates/paging
 <table border="1">
 <tr>
-<th>Revision</th>
+<th>Commit</th>
 <th>Start at</th>
 <th>End at</th>
 <th>Duration</th>

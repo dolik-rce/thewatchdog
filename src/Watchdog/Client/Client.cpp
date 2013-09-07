@@ -55,9 +55,9 @@ bool WatchdogClient::GetWork(){
 	return true;
 }
 
-bool WatchdogClient::AcceptWork(int revision, Time start){
-	if (revision <= 0){
-		Cerr() << "ERROR: Wrong value of <revision>\n";
+bool WatchdogClient::AcceptWork(const String& commit, Time start){
+	if (IsEmpty(commit)){
+		Cerr() << "ERROR: Wrong value of <commit>\n";
 		return false;
 	}
 	
@@ -70,14 +70,14 @@ bool WatchdogClient::AcceptWork(int revision, Time start){
 	}
 	
 	if(Ini::log_level > 0) 
-		Cout() << "Accepting revision " << revision << "\n";
+		Cout() << "Accepting commit " << commit << "\n";
 	
 	String target = "/api/acceptwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
 	if(!Auth(req, target))
 		return false;
 	
-	req.Post("revision", IntStr(revision));
+	req.Post("commit", commit);
 	if(!IsNull(start)){
 		req.Post("start", IntStr64(start.Get()));
 	}
@@ -90,9 +90,9 @@ bool WatchdogClient::AcceptWork(int revision, Time start){
 	return true;
 }
 
-bool WatchdogClient::SubmitWork(const int revision, const int result, const int duration, const String& output, Time start, Time end){
-	if (revision <= 0){
-		Cerr() << "ERROR: Wrong value of <revision>\n";
+bool WatchdogClient::SubmitWork(const String& commit, const int result, const int duration, const String& output, Time start, Time end){
+	if (IsEmpty(commit)){
+		Cerr() << "ERROR: Wrong value of <commit>\n";
 		return false;
 	}
 	if (result < WD_READY || result > WD_DONE){
@@ -107,7 +107,7 @@ bool WatchdogClient::SubmitWork(const int revision, const int result, const int 
 		Cerr() << "ERROR: Output not available\n";
 		return false;
 	}
-
+	
 	if(Ini::log_level > 0) 
 		Cout() << "Sending result '" << status(result) << "'\n";
 
@@ -118,7 +118,7 @@ bool WatchdogClient::SubmitWork(const int revision, const int result, const int 
 	
 	req.Post("result", IntStr(result));
 	req.Post("duration", IntStr(duration));
-	req.Post("revision", IntStr(revision));
+	req.Post("commit", commit);
 	req.Post("output", output);
 	if(!IsNull(start)){
 		req.Post("start", IntStr64(start.Get()));
@@ -149,14 +149,14 @@ bool WatchdogClient::Run(String command){
 			Cout() << "Nothing to do.\n";
 		return false;
 	}
-	int revision = StrInt(todo.Top());
+	String commit = todo.Top();
 	if(Ini::log_level > 0) 
-		Cout() << "Revision " << revision << " selected for build\n";
-	if(!AcceptWork(revision))
+		Cout() << "Commit " << commit << " selected for build\n";
+	if(!AcceptWork(commit))
 		return false;
 	
 	// replace @revision
-	command.Replace("@revision", IntStr(revision));
+	command.Replace("@commit", commit);
 	
 	// do work
 	if(Ini::log_level > 0) 
@@ -175,7 +175,7 @@ bool WatchdogClient::Run(String command){
 		result = WD_DONE;
 	
 	// send the results
-	return SubmitWork(revision, result, duration, output);
+	return SubmitWork(commit, result, duration, output);
 }
 
 void WatchdogClient::CheckParamCount(const Vector<String>& cmd, int current, int count) const {
@@ -210,11 +210,11 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 	} else if(cmd[i] == "--accept" || cmd[i] == "-a") {
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 1);
-		revision = StrInt(cmd[++i]);
+		commit = cmd[++i];
 	} else if(cmd[i] == "--submit" || cmd[i] == "-s") {
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 4);
-		revision = StrInt(cmd[++i]);
+		commit = cmd[++i];
 		result = StrInt(cmd[++i]);
 		duration = StrInt(cmd[++i]);
 		output = cmd[++i];
@@ -257,9 +257,9 @@ bool WatchdogClient::ProcessAction(){
 		}
 		return true;
 	case 'a':
-		return AcceptWork(revision, start);
+		return AcceptWork(commit, start);
 	case 's':
-		return SubmitWork(revision,
+		return SubmitWork(commit,
 		                  result,
 		                  duration,
 		                  LoadFile(output));
@@ -319,15 +319,15 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
 	actions.Add() = "\t-g --get\n"
-		"\t\tReturns a list of not yet built revisions\n";
-	actions.Add() = "\t-a --accept <revision>\n"
-		"\t\tNotifies server about building <revision>.\n";
-	actions.Add() = "\t-s --submit <revision> <result> <duration> <output_file>\n"
+		"\t\tReturns a list of not yet built commits\n";
+	actions.Add() = "\t-a --accept <commit>\n"
+		"\t\tNotifies server about building <commit>.\n";
+	actions.Add() = "\t-s --submit <commit> <result> <duration> <output_file>\n"
 		"\t\tSends results to the server. Optional start and end times can\n"
 		"\t\tbe supplied as int64.\n";
 	actions.Add() = "\t-r --run <command>\n"
 		"\t\tGets and accepts work automatically, then performs <command>\n"
-		"\t\twith '@revision' substituted by actual revision number\n"
+		"\t\twith '@commit' substituted by actual revision number\n"
 		"\t\tand then submits the results to server.\n";
 	options.Add() = "\t-C --config <file>\n"
 		"\t\tPath to configuration file\n";

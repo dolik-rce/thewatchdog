@@ -119,7 +119,7 @@ SKYLARK(Commits, "commits") {
 SKYLARK(Commit, "commit/*") {
 	struct Commit commit;
 	if(!commit.Load(http[0]))
-		http.Response(404, "Revision not found");
+		http.Response(404, "Commit not found");
 	else
 		http("COMMIT", commit.data)("RESULTS", commit.FetchResults())
 		    .RenderResult("templates/commit");

@@ -4,6 +4,6 @@
 <h3>Hello, welcome to Watchdog.</h3>
 <p>
 What is Watchdog? It is a <a href="http://en.wikipedia.org/wiki/Continuous_integration">CI</a> tool developped using <a href="http://ultimatepp.org/srcdoc%24Skylark%24Tutorial%24en-us.html">Skylark technology</a> (part of <a href="http://ultimatepp.org">U++ framework</a>).
-This particular instance of Watchdog follows the development of U++ itself. Remote build clients are utilized to continuously test new revisions and the results are beeing displayed on this website.<br>
+This particular instance of Watchdog follows the development of U++ itself. Remote build clients are utilized to continuously test new commits and the results are beeing displayed on this website.<br>
 For details and documentation, refer to the package which can be found in the <a href="http://www.ultimatepp.org/redmine/projects/upp/repository/show/sandbox/Watchdog">U++ sandbox</a>. In case you are interested in running your own client against this server or if you have any questions, please contact the $(email("dolik.rce@gmail.com","administrator")).
 </p>

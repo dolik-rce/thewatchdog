@@ -2,7 +2,7 @@
 #define TITLE Result info
 #define BODY
 <div class="ldiv">
-<h3>Revision</h3>
+<h3>Commit</h3>
 <table class="indent">
 <tr><td>Commit:</td><td><a href=$Commit(RESULT.UID)>$RESULT.CMT</a></td></tr>
 <tr><td>Branch:</td><td>$RESLT.BRANCH</td></tr>
