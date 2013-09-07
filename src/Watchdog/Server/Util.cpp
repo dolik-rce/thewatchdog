@@ -236,11 +236,6 @@ bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
 	return true;
 }
 
-SqlVal SqlEmptyString(){
-	static SqlVal s("''",SqlS::HIGH);
-	return s;
-}
-
 double SuccessRate(int ok, int fail, int err){
 	if (ok+fail+err == 0)
 		return 0;

@@ -28,3 +28,8 @@ bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update) {
 SqlBool Regexp(const SqlVal& a, const SqlVal& b) {
 	return SqlBool(a, " regexp ", b, SqlS::COMP);
 }
+
+SqlVal SqlEmptyString(){
+	static SqlVal s("''",SqlS::HIGH);
+	return s;
+}
