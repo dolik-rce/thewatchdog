@@ -8,7 +8,13 @@
 # correctly the command below. 
 WDADMIN="cat" # should be something like "/usr/bin/wda --update -C /etc/thewatchdog/wda.ini"
 
-read old new ref
+if [ $# -eq 0 ]; then
+  read old new ref
+else
+  [ "$1" ] && old="$1" || old="0000000000000000000000000000000000000000"
+  new="$2"
+  ref="$3"
+fi
 
 function common_path() {
   lhs=$1
@@ -44,7 +50,7 @@ function get_path() {
 print_commit() {
   DATE="$(date -d@$DATE +"%Y/%m/%d %H:%M:%S")"
   DIR="$(get_path $COMMIT)"
-  /bin/echo -e "$BRANCH:$COMMIT\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
+  /bin/echo -e "$COMMIT@$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
 }
 
 
