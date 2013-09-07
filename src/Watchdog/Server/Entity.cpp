@@ -150,7 +150,7 @@ bool Result::Load(const String& uid, int id) {
 }
 
 ValueMap Result::LoadPage(const PageInfo& pg) {
-	SQLR * Select(SqlAll(RESULT),UID,CLIENT_ID)
+	SQLR * Select(SqlAll(RESULT),UID,CMT,CLIENT_ID)
 	       .From(
 	           Select(UID.As("FILTER"))
 	           .From(COMMITS)
@@ -163,9 +163,9 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 	       .OrderBy(CLIENT_ID);
 	VectorMap<Tuple2<String, int>,ValueMap> rows;
 	SortedIndex<int> clients;
-	SortedIndex<String> commits;
+	SortedVectorMap<String, String> commits;
 	ValueArray v_clients;
-	ValueArray v_commits;
+	ValueMap v_commits;
 	ValueMap vm;
 	while (SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
@@ -173,11 +173,11 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 		int cid = vm["CLIENT_ID"];
 		rows.Add(MakeTuple(uid, cid), vm);
 		clients.FindAdd(cid);
-		commits.FindAdd(uid);
+		commits.GetAdd(uid) = vm["CMT"];
 	}
 	ValueMap results;
 	for(int i = commits.GetCount()-1; i>=0 ; --i){
-		v_commits.Add(commits[i]);
+		v_commits.Add(commits.GetKey(i), commits[i]);
 		vm.Clear();
 		for(int j = 0; j < clients.GetCount(); ++j){
 			if(!IsNull(clients[j]))
