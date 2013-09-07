@@ -1,7 +1,5 @@
 SERVER
 ------
-Git (and other VCS) support
-Support branches
 Clean-up states (leave only READY, IN_PROGRESS, DONE)
 Replace duration by end-start
 Versioning of schema and exports
