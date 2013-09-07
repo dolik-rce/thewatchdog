@@ -140,7 +140,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	// now send emails
 	
-	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
+	SQLR * Select(UID, BRANCH, CMT, DT, AUTHOR, MSG, PATH,
 	              ID, NAME, DESCR, SRC,
 	              START, FINISHED, DURATION, STATUS)
 	      .From(RESULT)
@@ -159,7 +159,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	Vector<String> to, tokens;
 	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
 	while(SQLR.Fetch(m)){
-		if(MatchFilter(m, commit, cid, result, data["AUTHOR"], data["PATH"])){
+		if(MatchFilter(m, commit, data["BRANCH"], cid, result, data["AUTHOR"], data["PATH"])){
 			to.Add(m["EMAIL"]);
 			tokens.Add(m["TOK"]);
 		}

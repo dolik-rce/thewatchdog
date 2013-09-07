@@ -1,4 +1,5 @@
 #include "Server.h"
+#include <plugin/pcre/Pcre.h>
 
 void CleanResults(){
 	SQL * Delete(RESULT)
@@ -202,26 +203,37 @@ ValueArray ParseFilter(const String& filter){
 	return res;
 }
 
-bool MatchFilter(const ValueMap& m, const String& commit, int client, int result, const String& author, const String& path){
+bool MatchFilter(const ValueMap& m, const String& commit, const String& branch, 
+		int client, int result, const String& author, const String& path){
 	Vector<String> v = Split(AsString(m["FILTER"]),"&");
 	if(v.IsEmpty())
 		return true;
-	bool matches = true;
 	for(int i = 0; i < v.GetCount(); i++){
 		if(v[i].StartsWith("author=")){
 			v[i].Replace("author=","");
-			matches = matches && (author == v[i]);
+			if(author != v[i])
+				return false;
 		} else if(v[i].StartsWith("path=")){
 			v[i].Replace("path=","");
-			matches = matches && (v[i].StartsWith(path));
+			RegExp re(v[i]);
+			if (re.Match(path))
+				return false;
+		} else if(v[i].StartsWith("branch=")){
+			v[i].Replace("branch=","");
+			RegExp re(v[i]);
+			if (re.Match(branch))
+				return false;
 		} else if(v[i].StartsWith("client=")){
 			v[i].Replace("client=","");
-			matches = matches && (StrInt(v[i]) == client);
+			if(StrInt(v[i]) != client)
+				return false;
 		} else if(v[i].StartsWith("status=")){
-			matches = matches && ((v[i].EndsWith("=ok") && result == WD_DONE) || (v[i].EndsWith("=failed") && result != WD_DONE));
+			if (!((v[i].EndsWith("=ok") && result == WD_DONE)
+			   || (v[i].EndsWith("=failed") && result != WD_DONE)))
+				return false;
 		}
 	}
-	return matches;
+	return true;
 }
 
 SqlVal SqlEmptyString(){

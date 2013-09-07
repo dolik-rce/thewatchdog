@@ -17,7 +17,8 @@ bool CheckAuth2(Http& http, Sql& sql, int client, const String& action);
 void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const String& subject, const String& text, const String& html = "");
 void SendEmail(const String& to, const String& token, const String& subject, const String& text, const String& html = "");
 ValueArray ParseFilter(const String& Filter);
-bool MatchFilter(const ValueMap& m, const String& revision, int client, int result, const String& author, const String& path);
+bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
+                 int client, int result, const String& author, const String& path);
 SqlVal SqlEmptyString();
 double SuccessRate(int ok, int fail, int err);
 int ComputeStatus(int ok, int fail, int err);
