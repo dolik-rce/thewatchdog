@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# This crude skript imitates behavior of "svn log" command.
+# It works only for one specific invocation that the thewatchdog uses.
+# Also, it probably only works when the watched path is /trunk and it has only 
+# been tested with googlecode repositories.
+
+set -e
+
+in=$(mktemp fakesvn.XXXX)
+out=$(mktemp fakesvn.XXXX)
+
+cleanup() {
+    rm -f $in $out
+}
+
+trap cleanup INT QUIT EXIT
+
+while [ $# -gt 0 ]; do
+    case $1 in
+    log|--xml|--verbose|--incremental)  shift ;;
+    "--revision")                       rev=$2; shift 2 ;;
+    "http://"*|https://*)               url=$1; shift ;;
+    *)                                  echo "unknown argument '$1'" > /dev/stderr; exit 1 ;;
+    esac
+done
+
+echo -n '<S:log-report xmlns:S="svn:"><S:encode-binary-props/><S:start-revision>'$rev'</S:start-revision><S:end-revision>'$rev'</S:end-revision><S:discover-changed-paths/><S:revprop>svn:author</S:revprop><S:revprop>svn:date</S:revprop><S:revprop>svn:log</S:revprop><S:path></S:path></S:log-report>' > $in
+
+curl -s -f -X REPORT \
+-H "User-Agent: SVN/1.7.10 neon/0.29.6" \
+-H "Connection: TE" \
+-H "TE: trailers" \
+-H "Content-Type: text/xml" \
+-H "DAV: http://subversion.tigris.org/xmlns/dav/svn/depth" \
+-H "DAV: http://subversion.tigris.org/xmlns/dav/svn/mergeinfo" \
+-H "DAV: http://subversion.tigris.org/xmlns/dav/svn/log-revprops" \
+-H "Content-Length: $(cat $in | wc -c)" \
+-H "Accept:" \
+--data-binary @$in \
+$url'/svn/!svn/bc/'$rev'/trunk' > $out
+
+sed -n '
+s|<S:log-item|<logentry revision="'$rev'"|gp;
+s|S:log-item|logentry|gp;
+s|S:date|date|gp;
+s|D:comment|msg|gp;
+s|D:creator-displayname|author|gp;
+s|S:modified-path[^>]*|path|g;
+s|S:deleted-path[^>]*|path|g;
+s|S:added-path[^>]*|path|g;
+s|<path>|<paths><path>|g;
+s|</path>|</path></paths>|gp;
+' $out
