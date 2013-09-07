@@ -80,12 +80,18 @@ void Watchdog::OpenDB(){
 	SQL.GetSession().SetTrace();
 }
 
-void Watchdog::UpdateDB(){
-	OpenDB();
-	SqlSchema sch;
-	All_Tables(sch);
+void Watchdog::SaveSchema(){
+	SqlSchema sch(sql.GetDialect());
+	All_Tables(sch, sql.GetDialect());
 	String schdir=AppendFileName(Ini::db_scripts_dir, sql.DialectToString());
 	RealizeDirectory(schdir);
+	sch.SaveNormal(schdir);
+}
+
+void Watchdog::UpdateDB(){
+	OpenDB();
+	SqlSchema sch(sql.GetDialect());
+	String schdir=AppendFileName(Ini::db_scripts_dir, sql.DialectToString());
 	if(sch.ScriptChanged(SqlSchema::UPGRADE, schdir))
 		SqlPerformScript(sch.Upgrade());
 	if(sch.ScriptChanged(SqlSchema::ATTRIBUTES, schdir))
@@ -94,7 +100,6 @@ void Watchdog::UpdateDB(){
 		SqlPerformScript(sch.ConfigDrop());
 		SqlPerformScript(sch.Config());
 	}
-	sch.SaveNormal(schdir);
 	CloseDB();
 }
 
@@ -121,6 +126,7 @@ Watchdog::Watchdog() {
 	// dialect plugin must be initialized while still in single thread mode
 	sql.SetLibraryPath(Ini::dsql_plugin_path);
 	sql.SetDialect(DynamicSqlSession::StringToDialect((String)Ini::db_backend));
+	SaveSchema();
 	//UpdateDB();
 }
 

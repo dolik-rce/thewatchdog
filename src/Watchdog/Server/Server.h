@@ -51,6 +51,7 @@ struct Watchdog : SkylarkApp {
 	virtual void WorkThread();
 	virtual void SigUsr1();
 	
+	void SaveSchema();
 	void OpenDB();
 	void UpdateDB();
 	void CloseDB();
