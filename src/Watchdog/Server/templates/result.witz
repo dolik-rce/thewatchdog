@@ -4,11 +4,11 @@
 <div class="ldiv">
 <h3>Revision</h3>
 <table class="indent">
-<tr><td>Revision:</td><td><a href=$Commit(RESULT.UID)>$RESULT.UID</a></td></tr>
+<tr><td>Commit:</td><td><a href=$Commit(RESULT.UID)>$RESULT.CMT</a></td></tr>
+<tr><td>Branch:</td><td>$RESLT.BRANCH</td></tr>
 <tr><td>Log&nbsp;message:</td><td>$RESULT.MSG</td></tr>
 <tr><td>Author:</td><td>$RESULT.AUTHOR</td></tr>
 <tr><td>Date:</td><td>$RESULT.DT</td></tr>
-<tr><td>Branch:</td><td>$RESLT.BRANCH</td></tr>
 <tr><td>Path:</td><td>$RESULT.PATH</td></tr>
 </table>
 </div><div class="ldiv">

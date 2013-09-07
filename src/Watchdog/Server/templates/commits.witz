@@ -4,7 +4,7 @@
 #include templates/paging
 <table border="1">
 <tr>
- <th>Revision</th>
+ <th>Commit</th>
  <th>Status</th>
  <th>Results</th>
  <th>Author</th>
@@ -15,7 +15,7 @@
 </tr>
 $for(i in COMMITS)
     <tr>
-      <th><a href=$Commit(i.UID)>$i.UID</a></th>
+      <th><a href=$Commit(i.UID)>$i.CMT</a></th>
       $if(i.COLOR!="RAW: ")
       <td><div class="icon circle $i.COLOR"></div>$i.RATE%</td>
       $else

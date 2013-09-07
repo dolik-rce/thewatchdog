@@ -6,11 +6,11 @@ Duration: $Duration(DATA.DURATION)
 
 Output: $SELF/output/$DATA.UID/$DATA.ID
 
-Revision: $DATA.UID
+Commit: $DATA.CMT
+Branch: $DATA.BRANCH
 Log message: $DATA.MSG
 Author: $DATA.AUTHOR
 Date: $DATA.DT
-Branch: $DATA.BRANCH
 Path: $DATA.PATH
 Client: $DATA.NAME
 
@@ -24,7 +24,7 @@ $else
 <html lang="en">
 <head>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-<title>$DATA.NAME $DATA.UID</title>
+<title>$DATA.NAME $DATA.CMT</title>
 </head>
 <body>
 <table border=0>
@@ -33,11 +33,11 @@ $else
 	<tr><td>End time:</td><td>$DATA.FINISHED</td></tr>
 	<tr><td>Duration:</td><td>$Duration(DATA.DURATION)</td></tr>
 	<tr><td>Output:</td><td><a href=$SELF/output/$DATA.UID/$DATA.ID>download</a></td></tr>
-	<tr><td>Revision:</td><td><a href="$SELF/commit/$DATA.UID">$DATA.UID</a></td></tr>
+	<tr><td>Commit:</td><td><a href="$SELF/commit/$DATA.UID">$DATA.CMT</a></td></tr>
+	<tr><td>Branch:</td><td>$DATA.BRANCH</td></tr>
 	<tr><td>Log&nbsp;message:</td><td>$DATA.MSG</td></tr>
 	<tr><td>Author:</td><td>$DATA.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$DATA.DT</td></tr>
-	<tr><td>Branch:</td><td>$DATA.BRANCH</td></tr>
 	<tr><td>Path:</td><td>$DATA.PATH</td></tr>
 	<tr><td>Client:</td><td><a href="$SELF/client/$DATA.ID">$DATA.NAME</a></td></tr>
 	<tr><td>Client description:</td><td>$raw(DATA.DESCR)</td></tr>

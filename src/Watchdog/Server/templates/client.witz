@@ -25,7 +25,7 @@
 </tr>
 $for(i in RESULTS)
     <tr>
-      <th><a href=$Commit(i.UID)>$i.UID</a></th>
+      <th><a href=$Commit(i.UID)>$i.CMT</a></th>
 $if(i.START)      
       <td>$i.START</td>
       <td>$i.FINISHED</td>

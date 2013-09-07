@@ -7,7 +7,7 @@
   <description>U++ code quality watchdog</description>
 $for(i in ITEMS)
   <item>
-    <title>$i.NAME ($i.UID)</title>
+    <title>$i.NAME ($i.CMT)</title>
     <link>$SELF/result/$i.UID/$i.ID</link>
     <description>
 <![CDATA[
@@ -24,12 +24,12 @@ $for(i in ITEMS)
 	<tr><td>Output:</td><td><a href=$SELF/output/$i.UID/$i.ID>download</a></td></tr>
 	$endif
 
-	<tr><td>Revision:</td><td><a href="$SELF/commit/$i.UID">$i.UID</a></td></tr>
+	<tr><td>Commit:</td><td><a href="$SELF/commit/$i.UID">$i.CMT</a></td></tr>
+	<tr><td>Branch:</td><td>$i.BRANCH</td></tr>
 	<tr><td>Log&nbsp;message:</td><td>$i.MSG</td></tr>
 	<tr><td>Author:</td><td>$i.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$i.DT</td></tr>
 	<tr><td>Path:</td><td>$i.PATH</td></tr>
-	<tr><td>Branch:</td><td>$i.BRANCH</td></tr>
 
 	<tr><td>Client:</td><td><a href="$SELF/client/$i.ID">$i.NAME</a></td></tr>
 	<tr><td>Client description:</td><td>$raw(i.DESCR)</td></tr>
