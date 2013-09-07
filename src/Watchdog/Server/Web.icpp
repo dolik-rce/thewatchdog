@@ -118,7 +118,7 @@ SKYLARK(Commits, "commits") {
 
 SKYLARK(Commit, "commit/*") {
 	struct Commit commit;
-	if(!commit.Load(http.Int(0)))
+	if(!commit.Load(http[0]))
 		http.Response(404, "Revision not found");
 	else
 		http("COMMIT", commit.data)("RESULTS", commit.FetchResults())
@@ -136,7 +136,7 @@ SKYLARK(Results, "results") {
 
 SKYLARK(Result, "result/*/*") {
 	struct Result result;
-	if(!result.Load(http.Int(0), http.Int(1))){
+	if(!result.Load(http[0], http.Int(1))){
 		http.Response(404, "Result data not found");
 		return;
 	}
@@ -213,11 +213,11 @@ SKYLARK(WebAuthPost, "auth/**:POST"){
 
 SKYLARK(Remove, "remove/*/*:POST"){
 	int cid = http.Int(0);
-	int rev = http.Int(1);
-	if(!CheckAuth2(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+IntStr(rev)))
+	String uid = http[1];
+	if(!CheckAuth2(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+uid))
 		return;
-	Result::Delete(rev, cid);
-	http.Redirect("/client/"+IntStr(cid)+"?rev="+IntStr(rev));
+	Result::Delete(uid, cid);
+	http.Redirect("/client/"+IntStr(cid)+"?uid="+uid);
 }
 
 SKYLARK(Output, "output/*/*"){

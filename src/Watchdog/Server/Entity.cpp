@@ -76,8 +76,8 @@ void Client::Save() {
 	}
 }
 
-bool Commit::Load(int rev) {
-	SQLR * Select(SqlAll()).From(COMMITS).Where(UID == rev);
+bool Commit::Load(const String& uid) {
+	SQLR * Select(SqlAll()).From(COMMITS).Where(UID == uid);
 	return SQLR.Fetch(data);
 }
 
@@ -128,12 +128,12 @@ void Commit::Save() {
 	            Update(COMMITS)(data).Where(UID == data["UID"]));
 }
 
-bool Result::Load(int rev, int id) {
+bool Result::Load(const String& uid, int id) {
 	SQLR * Select(SqlAll(), (OK+FAIL+ERR+SKIP).As("TOTAL"))
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(UID == CMT_UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(CLIENT_ID == id && CMT_UID == rev);
+	      .Where(CLIENT_ID == id && CMT_UID == uid);
 	if(!SQLR.Fetch(data))
 		return false;
 	SetComputedAttributes(data);
@@ -161,19 +161,19 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 	       .LeftJoin(RESULT).On(CMT_UID == UID)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
 	       .OrderBy(CLIENT_ID);
-	VectorMap<Tuple2<int,int>,ValueMap> rows;
+	VectorMap<Tuple2<String, int>,ValueMap> rows;
 	SortedIndex<int> clients;
-	SortedIndex<int> commits;
+	SortedIndex<String> commits;
 	ValueArray v_clients;
 	ValueArray v_commits;
 	ValueMap vm;
 	while (SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
-		int rev = vm["UID"];
+		String uid = vm["UID"];
 		int cid = vm["CLIENT_ID"];
-		rows.Add(MakeTuple(rev,cid), vm);
+		rows.Add(MakeTuple(uid, cid), vm);
 		clients.FindAdd(cid);
-		commits.FindAdd(rev);
+		commits.FindAdd(uid);
 	}
 	ValueMap results;
 	for(int i = commits.GetCount()-1; i>=0 ; --i){
@@ -199,11 +199,11 @@ String Result::FetchOutput() const {
 	return LoadFile(Format("%s/%d/%d.log",(String)Ini::output_dir,data["CMT_UID"],data["CLIENT_ID"]));
 }
 
-void Result::Delete(int rev, int id) {
-	if(IsNull(rev))
+void Result::Delete(const String& uid, int id) {
+	if(IsEmpty(uid))
 		SQL * ::Delete(RESULT).Where(CLIENT_ID==id);
 	else
-		SQL * ::Delete(RESULT).Where(CLIENT_ID==id && CMT_UID==rev);
+		SQL * ::Delete(RESULT).Where(CLIENT_ID==id && CMT_UID==uid);
 }
 
 void Result::Save() {

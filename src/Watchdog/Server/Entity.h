@@ -28,17 +28,17 @@ struct Client : public Entity<Client>, public Moveable<Client> {
 };
 
 struct Commit : public Entity<Commit>, public Moveable<Commit> {
-	bool Load(int rev);
+	bool Load(const String& uid);
 	ValueArray FetchResults() const;
 	static ValueArray LoadPage(const PageInfo& pg);
 	void Save();
 };
 
 struct Result : public Entity<Result>, public Moveable<Result> {
-	bool Load(int rev, int id);
+	bool Load(const String& uid, int id);
 	static ValueMap LoadPage(const PageInfo& pg);
 	String FetchOutput() const;
-	static void Delete(int rev, int id);
+	static void Delete(const String& uid, int id);
 	void Save();
 };
 
