@@ -13,8 +13,8 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 }
 
 ValueArray Client::FetchResults(const PageInfo& pg) const {
-	SQLR * Select(SqlAll(RESULT), DT, REVISION, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
-	       .From(WORK).LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == data["ID"])
+	SQLR * Select(SqlAll(RESULT), DT, UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
+	       .From(COMMITS).LeftJoin(RESULT).On(UID == CMT_UID && CLIENT_ID == data["ID"])
 	       .OrderBy(Descending(DT))
 	       .Limit(pg.offset, pg.limit);
 	ValueArray res;
@@ -77,14 +77,14 @@ void Client::Save() {
 }
 
 bool Commit::Load(int rev) {
-	SQLR * Select(SqlAll()).From(WORK).Where(REVISION == rev);
+	SQLR * Select(SqlAll()).From(COMMITS).Where(UID == rev);
 	return SQLR.Fetch(data);
 }
 
 ValueArray Commit::FetchResults() const {
 	SQLR * Select(SqlAll())
 	       .From(RESULT).InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	       .Where(REV == data["REVISION"]);
+	       .Where(CMT_UID == data["UID"]);
 	ValueArray res;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
@@ -109,9 +109,9 @@ ValueArray Commit::LoadPage(const PageInfo& pg) {
 	             SqlFunc("sum",FAIL).As("FAIL"),
 	             SqlFunc("sum",ERR).As("ERR"),
 	             SqlFunc("sum",SKIP).As("SKIP"))
-	      .From(WORK)
-	      .LeftJoin(RESULT).On(REVISION==REV)
-	      .GroupBy(REVISION)
+	      .From(COMMITS)
+	      .LeftJoin(RESULT).On(UID==CMT_UID)
+	      .GroupBy(UID)
 	      .OrderBy(Descending(DT))
 	      .Limit(pg.offset, pg.limit);
 	ValueArray res;
@@ -124,16 +124,16 @@ ValueArray Commit::LoadPage(const PageInfo& pg) {
 }
 
 void Commit::Save() {
-	Upsert(SQL, Insert(WORK)(data),
-	            Update(WORK)(data).Where(REVISION == data["REVISION"]));
+	Upsert(SQL, Insert(COMMITS)(data),
+	            Update(COMMITS)(data).Where(UID == data["UID"]));
 }
 
 bool Result::Load(int rev, int id) {
 	SQLR * Select(SqlAll(), (OK+FAIL+ERR+SKIP).As("TOTAL"))
 	      .From(RESULT)
-	      .InnerJoin(WORK).On(REVISION == REV)
+	      .InnerJoin(COMMITS).On(UID == CMT_UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(CLIENT_ID == id && REV == rev);
+	      .Where(CLIENT_ID == id && CMT_UID == rev);
 	if(!SQLR.Fetch(data))
 		return false;
 	SetComputedAttributes(data);
@@ -150,15 +150,15 @@ bool Result::Load(int rev, int id) {
 }
 
 ValueMap Result::LoadPage(const PageInfo& pg) {
-	SQLR * Select(SqlAll(RESULT),REVISION,CLIENT_ID)
+	SQLR * Select(SqlAll(RESULT),UID,CLIENT_ID)
 	       .From(
-	           Select(REVISION.As("FILTER"))
-	           .From(WORK)
+	           Select(UID.As("FILTER"))
+	           .From(COMMITS)
 	           .OrderBy(Descending(DT))
 	           .Limit(pg.offset, pg.limit)
 	       )
-	       .InnerJoin(WORK).On(SqlId("FILTER")==REVISION)
-	       .LeftJoin(RESULT).On(REV == REVISION)
+	       .InnerJoin(COMMITS).On(SqlId("FILTER")==UID)
+	       .LeftJoin(RESULT).On(CMT_UID == UID)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
 	       .OrderBy(CLIENT_ID);
 	VectorMap<Tuple2<int,int>,ValueMap> rows;
@@ -169,7 +169,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 	ValueMap vm;
 	while (SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
-		int rev = vm["REVISION"];
+		int rev = vm["UID"];
 		int cid = vm["CLIENT_ID"];
 		rows.Add(MakeTuple(rev,cid), vm);
 		clients.FindAdd(cid);
@@ -196,14 +196,14 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 }
 
 String Result::FetchOutput() const {
-	return LoadFile(Format("%s/%d/%d.log",(String)Ini::output_dir,data["REV"],data["CLIENT_ID"]));
+	return LoadFile(Format("%s/%d/%d.log",(String)Ini::output_dir,data["CMT_UID"],data["CLIENT_ID"]));
 }
 
 void Result::Delete(int rev, int id) {
 	if(IsNull(rev))
 		SQL * ::Delete(RESULT).Where(CLIENT_ID==id);
 	else
-		SQL * ::Delete(RESULT).Where(CLIENT_ID==id && REV==rev);
+		SQL * ::Delete(RESULT).Where(CLIENT_ID==id && CMT_UID==rev);
 }
 
 void Result::Save() {

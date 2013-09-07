@@ -15,7 +15,7 @@
 </tr>
 $for(i in COMMITS)
     <tr>
-      <th><a href=$Commit(i.REVISION)>$i.REVISION</a></th>
+      <th><a href=$Commit(i.UID)>$i.UID</a></th>
       $if(i.COLOR!="RAW: ")
       <td><div class="icon circle $i.COLOR"></div>$i.RATE%</td>
       $else

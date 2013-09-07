@@ -4,7 +4,7 @@
 <div class="ldiv">
 <h3>Revision</h3>
 <table class="indent">
-<tr><td>Revision:</td><td><a href=$Commit(RESULT.REVISION)>$RESULT.REVISION</a></td></tr>
+<tr><td>Revision:</td><td><a href=$Commit(RESULT.UID)>$RESULT.UID</a></td></tr>
 <tr><td>Log&nbsp;message:</td><td>$RESULT.MSG</td></tr>
 <tr><td>Author:</td><td>$RESULT.AUTHOR</td></tr>
 <tr><td>Date:</td><td>$RESULT.DT</td></tr>
@@ -33,12 +33,12 @@ $if(RESULT.STATUSN>1)
 <tr><td>End time:</td><td>$RESULT.FINISHED</td></tr>
 $endif
 <tr><td>Duration:</td><td>$Duration(RESULT.DURATION)</td></tr>
-<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.REVISION?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" alt="Delete" title="Delete" width=16 height=16>Delete</a></td></tr>
+<tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.UID?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" alt="Delete" title="Delete" width=16 height=16>Delete</a></td></tr>
 </table>
 </div>
 $if(RESULT.STATUSN>1)
 <div class="ldiv">
-<h3 class="wide">Output<a class="dl_link" href=$Output(RESULT.REVISION,RESULT.ID)>Download</a></h3>
+<h3 class="wide">Output<a class="dl_link" href=$Output(RESULT.UID,RESULT.ID)>Download</a></h3>
 <pre class="output">$OUTPUT</pre>
 </div>
 $endif

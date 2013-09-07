@@ -2,7 +2,7 @@
 #define TITLE Commit info
 #define BODY
 <table class="indent">
-<tr><td>Revision:</td><td>$COMMIT.REVISION</td></tr>
+<tr><td>Revision:</td><td>$COMMIT.UID</td></tr>
 <tr><td>Author:</td><td>$COMMIT.AUTHOR</td></tr>
 <tr><td>Date:</td><td>$COMMIT.DT</td></tr>
 <tr><td>Log Message:</td><td>$COMMIT.MSG</td></tr>
@@ -24,7 +24,7 @@ $for(i in RESULTS)
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>
-      <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.REVISION,i.CLIENT_ID)>$i.STATUSSTR $i.RATE%</a></td>
+      <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.UID,i.CLIENT_ID)>$i.STATUSSTR $i.RATE%</a></td>
     </tr>    
 $/
 </table>

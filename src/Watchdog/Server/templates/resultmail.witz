@@ -4,9 +4,9 @@ Start time: $DATA.START
 End time: $DATA.FINISHED
 Duration: $Duration(DATA.DURATION)
 
-Output: $SELF/output/$DATA.REVISION/$DATA.ID
+Output: $SELF/output/$DATA.UID/$DATA.ID
 
-Revision: $DATA.REVISION
+Revision: $DATA.UID
 Log message: $DATA.MSG
 Author: $DATA.AUTHOR
 Date: $DATA.DT
@@ -24,7 +24,7 @@ $else
 <html lang="en">
 <head>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-<title>$DATA.NAME $DATA.REVISION</title>
+<title>$DATA.NAME $DATA.UID</title>
 </head>
 <body>
 <table border=0>
@@ -32,8 +32,8 @@ $else
 	<tr><td>Start time:</td><td>$DATA.START</td></tr>
 	<tr><td>End time:</td><td>$DATA.FINISHED</td></tr>
 	<tr><td>Duration:</td><td>$Duration(DATA.DURATION)</td></tr>
-	<tr><td>Output:</td><td><a href=$SELF/output/$DATA.REVISION/$DATA.ID>download</a></td></tr>
-	<tr><td>Revision:</td><td><a href="$SELF/commit/$DATA.REVISION">$DATA.REVISION</a></td></tr>
+	<tr><td>Output:</td><td><a href=$SELF/output/$DATA.UID/$DATA.ID>download</a></td></tr>
+	<tr><td>Revision:</td><td><a href="$SELF/commit/$DATA.UID">$DATA.UID</a></td></tr>
 	<tr><td>Log&nbsp;message:</td><td>$DATA.MSG</td></tr>
 	<tr><td>Author:</td><td>$DATA.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$DATA.DT</td></tr>

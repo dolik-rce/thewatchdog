@@ -19,8 +19,8 @@ SKYLARK(HomePage, "") {
 	              CountIf(1, DT > yesterday).As("COMMITS_DAILY"),
 	              CountIf(1, DT > monthago).As("COMMITS_MONTHLY"),
 	              CountIf(1, true).As("COMMITS_TOTAL"))
-	      .From(WORK)
-	      .LeftJoin(RESULT).On(REV == REVISION);
+	      .From(COMMITS)
+	      .LeftJoin(RESULT).On(CMT_UID == UID);
 	ValueMap stats;
 	if(!SQLR.Fetch(stats)){
 		http << "Database error";
@@ -222,7 +222,7 @@ SKYLARK(Remove, "remove/*/*:POST"){
 
 SKYLARK(Output, "output/*/*"){
 	struct Result result;
-	result("CLIENT_ID", http.Int(0))("REV", http.Int(1));
+	result("CLIENT_ID", http.Int(0))("CMT_UID", http.Int(1));
 	
 	String output = result.FetchOutput();
 	if(output.IsVoid()){
@@ -242,7 +242,7 @@ SKYLARK(Stats, "stats/*") {
 		http << "unknown client";
 		return;
 	}
-	SQLR * Select(REV,
+	SQLR * Select(CMT_UID,
 	              OK + ERR + FAIL + SKIP, 
 	              OK,
 	              ERR,
@@ -251,9 +251,9 @@ SKYLARK(Stats, "stats/*") {
 	              DURATION,
 	              MSG, AUTHOR, DT)
 	        .From(RESULT)
-	        .InnerJoin(WORK).On(REV==REVISION)
+	        .InnerJoin(COMMITS).On(CMT_UID==UID)
 	        .Where(cid==CLIENT_ID && STATUS!=WD_INPROGRESS)
-	        .OrderBy(Descending(REV))
+	        .OrderBy(Descending(CMT_UID))
 	        .Limit(100);
 	ValueMap point;
 	ValueMap revlog;

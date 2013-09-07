@@ -23,11 +23,11 @@ SKYLARK(RssFeed, "rss")
 		filter = SqlBool(filter && STATUS==WD_DONE);
 	
 	Sql sql;
-	sql * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	sql * Select(UID, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC,
 	             START, FINISHED, DURATION, STATUS)
 	      .From(RESULT)
-	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
 	      .Where((STATUS==WD_DONE || STATUS==WD_FAILED)
 	             && FINISHED>(GetSysTime()-30*60*60*24)
@@ -54,7 +54,7 @@ SKYLARK(Feeds, "feeds")
 	while(sql.Fetch(vm)){
 		clients.Add(vm);
 	}
-	sql * Select(Distinct(AUTHOR)).From(WORK).OrderBy(AUTHOR);
+	sql * Select(Distinct(AUTHOR)).From(COMMITS).OrderBy(AUTHOR);
 	ValueArray authors;
 	while(sql.Fetch(vm)){
 		authors.Add(vm);

@@ -75,7 +75,7 @@ int& commitcount(bool force){
 	static int count(0);
 	if(force || GetSysTime() - last > 15){
 		Sql sql;
-		sql * Select(Count(SqlSet(1))).From(WORK);
+		sql * Select(Count(SqlSet(1))).From(COMMITS);
 		if(sql.Fetch()){
 			count = sql[0];
 			last = GetSysTime();

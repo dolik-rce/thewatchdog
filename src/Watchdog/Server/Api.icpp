@@ -7,15 +7,15 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 		return;
 	
 	Client::UpdateActivity(cid);
-	SQLR * Select(REVISION)
-	       .From(WORK)
-	       .LeftJoin(RESULT).On(REVISION == REV && CLIENT_ID == cid)
+	SQLR * Select(UID)
+	       .From(COMMITS)
+	       .LeftJoin(RESULT).On(UID == CMT_UID && CLIENT_ID == cid)
 	       .InnerJoin(CLIENT).On(ID == cid)
 	       .Where((IsNull(STATUS) || STATUS == WD_READY) 
 	              && Regexp(PATH, SRC)
 	              && Regexp(BRANCH, BRANCHES)
 	              && DT >= (GetSysDate()-MAX_AGE))
-	       .OrderBy(REVISION);
+	       .OrderBy(UID);
 	while(SQLR.Fetch())
 		http << IntStr(SQLR[0]) << ",";
 }
@@ -33,13 +33,13 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
 	Client::UpdateActivity(cid, true);
-	SqlInsert insert = Insert(RESULT)(REV,http.Int("revision"))
+	SqlInsert insert = Insert(RESULT)(CMT_UID,http.Int("revision"))
 	                    (CLIENT_ID,cid)
 	                    (START,start)
 	                    (STATUS,WD_INPROGRESS);
 	SqlUpdate update = Update(RESULT)(START,start)
 		                    (STATUS,WD_INPROGRESS)
-		        .Where(REV == http.Int("revision") && CLIENT_ID == cid);
+		        .Where(CMT_UID == http.Int("revision") && CLIENT_ID == cid);
 	Upsert(SQL, insert, update);
 	http.Response(200, "OK");
 }
@@ -113,7 +113,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	}
 	
 	SqlInsert insert = 
-	      Insert(RESULT)(REV, revision)
+	      Insert(RESULT)(CMT_UID, revision)
 	                    (CLIENT_ID, cid)
 	                    (STATUS, result)
 	                    (DURATION, http.Int("duration"))
@@ -132,7 +132,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (ERR, errors)
 	                    (FAIL, failures)
 	                    (SKIP, skipped)
-	        .Where(REV == revision && CLIENT_ID == cid);
+	        .Where(CMT_UID == revision && CLIENT_ID == cid);
 	Upsert(SQL, insert, update);
 	
 	http.Response(200,"OK");
@@ -140,13 +140,13 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	// now send emails
 	
-	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
 	              ID, NAME, DESCR, SRC,
 	              START, FINISHED, DURATION, STATUS)
 	      .From(RESULT)
-	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(REV==revision && CLIENT_ID == cid);
+	      .Where(CMT_UID==revision && CLIENT_ID == cid);
 	ValueMap data;
 	SQLR.Fetch(data);
 	data.Add("STATUSSTR",status(data["STATUS"]));
@@ -171,7 +171,7 @@ SKYLARK(GetState, "api/getstate:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/api/getstate"))
 		return;
 	SQLR * Select(BRANCH, SqlFunc("max",SqlSet(DT)).As("STATE"))
-	       .From(WORK)
+	       .From(COMMITS)
 	       .Where(Regexp(BRANCH, http["branches"]))
 	       .GroupBy(BRANCH);
 	ValueMap vm;
@@ -186,7 +186,7 @@ SKYLARK(Update, "api/update:POST") {
 	for(int i = 0; i < data.GetCount(); i++){
 		Vector<String> line = Split(data[i], "\t");
 		Commit commit;
-		commit("REVISION", line[0])
+		commit("UID", line[0])
 		      ("DT", line[1])
 		      ("AUTHOR", line[2])
 		      ("MSG", line[3])

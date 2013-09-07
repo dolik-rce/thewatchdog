@@ -21,11 +21,11 @@ SKYLARK(RssFeed, "rss")
 	else if(state == "ok")
 		filter = SqlBool(filter && STATUS==WD_DONE);
 	
-	SQLR * Select(REVISION, DT, AUTHOR, MSG, PATH,
+	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC,
 	             START, FINISHED, DURATION, STATUS)
 	      .From(RESULT)
-	      .InnerJoin(WORK).On(REV == REVISION)
+	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
 	      .Where((STATUS==WD_DONE || STATUS==WD_FAILED)
 	             && FINISHED>(GetSysTime()-30*60*60*24)
@@ -51,7 +51,7 @@ SKYLARK(Feeds, "feeds")
 	while(SQLR.Fetch(vm)){
 		clients.Add(vm);
 	}
-	SQLR * Select(Distinct(AUTHOR)).From(WORK).OrderBy(AUTHOR);
+	SQLR * Select(Distinct(AUTHOR)).From(COMMITS).OrderBy(AUTHOR);
 	ValueArray authors;
 	while(SQLR.Fetch(vm)){
 		authors.Add(vm);
@@ -143,13 +143,13 @@ SKYLARK(Sitemap, "sitemap.xml")
 		urls.Add(url);
 	}
 	
-	SQLR * Select(REVISION).From(WORK);
+	SQLR * Select(UID).From(COMMITS);
 	while(SQLR.Fetch()){
 		url.Set("LOC",Format("commit/%d",SQLR[0]));
 		urls.Add(url);
 	}
 	
-	SQLR * Select(REV,CLIENT_ID).From(RESULT);
+	SQLR * Select(CMT_UID,CLIENT_ID).From(RESULT);
 	while(SQLR.Fetch()){
 		url.Set("LOC",Format("result/%d/%d", SQLR[0], SQLR[1]));
 		urls.Add(url);

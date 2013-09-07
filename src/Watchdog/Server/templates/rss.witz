@@ -7,8 +7,8 @@
   <description>U++ code quality watchdog</description>
 $for(i in ITEMS)
   <item>
-    <title>$i.NAME ($i.REVISION)</title>
-    <link>$SELF/result/$i.REVISION/$i.ID</link>
+    <title>$i.NAME ($i.UID)</title>
+    <link>$SELF/result/$i.UID/$i.ID</link>
     <description>
 <![CDATA[
 	<table border=0>
@@ -21,10 +21,10 @@ $for(i in ITEMS)
 	<tr><td>Duration:</td><td>$Duration(i.DURATION)</td></tr>
 
 	$if(i.STATUS>1)
-	<tr><td>Output:</td><td><a href=$SELF/output/$i.REVISION/$i.ID>download</a></td></tr>
+	<tr><td>Output:</td><td><a href=$SELF/output/$i.UID/$i.ID>download</a></td></tr>
 	$endif
 
-	<tr><td>Revision:</td><td><a href="$SELF/commit/$i.REVISION">$i.REVISION</a></td></tr>
+	<tr><td>Revision:</td><td><a href="$SELF/commit/$i.UID">$i.UID</a></td></tr>
 	<tr><td>Log&nbsp;message:</td><td>$i.MSG</td></tr>
 	<tr><td>Author:</td><td>$i.AUTHOR</td></tr>
 	<tr><td>Date:</td><td>$i.DT</td></tr>
