@@ -184,14 +184,15 @@ SKYLARK(Update, "api/update:POST") {
 		return;
 	Vector<String> data = Split(AsString(http["data"]), "\n");
 	for(int i = 0; i < data.GetCount(); i++){
-		Vector<String> line = Split(data[i], "\t");
+		Vector<String> line = Split(data[i], "\t", false);
 		Commit commit;
 		commit("UID", line[0])
-		      ("DT", line[1])
-		      ("AUTHOR", line[2])
-		      ("MSG", line[3])
-		      ("PATH", line[4])
-		      ("BRANCH", line[5]);
+		      ("BRANCH", line[1])
+		      ("CMT", line[2])
+		      ("AUTHOR", line[3])
+		      ("DT", line[4])
+		      ("MSG", line[5])
+		      ("PATH", line[6]);
 		commit.Save();
 	}
 	http << "OK\n";
