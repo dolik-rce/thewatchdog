@@ -10,8 +10,9 @@ WDADMIN="cat" # should be something like "/usr/bin/wda --update -C /etc/thewatch
 
 if [ $# -eq 0 ]; then
   read old new ref
+  [ "$old" = "0000000000000000000000000000000000000000" ] && old=""
 else
-  [ "$1" ] && old="$1" || old="0000000000000000000000000000000000000000"
+  old="$1"
   new="$2"
   ref="$3"
 fi
@@ -50,14 +51,13 @@ function get_path() {
 print_commit() {
   DATE="$(date -d@$DATE +"%Y/%m/%d %H:%M:%S")"
   DIR="$(get_path $COMMIT)"
-  /bin/echo -e "$COMMIT@$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
+  $(which echo) -e "$COMMIT@$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
 }
-
 
 BRANCH="$(echo $ref | sed 's|refs/heads/||;')"
 format='COMMIT="%H"%nABBR=%h%nMSG="%s"%nAUTHOR="%an"%nDATE="%at"%nprint_commit'
 
-[ $old = "0000000000000000000000000000000000000000" ] && range="$new" || range="$old..$new"
+[ "$old" = "" ] && range="$new" || range="$old..$new"
 
 logs="$(git log --pretty=format:"$format" $range)"
 
