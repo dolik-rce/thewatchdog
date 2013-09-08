@@ -75,12 +75,11 @@ uppsrc/%: $(UPPTAR)
 uppsrc/uppconfig.h: $(UPPTAR)
 	$(GETUPPDEPFILE)
 
-update-uppsrc: $(UPPTAR) $(CLIENT_DEPS) $(SERVER_DEPS) $(DSQL_SQLITE_DEPS) $(DSQL_MYSQL_DEPS)
+update-uppsrc: $(CLIENT_DEPS) $(SERVER_DEPS) $(DSQL_SQLITE_DEPS) $(DSQL_MYSQL_DEPS)
 	$(USESVN) || (echo "ERROR: 'update-uppsrc' goal should be only used when USESVN=true" && exit 1)
-	for d in $$(find uppsrc/ -exec test -d {}/.svn \; -print -prune); do \
-		svn up $$d; \
+	for d in $^; do \
+	  [ -d "$$d" ] && svn up "$$d" || svn export --force "$(UPPSVN)/$$d" "$$d"; \
 	done;
-	svn export --force '$(UPPSVN)/uppsrc/uppconfig.h' uppsrc/uppconfig.h;
 
 clean:
 	rm -rf $(OBJ) $(BIN) $(LIB)
