@@ -17,7 +17,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	              && DT >= (GetSysDate()-MAX_AGE))
 	       .OrderBy(UID);
 	while(SQLR.Fetch())
-		http << IntStr(SQLR[0]) << ",";
+		http << SQLR[0] << ",";
 }
 
 SKYLARK(AcceptWork, "api/acceptwork/*:POST")
