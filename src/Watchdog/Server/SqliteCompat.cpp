@@ -127,7 +127,7 @@ void sqlite_regexp(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 }
 
 struct SqlCache : public Buffer<cache_entry> {
-	SqlCache() : Buffer(CACHE_SIZE) {}
+	SqlCache() : Buffer<cache_entry>(CACHE_SIZE) {}
 };
 
 void AddSqliteCompatibilityFunctions(DynamicSqlSession& dsql){
