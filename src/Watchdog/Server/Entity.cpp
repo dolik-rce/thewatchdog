@@ -156,6 +156,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 	           .From(COMMITS)
 	           .OrderBy(Descending(DT))
 	           .Limit(pg.offset, pg.limit)
+	           .AsTable("FILTER_TABLE")
 	       )
 	       .InnerJoin(COMMITS).On(SqlId("FILTER")==UID)
 	       .LeftJoin(RESULT).On(CMT_UID == UID)
