@@ -182,7 +182,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 		vm.Clear();
 		for(int j = 0; j < clients.GetCount(); ++j){
 			if(!IsNull(clients[j]))
-				vm.Add(clients[j], rows.GetAdd(MakeTuple(commits[i], clients[j])));
+				vm.Add(clients[j], rows.GetAdd(MakeTuple(commits.GetKey(i), clients[j])));
 		}
 		results.Add(commits[i], vm);
 	}
