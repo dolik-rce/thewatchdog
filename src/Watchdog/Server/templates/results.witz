@@ -16,7 +16,7 @@ $/
 $if(count(CLIENTS)>0)
   $for(j in COMMITS)
   <tr>
-  <th><a href=$Commit(j._key)>$j</a></th>
+  <th><a href=$Commit(j)>$j._key</a></th>
   $for(i in CLIENTS)
    $if(RESULTS[j][i])
     <td><div class="icon circle $RESULTS[j][i].COLOR"></div><a href=$Result(j,i)>$RESULTS[j][i].RATE%</a></td>
@@ -28,7 +28,7 @@ $if(count(CLIENTS)>0)
 $/
 $else
   $for(j in COMMITS)
-   <tr><th><a href=$Commit(j._key)>$j</a></th></tr>
+   <tr><th><a href=$Commit(j)>$j._key</a></th></tr>
   $/
 $/
 </table>

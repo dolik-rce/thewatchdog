@@ -174,7 +174,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 		int cid = vm["CLIENT_ID"];
 		rows.Add(MakeTuple(uid, cid), vm);
 		clients.FindAdd(cid);
-		commits.GetAdd(uid) = vm["CMT"];
+		commits.GetAdd(vm["CMT"]) = uid;
 	}
 	ValueMap results;
 	for(int i = 0; i<commits.GetCount() ; ++i){
@@ -182,7 +182,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 		vm.Clear();
 		for(int j = 0; j < clients.GetCount(); ++j){
 			if(!IsNull(clients[j]))
-				vm.Add(clients[j], rows.GetAdd(MakeTuple(commits.GetKey(i), clients[j])));
+				vm.Add(clients[j], rows.GetAdd(MakeTuple(commits[i], clients[j])));
 		}
 		results.Add(commits[i], vm);
 	}
