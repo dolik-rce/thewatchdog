@@ -13,7 +13,7 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 }
 
 ValueArray Client::FetchResults(const PageInfo& pg) const {
-	SQLR * Select(SqlAll(RESULT), DT, UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
+	SQLR * Select(SqlAll(RESULT), DT, CMT, UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(COMMITS).LeftJoin(RESULT).On(UID == CMT_UID && CLIENT_ID == data["ID"])
 	       .OrderBy(Descending(DT))
 	       .Limit(pg.offset, pg.limit);
@@ -161,10 +161,10 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 	       .InnerJoin(COMMITS).On(SqlId("FILTER")==UID)
 	       .LeftJoin(RESULT).On(CMT_UID == UID)
 	       .LeftJoin(CLIENT).On(ID == CLIENT_ID)
-	       .OrderBy(CLIENT_ID);
+	       .OrderBy(Descending(DT));
 	VectorMap<Tuple2<String, int>,ValueMap> rows;
 	SortedIndex<int> clients;
-	SortedVectorMap<String, String> commits;
+	VectorMap<String, String> commits;
 	ValueArray v_clients;
 	ValueMap v_commits;
 	ValueMap vm;
@@ -177,7 +177,7 @@ ValueMap Result::LoadPage(const PageInfo& pg) {
 		commits.GetAdd(uid) = vm["CMT"];
 	}
 	ValueMap results;
-	for(int i = commits.GetCount()-1; i>=0 ; --i){
+	for(int i = 0; i<commits.GetCount() ; ++i){
 		v_commits.Add(commits.GetKey(i), commits[i]);
 		vm.Clear();
 		for(int j = 0; j < clients.GetCount(); ++j){

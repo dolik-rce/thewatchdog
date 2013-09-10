@@ -177,7 +177,6 @@ void Auth(Http& http, int cid) {
 	    .SetHeader("wd_id", id)
 	    .SetHeader("wd_action", target)
 	    .SetHeader("wd_salts", salts);
-	
 	SQL * Insert(AUTH)(NONCE, nonce)(VALID, GetSysTime());
 	http("WD_ID", id)
 	    ("WD_NONCE", nonce)

@@ -27,7 +27,7 @@ bool WatchdogAdmin::Update(){
 	String line = ReadStdIn();
 	String data;
 	while(!line.IsEmpty()) {
-		data << line;
+		data << line << '\n';
 		line = ReadStdIn();
 	}
 	req.Post("data", data);

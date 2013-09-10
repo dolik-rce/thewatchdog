@@ -155,7 +155,7 @@ bool WatchdogClient::Run(String command){
 	if(!AcceptWork(commit))
 		return false;
 	
-	// replace @revision
+	// replace @commit
 	command.Replace("@commit", commit);
 	
 	// do work
@@ -327,7 +327,7 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 		"\t\tbe supplied as int64.\n";
 	actions.Add() = "\t-r --run <command>\n"
 		"\t\tGets and accepts work automatically, then performs <command>\n"
-		"\t\twith '@commit' substituted by actual revision number\n"
+		"\t\twith '@commit' substituted by actual commit identifier\n"
 		"\t\tand then submits the results to server.\n";
 	options.Add() = "\t-C --config <file>\n"
 		"\t\tPath to configuration file\n";

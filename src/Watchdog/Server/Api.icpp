@@ -15,7 +15,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 	              && Regexp(PATH, SRC)
 	              && Regexp(BRANCH, BRANCHES)
 	              && DT >= (GetSysDate()-MAX_AGE))
-	       .OrderBy(UID);
+	       .OrderBy(DT);
 	while(SQLR.Fetch())
 		http << SQLR[0] << ",";
 }
@@ -63,11 +63,12 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 		end.Set(ScanInt64(AsString(http["end"])));
 	}
 	String output = http["output"];
-	String outputfile = Format("%s/%d/%d.log",(String)Ini::output_dir,http["revision"],cid);
+	String outputfile = Format("%s/%d/%d.log",(String)Ini::output_dir,http["commit"],cid);
+	RLOG("Saving output to '"<<outputfile<<"'");
 	RealizePath(outputfile);
 	SaveFile(outputfile, output);
 	Client::UpdateActivity(cid, true);
-	String commit = http["revision"];
+	String commit = http["commit"];
 	int result = http.Int("result");
 	
 	//expected format: TEST_SUMMARY: tests=67 errors=4 failures=7 skip=0
