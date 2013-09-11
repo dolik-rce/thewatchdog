@@ -18,6 +18,7 @@
 <table border="1">
 <tr>
 <th>Commit</th>
+<th>Branch</th>
 <th>Start at</th>
 <th>End at</th>
 <th>Duration</th>
@@ -26,6 +27,7 @@
 $for(i in RESULTS)
     <tr>
       <th><a href=$Commit(i.UID)>$i.CMT</a></th>
+      <td class="centered">$i.BRANCH</td>
 $if(i.START)      
       <td>$i.START</td>
       <td>$i.FINISHED</td>
