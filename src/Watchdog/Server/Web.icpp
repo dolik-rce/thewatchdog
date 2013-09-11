@@ -248,11 +248,11 @@ SKYLARK(Stats, "stats/*") {
 	              FAIL,
 	              SKIP,
 	              DURATION,
-	              MSG, AUTHOR, DT)
+	              MSG, AUTHOR, DT, CMT, BRANCH)
 	        .From(RESULT)
 	        .InnerJoin(COMMITS).On(CMT_UID==UID)
 	        .Where(cid==CLIENT_ID && STATUS!=WD_INPROGRESS)
-	        .OrderBy(Descending(CMT_UID))
+	        .OrderBy(Descending(DT))
 	        .Limit(100);
 	ValueMap point;
 	ValueMap revlog;
@@ -261,9 +261,10 @@ SKYLARK(Stats, "stats/*") {
 	Vector<Value> row;
 	stats.SetCount(6);
 	Vector<String> colors;
+	int n=SQLR.GetRowsProcessed();
 	while(SQLR.Fetch(row)){
 		for(int i = 0; i < 6; i++){
-			point.Set("x", row[0]);
+			point.Set("x", n);
 			point.Set("y", row[1+i]);
 			stats[i].Add(point);
 		}
@@ -271,7 +272,10 @@ SKYLARK(Stats, "stats/*") {
 		vm.Set("MSG",row[7]);
 		vm.Set("AUTHOR",row[8]);
 		vm.Set("DT",row[9]);
-		revlog.Add(row[0],vm);
+		vm.Set("CMT",row[10]);
+		vm.Set("BRANCH",row[11]);
+		revlog.Add(n,vm);
+		--n;
 	}
 	for(int i = 0; i < 6; i++){
 		Reverse(stats[i]);

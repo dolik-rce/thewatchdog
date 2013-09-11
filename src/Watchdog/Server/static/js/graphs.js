@@ -51,12 +51,6 @@ Graph = function(arg) {
 			graph: this.graph,
 			xFormatter: arg.xFormatter || this.defaultFormatters.x,
 			yFormatter: arg.yFormatter || this.defaultFormatters.y,
-//			xFormatter: function(x) {
-//					return x + ": " + revlog[x];
-//				},
-//			yFormatter: function(y) {
-//				return y;
-//			}
 		} );
 		this.render();
 	}

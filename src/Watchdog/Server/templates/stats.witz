@@ -21,10 +21,10 @@
 <script>
 
 var revlog = {
-	$for(i in REVLOG) $i._key : "$i.MSG<br>$i.AUTHOR @ $i.DT", $/
+	$for(i in REVLOG) $i._key : "$i.CMT, $i.BRANCH<br>$i.MSG<br>$i.AUTHOR @ $i.DT", $/
 };
 
-function formatx(x) { return x + ": " + revlog[x]; }
+function formatx(x) { return revlog[x]; }
 function formaty(y) { return y; }
 
 var g1 = new Graph({
@@ -67,3 +67,4 @@ var g2 = new Graph({
 
 })
 </script>
+$dbg(1)
