@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This scripts takes same input from stdin as git post-recieve hook. That means
 # it can be simply linked or copied into hooks dir on the server and it will
@@ -51,13 +51,13 @@ function get_path() {
 print_commit() {
   DATE="$(date -d@$DATE +"%Y/%m/%d %H:%M:%S")"
   DIR="$(get_path $COMMIT)"
-  $(which echo) -e "$COMMIT@$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
+  $(which echo) -e "${COMMIT}_$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
 }
 
 BRANCH="$(echo $ref | sed 's|refs/heads/||;')"
 format='COMMIT="%H"%nABBR=%h%nMSG="%s"%nAUTHOR="%an"%nDATE="%at"%nprint_commit'
 
-[ "$old" = "" ] && range="$new" || range="$old..$new"
+[ "$old" = "" ] && range="origin/$new" || range="$old..origin/$new"
 
 logs="$(git log --pretty=format:"$format" $range)"
 
