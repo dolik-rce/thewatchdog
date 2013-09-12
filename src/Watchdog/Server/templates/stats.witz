@@ -68,4 +68,3 @@ var g2 = new Graph({
 
 })
 </script>
-$dbg(1)
