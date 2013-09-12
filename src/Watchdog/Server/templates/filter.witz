@@ -1,8 +1,15 @@
+<div class="trans" style="height:1.5eM" onmouseout="hideFilter(this)" onmouseover="showFilter(this)">
+<strong style="margin-right:10px">Filter</strong><span class="trans">
+$if(.f_branch)Branch: $.f_branch$endif
+$if(.f_msg)Log message: $.f_msg$endif
+$if(.f_author)Author: $.f_author$endif
+$if(.f_path)Path: $.f_path$endif
+</span>
 <form action="">
 <table>
 <tr>
 <td>Branch:</td><td><input type="text" name="f_branch" value="$.f_branch"></td>
-<td>Msg:</td><td><input type="text" name="f_msg" value="$.f_msg"></td>
+<td>Log message:</td><td><input type="text" name="f_msg" value="$.f_msg"></td>
 <td></td>
 </tr><tr>
 <td>Author:</td><td><input type="text" name="f_author" value="$.f_author"></td>
@@ -12,3 +19,4 @@
 </table>
 <input type="hidden" name="f_change" value="1">
 </form>
+</div>

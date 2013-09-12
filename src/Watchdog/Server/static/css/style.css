@@ -20,6 +20,14 @@ ul.menu { list-style-type: none; padding-left:0; }
 .prewrap {white-space: pre-wrap;}
 .icon { margin-right: 5px; margin-left: 5px; }
 .logo { width: 1eM; height: 1eM; }
+.trans {
+    overflow: hidden;
+    -moz-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    -webkit-transition: all 1s ease-in-out;
+    transition: all 1s;
+}
 .circle {
 	display: inline-block;
 	vertical-align: middle;

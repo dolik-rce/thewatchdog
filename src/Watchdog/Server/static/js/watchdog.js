@@ -34,3 +34,13 @@ function getRadioValue (group){
 	for (var i = 0; i < g.length; i++)
 		if (g[i].checked) return g[i].value;
 }
+
+function showFilter(e) {
+  e.style.height='6eM';
+  e.childNodes[2].style.opacity=0;
+}
+
+function hideFilter(e){
+  e.style.height='1.5eM'
+  e.childNodes[2].style.opacity=1;
+}
