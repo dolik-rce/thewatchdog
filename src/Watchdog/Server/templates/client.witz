@@ -14,6 +14,7 @@
 </td></tr>
 </table>
 <br>
+#include templates/filter
 #include templates/paging
 <table border="1">
 <tr>

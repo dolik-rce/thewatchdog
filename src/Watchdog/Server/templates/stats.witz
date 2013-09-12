@@ -12,6 +12,7 @@
 }
 </style>
 #define BODY
+#include templates/filter.witz
 
 <h3>Results of last 100 tests</h3>
 <div class="graph" id="results"></div>

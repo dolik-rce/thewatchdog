@@ -20,7 +20,7 @@ struct Entity {
 struct Client : public Entity<Client>, public Moveable<Client> {
 	bool Load(int id);
 	void SetAuthInfo(String& salts, ValueMap& clients);
-	ValueArray FetchResults(const PageInfo& pg) const;
+	ValueArray FetchResults(const PageInfo& pg, const CommitFilter& f) const;
 	static ValueMap LoadAll();
 	static void Delete(int id);
 	static void UpdateActivity(int id, bool work = false);
@@ -30,13 +30,13 @@ struct Client : public Entity<Client>, public Moveable<Client> {
 struct Commit : public Entity<Commit>, public Moveable<Commit> {
 	bool Load(const String& uid);
 	ValueArray FetchResults() const;
-	static ValueArray LoadPage(const PageInfo& pg);
+	static ValueArray LoadPage(const PageInfo& pg, const CommitFilter& f);
 	void Save();
 };
 
 struct Result : public Entity<Result>, public Moveable<Result> {
 	bool Load(const String& uid, int id);
-	static ValueMap LoadPage(const PageInfo& pg);
+	static ValueMap LoadPage(const PageInfo& pg, const CommitFilter& f);
 	String FetchOutput() const;
 	static void Delete(const String& uid, int id);
 	void Save();

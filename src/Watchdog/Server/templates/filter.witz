@@ -1,0 +1,14 @@
+<form action="">
+<table>
+<tr>
+<td>Branch:</td><td><input type="text" name="f_branch" value="$.f_branch"></td>
+<td>Msg:</td><td><input type="text" name="f_msg" value="$.f_msg"></td>
+<td></td>
+</tr><tr>
+<td>Author:</td><td><input type="text" name="f_author" value="$.f_author"></td>
+<td>Path:</td><td><input type="text" name="f_path" value="$.f_path"></td>
+<td><input type="submit"></td>
+</tr>
+</table>
+<input type="hidden" name="f_change" value="1">
+</form>

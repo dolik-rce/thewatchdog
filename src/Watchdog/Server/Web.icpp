@@ -107,12 +107,13 @@ SKYLARK(Client, "client/*") {
 		http.Response(404, "Client not found");
 		return;
 	}
-	http("CLIENT", client.data)("RESULTS", client.FetchResults(Paging(http)))
+	http("CLIENT", client.data)
+	    ("RESULTS", client.FetchResults(PageInfo(http), CommitFilter(http)))
 	    .RenderResult("templates/client");
 }
 
 SKYLARK(Commits, "commits") {
-	http("COMMITS", Commit::LoadPage(Paging(http)))
+	http("COMMITS", Commit::LoadPage(PageInfo(http), CommitFilter(http)))
 	    .RenderResult("templates/commits");
 }
 
@@ -126,7 +127,7 @@ SKYLARK(Commit, "commit/*") {
 }
 
 SKYLARK(Results, "results") {
-	ValueMap results = Result::LoadPage(Paging(http));
+	ValueMap results = Result::LoadPage(PageInfo(http), CommitFilter(http));
 	http("RESULTS", results["RESULTS"])
 	    ("CLIENTS", results["CLIENTS"])
 	    ("COMMITS", results["COMMITS"])
@@ -251,7 +252,7 @@ SKYLARK(Stats, "stats/*") {
 	              MSG, AUTHOR, DT, CMT, BRANCH)
 	        .From(RESULT)
 	        .InnerJoin(COMMITS).On(CMT_UID==UID)
-	        .Where(cid==CLIENT_ID && STATUS!=WD_INPROGRESS)
+	        .Where(cid==CLIENT_ID && STATUS!=WD_INPROGRESS && CommitFilter(http))
 	        .OrderBy(Descending(DT))
 	        .Limit(100);
 	ValueMap point;

@@ -10,7 +10,7 @@ void CleanAuth(){
 	SQL * Delete(AUTH).Where(VALID < GetSysTime()-600);
 }
 
-PageInfo Paging(Http& http){
+PageInfo::PageInfo(Http& http){
 	int count = 3;
 	int pagesize = max(min(Nvl(http.Int("cnt"), Nvl(http.Int(".cnt"), 10)),100),1);
 	http.SessionSet("cnt",pagesize);
@@ -18,9 +18,8 @@ PageInfo Paging(Http& http){
 	int hi = total/pagesize;
 	int current = Nvl(http.Int("page"), hi);
 	
-	PageInfo result;
-	result.limit = pagesize;
-	result.offset = pagesize*(hi-current);
+	limit = pagesize;
+	offset = pagesize*(hi-current);
 	
 	ValueArray va;
 	ValueMap vm;
@@ -60,9 +59,48 @@ PageInfo Paging(Http& http){
 		va.Add(vm);
 	}
 	http("PAGING", va);
-	return result;
 }
 
+CommitFilter::CommitFilter(Http& http){
+	if(IsNull(http["f_change"])){
+		branch = http[".f_branch"];
+		msg = http[".f_msg"];
+		author = http[".f_author"];
+		path = http[".f_path"];
+		return;
+	}
+	branch = http["f_branch"];
+	msg = http["f_msg"];
+	author = http["f_author"];
+	path = http["f_path"];
+	http.SessionSet("f_branch", branch);
+	http.SessionSet("f_msg", msg);
+	http.SessionSet("f_author", author);
+	http.SessionSet("f_path", path);
+}
+
+CommitFilter::operator SqlBool() const{
+	SqlBool res;
+	if(!IsEmpty(branch)) {
+		if(res.IsEmpty()) res = Regexp(BRANCH, ".*"+branch+".*");
+		else res &= Regexp(BRANCH, ".*"+branch+".*");
+	}
+	if(!IsEmpty(msg)) {
+		if(res.IsEmpty()) res = Regexp(MSG, ".*"+msg+".*");
+		else res &= Regexp(MSG, ".*"+msg+".*");
+	}
+	if(!IsEmpty(author)) {
+		if(res.IsEmpty()) res = Regexp(AUTHOR, ".*"+author+".*");
+		else res &= Regexp(AUTHOR, ".*"+author+".*");
+	}
+	if(!IsEmpty(path)) {
+		if(res.IsEmpty()) res = Regexp(PATH, ".*"+path+".*");
+		else res &= Regexp(PATH, ".*"+path+".*");
+	}
+	if(res.IsEmpty())
+		res.SetTrue();
+	return res;
+}
 bool CheckLocal(Http& http){
 	if(http.GetHeader("host").StartsWith("localhost")
 	 ||http.GetHeader("host").StartsWith("127.0.0.1"))

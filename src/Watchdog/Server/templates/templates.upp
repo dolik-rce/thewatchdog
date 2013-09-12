@@ -12,6 +12,7 @@ file
 	feeds.witz,
 	index.witz,
 	intro.witz,
+	filter.witz,
 	paging.witz,
 	result.witz,
 	resultmail.witz,

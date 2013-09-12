@@ -7,8 +7,17 @@ void CleanAuth();
 struct PageInfo {
 	int limit;
 	int offset;
+	PageInfo(Http& http);
 };
-PageInfo Paging(Http& http);
+
+struct CommitFilter {
+	String branch;
+	String author;
+	String path;
+	String msg;
+	CommitFilter(Http& http);
+	operator SqlBool() const;
+};
 
 bool CheckLocal(Http& http);
 int& commitcount(bool force = false);

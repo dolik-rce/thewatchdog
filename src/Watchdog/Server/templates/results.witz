@@ -1,6 +1,7 @@
 #include templates/base
 #define TITLE Results
 #define BODY
+#include templates/filter
 #include templates/paging
 <table border="1">
  <tr>
