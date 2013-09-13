@@ -1,6 +1,8 @@
 SERVER
 ------
 Clean-up states (leave only READY, IN_PROGRESS, DONE)
+Branches screen (listing, stats, deleting, links to other screens with appropriate filter)
+Descriptive message on auth screen
 Replace duration by end-start
 Versioning of schema and exports
 Client-server communication in json (?)
@@ -12,7 +14,7 @@ Nicer icons, real css styling
 
 CLIENT
 ------
-Client should send WD_ERROR on error (implement as bash trap in shell, exception handling in python)
+Write example scripts and hooks for svn
 Publish some usage examples
 
 
