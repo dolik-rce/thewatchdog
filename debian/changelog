@@ -1,3 +1,15 @@
+thewatchdog (0.1.0) testing; urgency=low
+
+  * New administrative commandline tool
+  * Maximum commit age now handled in server side
+  * Results are displayed as percantage, color coded
+  * Support for branches
+  * Support for any VCS
+  * Filtering on listing screens by branch, author, log message and path
+  * Git scripting examples
+
+ -- Jan Dolinar <dolik.rce@seznam.cz>  Sat, 27 Jul 2013 23:05:22 +0200
+
 thewatchdog (0.0.2) testing; urgency=low
 
   * Graphs of past reslts
