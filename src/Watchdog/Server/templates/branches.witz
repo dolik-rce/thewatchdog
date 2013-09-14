@@ -1,0 +1,21 @@
+#include templates/base
+#define TITLE Branches
+#define BODY
+<table border="1">
+<tr>
+ <th>Branch</th>
+ <th>Commits</th>
+ <th>Results</th>
+ <th>First commit</th>
+ <th>Last commit</th>
+</tr>
+$for(i in BRANCHES)
+  <tr>
+    <th class="centered"><a href="/commits?f_branch=$i.BRANCH&f_change=1">$i.BRANCH</a></th>
+    <td class="centered">$i.CMT_CNT</td>
+    <td class="centered"><div class="icon circle $i.COLOR"></div><a href="/results?f_branch=$i.BRANCH&f_change=1">$i.RATE%</a></td>
+    <td class="centered">$i.FIRST</td>
+    <td class="centered">$i.LAST</td>
+  </tr>
+$/
+</table>

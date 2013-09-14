@@ -3,6 +3,7 @@ file
 	404.witz,
 	auth.witz,
 	base.witz,
+	branches.witz,
 	client.witz,
 	clients.witz,
 	commit.witz,
