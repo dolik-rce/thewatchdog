@@ -1,9 +1,9 @@
 SERVER
 ------
-Fix paging to work with filters
 Descriptive message on auth screen
 Replace duration by end-start
 Versioning of schema and exports
+On-line editable configuration
 Client-server communication in json (?)
 Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
