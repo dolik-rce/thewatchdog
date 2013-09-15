@@ -1,4 +1,4 @@
-<div class="trans" style="height:1.5eM" onmouseout="hideFilter(this)" onmouseover="showFilter(this)">
+<div class="trans" id="filter" style="height:1.5eM" onmouseout="hideFilter()" onmouseover="showFilter()">
 <strong style="margin-right:10px">Filter</strong><span class="trans">
 $if(.f_branch)Branch: $.f_branch$endif
 $if(.f_msg)Log message: $.f_msg$endif
@@ -8,15 +8,14 @@ $if(.f_path)Path: $.f_path$endif
 <form action="">
 <table>
 <tr>
-<td>Branch:</td><td><input type="text" name="f_branch" value="$.f_branch"></td>
-<td>Log message:</td><td><input type="text" name="f_msg" value="$.f_msg"></td>
+<td>Branch:</td><td><input type="text" name="f_branch" value="$.f_branch" accesskey="b" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
+<td>Log message:</td><td><input type="text" name="f_msg" value="$.f_msg" accesskey="m" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
 <td></td>
 </tr><tr>
-<td>Author:</td><td><input type="text" name="f_author" value="$.f_author"></td>
-<td>Path:</td><td><input type="text" name="f_path" value="$.f_path"></td>
-<td><input type="submit"></td>
+<td>Author:</td><td><input type="text" name="f_author" value="$.f_author" accesskey="a" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
+<td>Path:</td><td><input type="text" name="f_path" value="$.f_path" accesskey="p" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
+<td><input type="submit" name="f_change" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
 </tr>
 </table>
-<input type="hidden" name="f_change" value="1">
 </form>
 </div>

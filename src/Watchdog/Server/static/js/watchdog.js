@@ -35,12 +35,21 @@ function getRadioValue (group){
 		if (g[i].checked) return g[i].value;
 }
 
-function showFilter(e) {
-  e.style.height='6eM';
-  e.childNodes[2].style.opacity=0;
+function showFilter() {
+	var e=document.getElementById("filter");
+	e.style.height='6eM';
+	e.childNodes[2].style.opacity=0;
 }
 
-function hideFilter(e){
-  e.style.height='1.5eM'
-  e.childNodes[2].style.opacity=1;
+function hideFilter(){
+	var e=document.getElementById("filter");
+	focus=document.getElementsByName('f_branch')[0]==document.activeElement ||
+	      document.getElementsByName('f_author')[0]==document.activeElement ||
+	      document.getElementsByName('f_msg')[0]==document.activeElement ||
+	      document.getElementsByName('f_path')[0]==document.activeElement ||
+	      document.getElementsByName('f_change')[0]==document.activeElement;
+	if(!focus) {
+		e.style.height='1.5eM';
+		e.childNodes[2].style.opacity=1;
+	}
 }
