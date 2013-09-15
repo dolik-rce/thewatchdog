@@ -90,13 +90,9 @@ bool WatchdogClient::AcceptWork(const String& commit, Time start){
 	return true;
 }
 
-bool WatchdogClient::SubmitWork(const String& commit, const int result, const int duration, const String& output, Time start, Time end){
+bool WatchdogClient::SubmitWork(const String& commit, const int duration, const String& output, Time start, Time end){
 	if (IsEmpty(commit)){
 		Cerr() << "ERROR: Wrong value of <commit>\n";
-		return false;
-	}
-	if (result < WD_READY || result > WD_DONE){
-		Cerr() << "ERROR: Wrong value of <result>\n";
 		return false;
 	}
 	if (duration < 0){
@@ -109,14 +105,13 @@ bool WatchdogClient::SubmitWork(const String& commit, const int result, const in
 	}
 	
 	if(Ini::log_level > 0) 
-		Cout() << "Sending result '" << status(result) << "'\n";
+		Cout() << "Sending results\n";
 
 	String target = "/api/submitwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
 	if(!Auth(req, target))
 		return false;
 	
-	req.Post("result", IntStr(result));
 	req.Post("duration", IntStr(duration));
 	req.Post("commit", commit);
 	req.Post("output", output);
@@ -169,13 +164,8 @@ bool WatchdogClient::Run(String command){
 	if(Ini::log_level > 0) 
 		Cout() << "Execution finished after " << duration << " with exit code '" << result << "'\n";
 	
-	if(result != 0)
-		result = WD_FAILED;
-	else
-		result = WD_DONE;
-	
 	// send the results
-	return SubmitWork(commit, result, duration, output);
+	return SubmitWork(commit, duration, output);
 }
 
 void WatchdogClient::CheckParamCount(const Vector<String>& cmd, int current, int count) const {
@@ -215,7 +205,6 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 4);
 		commit = cmd[++i];
-		result = StrInt(cmd[++i]);
 		duration = StrInt(cmd[++i]);
 		output = cmd[++i];
 	} else if(cmd[i] == "--run" || cmd[i] == "-r") {
@@ -260,7 +249,6 @@ bool WatchdogClient::ProcessAction(){
 		return AcceptWork(commit, start);
 	case 's':
 		return SubmitWork(commit,
-		                  result,
 		                  duration,
 		                  LoadFile(output));
 	case 'r':
@@ -322,7 +310,7 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 		"\t\tReturns a list of not yet built commits\n";
 	actions.Add() = "\t-a --accept <commit>\n"
 		"\t\tNotifies server about building <commit>.\n";
-	actions.Add() = "\t-s --submit <commit> <result> <duration> <output_file>\n"
+	actions.Add() = "\t-s --submit <commit> <duration> <output_file>\n"
 		"\t\tSends results to the server. Optional start and end times can\n"
 		"\t\tbe supplied as int64.\n";
 	actions.Add() = "\t-r --run <command>\n"

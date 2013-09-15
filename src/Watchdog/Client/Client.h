@@ -16,7 +16,6 @@ struct WatchdogClient {
 	Vector<String> todo;
 	bool lock;
 	String commit;
-	int result;
 	int duration;
 	String output;
 	String command;
@@ -36,7 +35,7 @@ struct WatchdogClient {
 	
 	virtual bool GetWork();
 	virtual bool AcceptWork(const String& commit, Time start=Null);
-	virtual bool SubmitWork(const String& commit, const int result, const int time, const String& output, Time start=Null, Time end=Null);
+	virtual bool SubmitWork(const String& commit, const int time, const String& output, Time start=Null, Time end=Null);
 	virtual bool Run(String command);
 	
 	WatchdogClient();
