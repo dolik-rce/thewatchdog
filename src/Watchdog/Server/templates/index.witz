@@ -5,7 +5,6 @@
 <div class="ldiv">
 <h3>Now</h3>
 <table>
-<tr><td>Commits:</td><td>$MISC.COUNT</td></tr>
 <tr><td>Currently running:</td><td>$STATS.RUNNING</td></tr>
 </table>
 </div>

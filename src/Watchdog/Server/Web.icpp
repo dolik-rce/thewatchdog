@@ -42,8 +42,6 @@ SKYLARK(HomePage, "") {
 		http << "Database error";
 		return;
 	}
-	misc.Add("COUNT", commitcount());
-	
 	
 	http("MISC", misc)("STATS", stats)
 	    .RenderResult("templates/index");
