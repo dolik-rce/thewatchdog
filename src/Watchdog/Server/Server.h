@@ -39,7 +39,8 @@ namespace Upp{
 		extern IniString smtp_password;
 		extern IniString smtp_from;
 		extern IniString smtp_sender;
-		
+		extern IniInt    filter_cache_size;
+		extern IniInt    filter_cache_expiration;
 	}
 }
 

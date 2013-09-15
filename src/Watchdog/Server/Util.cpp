@@ -103,22 +103,76 @@ CommitFilter::operator SqlBool() const{
 	return res;
 }
 
-int CommitFilter::commitcount(){
-	static Time last(Null);
-	static int count(0);
-	if(GetSysTime() - last > 15){
-		Sql sql;
-		sql * Select(Count(SqlSet(1))).From(COMMITS);
-		if(sql.Fetch()){
-			count = sql[0];
-			last = GetSysTime();
-		} else {
-			count = 0;
-			last = Null;
+unsigned CommitFilter::GetHash() const {
+	return CombineHash(branch, author, path, msg);
+}
+
+CommitFilter::CacheEntry::CacheEntry(const CommitFilter& f) {
+	hash = f.GetHash();
+	used = stamp = GetSysTime();
+	Sql sql;
+	sql * Select(Count(SqlAll()).As("CNT"))
+	      .From(COMMITS)
+	      .Where(f);
+	ValueMap vm;
+	if(sql.Fetch(vm))
+		count = vm["CNT"];
+	else
+		count = 0;
+	LOG("CREATE "<<hash<<"@"<<stamp);
+}
+
+int CommitFilter::FindInCache(unsigned hash, const Time& maxage) const {
+	// first, we search for item in cache
+	for(int i = 0; i < cache.GetCount(); ++i){
+		if(cache[i].hash == hash){
+			// found the item...
+			if(cache[i].stamp < maxage){
+				// ... but it is expired, so we replace it by refreshed version
+				cache[i] = CacheEntry(*this);
+			} else {
+				// .. and it is not expired, we only update the usage timestamp
+				cache[i].used = GetSysTime();
+			}
+			return i;
 		}
 	}
-	return count;
-};
+	// if we get here, we know the searched entry is not in the cache and we have to add it
+	if(Ini::filter_cache_size == cache.GetCount()){
+		// cache is full, we first try to drop expired items
+		Vector<int> rem;
+		for(int i = 0; i < cache.GetCount(); ++i){
+			if(cache[i].stamp < maxage)
+				rem.Add(i);
+		}
+		if(rem.GetCount() > 0){
+			// found some expired items, drop them and add fresh entry
+			cache.Remove(rem);
+			cache.Add(CacheEntry(*this));
+			return cache.GetCount()-1;
+		} else {
+			// no items are expired, we have to replace the least recently used item
+			int oldest = 0;
+			for(int i = 1; i < cache.GetCount(); i++){
+				if(cache[oldest].used > cache[i].used)
+					oldest = i;
+			}
+			cache[oldest] = CacheEntry(*this);
+			return oldest;
+		}
+	} else {
+		// there is enough space in the cache, just add new item
+		cache.Add(CacheEntry(*this));
+		return cache.GetCount()-1;
+	}
+}
+
+Vector<CommitFilter::CacheEntry> CommitFilter::cache;
+
+int CommitFilter::commitcount(){
+	int p = FindInCache(GetHash(), GetSysTime()-Ini::filter_cache_expiration);
+	return cache[p].count;
+}
 
 bool CheckLocal(Http& http){
 	if(http.GetHeader("host").StartsWith("localhost")

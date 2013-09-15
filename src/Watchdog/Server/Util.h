@@ -12,8 +12,18 @@ struct CommitFilter {
 	int limit;
 	int offset;
 	CommitFilter(Http& http, bool skipPaging = false);
+	unsigned GetHash() const;
 	operator SqlBool() const;
 private:
+	struct CacheEntry : Moveable<CacheEntry> {
+		Time stamp;
+		Time used;
+		unsigned hash;
+		int count;
+		CacheEntry(const CommitFilter& f);
+	};
+	static Vector<CacheEntry> cache;
+	int FindInCache(unsigned hash,const Time& maxage) const;
 	int commitcount();
 };
 

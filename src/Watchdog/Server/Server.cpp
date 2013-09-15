@@ -31,6 +31,8 @@ namespace Upp{ namespace Ini {
 	INI_STRING(smtp_password, "", "SMTP password");
 	INI_STRING(smtp_from, "Watchdog", "Name to put in the From field of sent emails");
 	INI_STRING(smtp_sender, "Watchdog@example.com", "E-mail to put in the From field of sent e-mails");
+	INI_INT(filter_cache_size, 16, "Maximum number of items in filter/pagination cache");
+	INI_INT(filter_cache_expiration, 30, "Expiration time of filter/pagination cache items (in seconds)");
 }}
 
 void Watchdog::WorkThread()
