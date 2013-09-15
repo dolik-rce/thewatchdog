@@ -17,9 +17,9 @@ SKYLARK(RssFeed, "rss")
 	if(!IsNull(path))
 		filter = SqlBool(filter && Regexp(BRANCH, branch));
 	if(state == "failed")
-		filter = SqlBool(filter && STATUS==WD_FAILED);
+		filter = SqlBool(filter && ERR+FAIL > 0);
 	else if(state == "ok")
-		filter = SqlBool(filter && STATUS==WD_DONE);
+		filter = SqlBool(filter && ERR+FAIL == 0);
 	
 	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC,
@@ -27,7 +27,7 @@ SKYLARK(RssFeed, "rss")
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where((STATUS==WD_DONE || STATUS==WD_FAILED)
+	      .Where(STATUS==WD_DONE
 	             && FINISHED>(GetSysTime()-30*60*60*24)
 	             && filter)
 	      .OrderBy(Descending(FINISHED));
