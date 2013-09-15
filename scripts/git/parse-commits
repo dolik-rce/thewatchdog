@@ -51,11 +51,12 @@ function get_path() {
 print_commit() {
   DATE="$(date -d@$DATE +"%Y/%m/%d %H:%M:%S")"
   DIR="$(get_path $COMMIT)"
+  MSG="$(echo "$MSG" | sed '1!s/^/<br>/;s/\t/    /;' | tr -d '\n')"
   $(which echo) -e "${COMMIT}_$BRANCH\t$BRANCH\t$ABBR\t$AUTHOR\t$DATE\t$MSG\t$DIR"
 }
 
 BRANCH="$(echo $ref | sed 's|refs/heads/||;')"
-format='COMMIT="%H"%nABBR=%h%nMSG="%s"%nAUTHOR="%an"%nDATE="%at"%nprint_commit'
+format='COMMIT="%H"%nABBR=%h%nread -r -d "" MSG <<"EOF"%n%B%nEOF%nAUTHOR="%an"%nDATE="%at"%nprint_commit'
 
 [ "$old" = "" ] && range="origin/$new" || range="$old..origin/$new"
 
