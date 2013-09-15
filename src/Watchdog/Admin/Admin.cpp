@@ -60,6 +60,23 @@ bool WatchdogAdmin::Clean(){
 	return true;
 }
 
+bool WatchdogAdmin::Delete(const String& branch) {
+	String target = "/api/deletebranch";
+	HttpRequest req(Ini::host + target);
+	if(!Auth(req, target))
+		return false;
+	
+	req.Post("data", branch);
+	String response = req.Execute();
+	if(!req.IsSuccess()){
+		RDUMP(response);
+		RLOG("Error sending request");
+		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
+		return false;
+	}
+	return true;
+}
+
 void WatchdogAdmin::ParseArgument(int& i, const Vector<String>& cmd){
 	if(cmd[i] == "--clean" || cmd[i] == "-c")
 		SetAction(cmd[i]);
@@ -67,7 +84,10 @@ void WatchdogAdmin::ParseArgument(int& i, const Vector<String>& cmd){
 		SetAction(cmd[i]);
 	else if(cmd[i] == "--state" || cmd[i] == "-t")
 		SetAction(cmd[i], 1);
-	else if(cmd[i] == "--branches" || cmd[i] == "-B") {
+	else if(cmd[i] == "--delete" || cmd[i] == "-d") {
+		SetAction(cmd[i]);
+		branch = cmd[++i];
+	} else if(cmd[i] == "--branches" || cmd[i] == "-B") {
 		CheckParamCount(cmd, i, 1);
 		branches = cmd[++i];
 	} else
@@ -82,6 +102,8 @@ bool WatchdogAdmin::ProcessAction() {
 		return Clean();
 	case 't':
 		return GetState();
+	case 'd':
+		return Delete(branch);
 	default:
 		return WatchdogClient::ProcessAction();
 	}
@@ -95,6 +117,8 @@ WatchdogAdmin::WatchdogAdmin() : branches(".*") {
 		"\t\tInstructs server to clean up authorization data and stale jobs\n";
 	actions.Insert(3) = "\t-t --state\n"
 		"\t\tAsks server about last updates in branches\n";
+	actions.Insert(4) = "\t-d --delete <branch>\n"
+		"\t\tTells server to delete all commits and results in <branch>\n";
 	options.Insert(1) = "\t-B --branches\n"
 		"\t\tRegexp selecting branches, defaults to \".*\", only\n"
 		"\t\thonoured with --state\n";

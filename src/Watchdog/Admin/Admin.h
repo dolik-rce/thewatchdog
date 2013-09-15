@@ -4,11 +4,13 @@
 #include <Watchdog/Client/Client.h>
 
 struct WatchdogAdmin : public WatchdogClient {
+	String branch;
 	String branches;
 
 	virtual bool GetState();
 	virtual bool Update();
 	virtual bool Clean();
+	virtual bool Delete(const String& branch);
 
 	void ParseArgument(int& i, const Vector<String>& cmd);
 	virtual bool ProcessAction();

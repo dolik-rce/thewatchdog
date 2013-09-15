@@ -238,6 +238,7 @@ ValueMap Branch::LoadAll() {
 		vm.Add("COLOR", ComputeColor(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
 		branches.Set(vm["BRANCH"],vm);
 	}
+	return branches;
 }
 
 void Branch::Delete(const String& branch) {
