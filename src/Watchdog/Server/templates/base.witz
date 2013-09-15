@@ -22,6 +22,7 @@
 <li><a href=$Clients>Clients</a></li>
 <li><a href=$Commits>Commits</a></li>
 <li><a href=$Branches>Branches</a></li>
+<li><a href=$Authors>Authors</a></li>
 <li><a href=$Feeds>Feeds</a></li>
 </ul>
 <div id="content">

@@ -1,0 +1,21 @@
+#include templates/base
+#define TITLE Authors
+#define BODY
+<table border="1">
+<tr>
+ <th>Author</th>
+ <th>Commits</th>
+ <th>Results</th>
+ <th>First commit</th>
+ <th>Last commit</th>
+</tr>
+$for(i in AUTHORS)
+  <tr>
+    <th class="centered"><a href="/commits?f_author=$i.AUTHOR&f_change=1">$i.AUTHOR</a></th>
+    <td class="centered">$i.CMT_CNT</td>
+    <td class="centered"><div class="icon circle $i.COLOR"></div><a href="/results?f_author=$i.AUTHOR&f_change=1">$i.RATE%</a></td>
+    <td class="centered">$i.FIRST</td>
+    <td class="centered">$i.LAST</td>
+  </tr>
+$/
+</table>

@@ -149,6 +149,29 @@ SKYLARK(Branches, "branches") {
 	http("BRANCHES", Branch::LoadAll()).RenderResult("templates/branches");
 }
 
+SKYLARK(Authors, "authors") {
+	SQL * Select(AUTHOR,
+	             SqlFunc("COUNT",Distinct(UID)).As("CMT_CNT"),
+	             SqlMin(DT).As("FIRST"),
+	             SqlMax(DT).As("LAST"),
+	             SqlSum(OK).As("OK"),
+	             SqlSum(FAIL).As("FAIL"),
+	             SqlSum(ERR).As("ERR"),
+	             SqlSum(SKIP).As("SKIP"))
+	      .From(COMMITS)
+	      .LeftJoin(RESULT).On(UID == CMT_UID)
+	      .GroupBy(AUTHOR)
+	      .OrderBy(AUTHOR);
+	ValueMap vm;
+	ValueMap authors;
+	while(SQL.Fetch(vm)) {
+		vm.Add("RATE", SuccessRate(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
+		vm.Add("COLOR", ComputeColor(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
+		authors.Set(vm["AUTHOR"],vm);
+	}
+	http("AUTHORS", authors).RenderResult("templates/authors");
+}
+
 void Auth(Http& http, int cid) {
 	ValueMap clients;
 	String salts;
