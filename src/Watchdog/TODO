@@ -1,6 +1,6 @@
 SERVER
 ------
-Clean-up states (leave only IN_PROGRESS, DONE)
+Fix paging to work with filters
 Descriptive message on auth screen
 Replace duration by end-start
 Versioning of schema and exports
