@@ -10,6 +10,7 @@ SqlStatement InsertIgnore(int dialect, const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
 SqlBool Regexp(const SqlVal& a, const SqlVal& b);
 SqlVal SqlEmptyString();
+String SqlEscape(const Value& in);
 
 inline SqlVal ToSqlVal(const SqlBool& b) {
 	return SqlVal(~b, SqlS::HIGH);

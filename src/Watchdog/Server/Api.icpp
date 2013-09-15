@@ -186,9 +186,14 @@ SKYLARK(Update, "api/update:POST") {
 		      ("CMT", line[2])
 		      ("AUTHOR", line[3])
 		      ("DT", line[4])
-		      ("MSG", line[5])
-		      ("PATH", line[6]);
+		      ("MSG", SqlEscape(line.At(5,"*** empty log message ***")))
+		      ("PATH", line.At(6, ""));
 		commit.Save();
+		if(i % 100 == 99){
+			if(SQL.IsOpen())
+				SQL.Commit();
+			SQL.Begin();
+		}
 	}
 	http << "OK\n";
 }
