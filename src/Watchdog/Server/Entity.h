@@ -44,7 +44,7 @@ struct Result : public Entity<Result>, public Moveable<Result> {
 
 struct Branch : public Entity<Branch>, public Moveable<Branch> {
 	static ValueMap LoadAll();
-	static void Delete(const String& branch, const String& uid="");
+	static void Delete(const String& branch);
 };
 
 #endif

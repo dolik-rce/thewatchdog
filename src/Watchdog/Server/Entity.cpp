@@ -240,7 +240,10 @@ ValueMap Branch::LoadAll() {
 	}
 }
 
-void Branch::Delete(const String& uid, int id) {
-	//TODO
+void Branch::Delete(const String& branch) {
+	SQL * ::Delete(RESULT)
+	        .Where(In(CMT_UID, Select(UID)
+	                           .From(COMMITS)
+	                           .Where(BRANCH == branch)));
+	SQL * ::Delete(COMMITS).Where(BRANCH == branch);
 }
-

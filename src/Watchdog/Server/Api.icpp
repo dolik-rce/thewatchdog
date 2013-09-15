@@ -199,6 +199,16 @@ SKYLARK(Update, "api/update:POST") {
 	http << "OK\n";
 }
 
+SKYLARK(Delete, "api/deletebranch:POST") {
+	if(!CheckAuth2(http, SQL, 0, "/api/deletebranch"))
+		return;
+	Vector<String> data = Split(AsString(http["data"]), "\n");
+	for(int i = 0; i < data.GetCount(); i++){
+		Branch::Delete(data[i]);
+	}
+	http << "OK\n";
+}
+
 SKYLARK(Clean, "api/clean:POST") {
 	if(!CheckAuth2(http, SQL, 0, "/api/clean"))
 		return;
