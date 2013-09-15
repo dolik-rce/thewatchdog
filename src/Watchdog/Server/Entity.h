@@ -42,4 +42,9 @@ struct Result : public Entity<Result>, public Moveable<Result> {
 	void Save();
 };
 
+struct Branch : public Entity<Branch>, public Moveable<Branch> {
+	static ValueMap LoadAll();
+	static void Delete(const String& branch, const String& uid="");
+};
+
 #endif

@@ -218,3 +218,29 @@ void Result::Save() {
 	//TODO when changing API
 }
 
+ValueMap Branch::LoadAll() {
+	SQL * Select(BRANCH,
+	             SqlFunc("COUNT",Distinct(UID)).As("CMT_CNT"),
+	             SqlMin(DT).As("FIRST"),
+	             SqlMax(DT).As("LAST"),
+	             SqlSum(OK).As("OK"),
+	             SqlSum(FAIL).As("FAIL"),
+	             SqlSum(ERR).As("ERR"),
+	             SqlSum(SKIP).As("SKIP"))
+	      .From(COMMITS)
+	      .LeftJoin(RESULT).On(UID == CMT_UID)
+	      .GroupBy(BRANCH)
+	      .OrderBy(BRANCH);
+	ValueMap vm;
+	ValueMap branches;
+	while(SQL.Fetch(vm)) {
+		vm.Add("RATE", SuccessRate(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
+		vm.Add("COLOR", ComputeColor(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
+		branches.Set(vm["BRANCH"],vm);
+	}
+}
+
+void Branch::Delete(const String& uid, int id) {
+	//TODO
+}
+
