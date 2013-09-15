@@ -102,18 +102,11 @@ CommitFilter::operator SqlBool() const{
 		res.SetTrue();
 	return res;
 }
-bool CheckLocal(Http& http){
-	if(http.GetHeader("host").StartsWith("localhost")
-	 ||http.GetHeader("host").StartsWith("127.0.0.1"))
-		return true;
-	http.Response(403, "Forbiden");
-	return false;
-}
 
-int& commitcount(bool force){
+int CommitFilter::commitcount(){
 	static Time last(Null);
 	static int count(0);
-	if(force || GetSysTime() - last > 15){
+	if(GetSysTime() - last > 15){
 		Sql sql;
 		sql * Select(Count(SqlSet(1))).From(COMMITS);
 		if(sql.Fetch()){
@@ -126,6 +119,14 @@ int& commitcount(bool force){
 	}
 	return count;
 };
+
+bool CheckLocal(Http& http){
+	if(http.GetHeader("host").StartsWith("localhost")
+	 ||http.GetHeader("host").StartsWith("127.0.0.1"))
+		return true;
+	http.Response(403, "Forbiden");
+	return false;
+}
 
 bool CheckAuth(Http& http, Sql& sql){
 	String nonce = http.GetHeader("wd-nonce");

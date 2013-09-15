@@ -13,10 +13,11 @@ struct CommitFilter {
 	int offset;
 	CommitFilter(Http& http, bool skipPaging = false);
 	operator SqlBool() const;
+private:
+	int commitcount();
 };
 
 bool CheckLocal(Http& http);
-int& commitcount(bool force = false);
 bool CheckAuth(Http& http, Sql& sql);
 bool CheckAuth2(Http& http, Sql& sql, int client, const String& action);
 void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const String& subject, const String& text, const String& html = "");
