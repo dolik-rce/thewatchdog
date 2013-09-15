@@ -242,7 +242,7 @@ ValueArray ParseFilter(const String& filter){
 }
 
 bool MatchFilter(const ValueMap& m, const String& commit, const String& branch, 
-		int client, int result, const String& author, const String& path){
+		int client, bool result, const String& author, const String& path){
 	Vector<String> v = Split(AsString(m["FILTER"]),"&");
 	if(v.IsEmpty())
 		return true;
@@ -266,8 +266,8 @@ bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
 			if(StrInt(v[i]) != client)
 				return false;
 		} else if(v[i].StartsWith("status=")){
-			if (!((v[i].EndsWith("=ok") && result == WD_DONE)
-			   || (v[i].EndsWith("=failed") && result != WD_DONE)))
+			if (!((v[i].EndsWith("=ok") && result)
+			   || (v[i].EndsWith("=failed") && !result)))
 				return false;
 		}
 	}

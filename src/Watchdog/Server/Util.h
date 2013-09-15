@@ -27,7 +27,7 @@ void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const St
 void SendEmail(const String& to, const String& token, const String& subject, const String& text, const String& html = "");
 ValueArray ParseFilter(const String& Filter);
 bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
-                 int client, int result, const String& author, const String& path);
+                 int client, bool result, const String& author, const String& path);
 double SuccessRate(int ok, int fail, int err);
 int ComputeStatus(int ok, int fail, int err);
 Value ComputeColor(int ok, int fail, int err, bool quoted = false);

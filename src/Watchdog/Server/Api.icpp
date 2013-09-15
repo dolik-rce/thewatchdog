@@ -69,7 +69,6 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SaveFile(outputfile, output);
 	Client::UpdateActivity(cid, true);
 	String commit = http["commit"];
-	int result = http.Int("result");
 	
 	//expected format: TEST_SUMMARY: tests=67 errors=4 failures=7 skip=0
 	//XUnit/JUnit output example: <testsuite name="nosetests" tests="67" errors="4" failures="7" skip="0">
@@ -106,17 +105,12 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 			tests=1;
 			errors = failures = skipped = 0;
 		}
-	} else {
-		switch (result) {
-		case WD_FAILED: failures = 1; break;
-		case WD_ERROR:  errors = 1;   break;
-		}
 	}
 	
 	SqlInsert insert = 
 	      Insert(RESULT)(CMT_UID, commit)
 	                    (CLIENT_ID, cid)
-	                    (STATUS, result)
+	                    (STATUS, WD_DONE)
 	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
@@ -125,7 +119,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (FAIL, failures)
 	                    (SKIP, skipped);
 	SqlUpdate update = 
-	      Update(RESULT)(STATUS, result)
+	      Update(RESULT)(STATUS, WD_DONE)
 	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
@@ -160,7 +154,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	Vector<String> to, tokens;
 	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
 	while(SQLR.Fetch(m)){
-		if(MatchFilter(m, commit, data["BRANCH"], cid, result, data["AUTHOR"], data["PATH"])){
+		if(MatchFilter(m, commit, data["BRANCH"], cid, errors+failures>0, data["AUTHOR"], data["PATH"])){
 			to.Add(m["EMAIL"]);
 			tokens.Add(m["TOK"]);
 		}
