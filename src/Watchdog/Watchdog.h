@@ -6,13 +6,8 @@ using namespace Upp;
 
 
 enum {
-	WD_READY,
-	WD_INPROGRESS,
-	WD_FAILED,
-	WD_ERROR,
-	WD_DONE
+	WD_INPROGRESS=1,
+	WD_DONE=4
 };
-
-const char* status(int n);
 
 #endif

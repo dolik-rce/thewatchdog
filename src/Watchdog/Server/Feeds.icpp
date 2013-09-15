@@ -22,7 +22,7 @@ SKYLARK(RssFeed, "rss")
 		filter = SqlBool(filter && ERR+FAIL == 0);
 	
 	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
-	             ID, NAME, DESCR, SRC,
+	             ID, NAME, DESCR, SRC, OK, ERR, FAIL, SKIP,
 	             START, FINISHED, DURATION, STATUS)
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
@@ -34,7 +34,7 @@ SKYLARK(RssFeed, "rss")
 	ValueArray results;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
-		vm.Add("STATUSSTR",status(vm["STATUS"]));
+		vm.Add("STATUSSTR", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]));
 		results.Add(vm);
 	}
 

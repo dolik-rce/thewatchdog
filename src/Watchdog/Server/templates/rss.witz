@@ -15,15 +15,9 @@ $for(i in ITEMS)
 
 	<tr><td>Status:</td><td>$i.STATUSSTR</td></tr>
 	<tr><td>Start time:</td><td>$i.START</td></tr>
-	$if(i.STATUS>1)
 	<tr><td>End time:</td><td>$i.FINISHED</td></tr>
-	$endif
 	<tr><td>Duration:</td><td>$Duration(i.DURATION)</td></tr>
-
-	$if(i.STATUS>1)
 	<tr><td>Output:</td><td><a href=$SELF/output/$i.UID/$i.ID>download</a></td></tr>
-	$endif
-
 	<tr><td>Commit:</td><td><a href="$SELF/commit/$i.UID">$i.CMT</a></td></tr>
 	<tr><td>Branch:</td><td>$i.BRANCH</td></tr>
 	<tr><td>Log&nbsp;message:</td><td>$i.MSG</td></tr>

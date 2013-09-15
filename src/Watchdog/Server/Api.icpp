@@ -144,7 +144,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      .Where(CMT_UID==commit && CLIENT_ID == cid);
 	ValueMap data;
 	SQLR.Fetch(data);
-	data.Add("STATUSSTR",status(data["STATUS"]));
+	data.Add("STATUSSTR", ComputeStatus(tests - (errors + failures + skipped), failures, errors));
 	http("DATA", data)("SELF", String(Ini::server_url));
 	String html = http.RenderString("templates/resultmail");
 	http("PLAIN",1);

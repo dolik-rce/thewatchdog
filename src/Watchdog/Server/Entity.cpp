@@ -37,7 +37,7 @@ ValueArray Client::FetchResults(const PageInfo& pg, const CommitFilter& f) const
 			if (vm["STAT"] == WD_INPROGRESS)
 				vm.Add("STATUSSTR", "In progress");
 			else
-				vm.Add("STATUSSTR", Format("%s %d%%", status(ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"])), vm["RATE"]));
+				vm.Add("STATUSSTR", Format("%s %d%%", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]), vm["RATE"]));
 		}
 		if(vm["STATUS"] == WD_INPROGRESS)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
@@ -94,11 +94,9 @@ ValueArray Commit::FetchResults() const {
 		SetComputedAttributes(vm);
 		int st = vm["STATUS"];
 		if(st > WD_INPROGRESS) {
-			st = ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]);
-			vm.Set("STATUS", st);
+			vm.Set("STATUSSTR", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]));
 		}
-		vm.Add("STATUSSTR", status(vm["STATUS"]));
-		if(vm["STATUS"]==1)
+		if(st == WD_INPROGRESS)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
 		res.Add(vm);
 	}
@@ -142,14 +140,10 @@ bool Result::Load(const String& uid, int id) {
 		return false;
 	SetComputedAttributes(data);
 	int st = data["STATUS"];
-	if(st > WD_INPROGRESS) {
-		st = ComputeStatus(data["OK"], data["FAIL"], data["ERR"]);
-		data.Set("STATUS", st);
-	}
+	if(st > WD_INPROGRESS)
+		data.Set("STATUS", ComputeStatus(data["OK"], data["FAIL"], data["ERR"]));
 	if(st == WD_INPROGRESS)
 		data.Set("DURATION", GetSysTime()-Time(data["START"]));
-	data.Set("STATUSN", st);
-	data.Set("STATUS", status(st));
 	return true;
 }
 

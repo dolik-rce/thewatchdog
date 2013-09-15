@@ -280,12 +280,12 @@ double SuccessRate(int ok, int fail, int err){
 	return roundr(100.0*ok/(ok+fail+err), 2);
 }
 
-int ComputeStatus(int ok, int fail, int err){
+String ComputeStatus(int ok, int fail, int err){
 	if (err>0) 
-		return WD_ERROR;
+		return "Error";
 	if (fail>0)
-		return WD_FAILED;
-	return WD_DONE;
+		return "Failed";
+	return "OK";
 }
 
 Value ComputeColor(int ok, int fail, int err, bool quoted){
