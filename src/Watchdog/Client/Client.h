@@ -1,7 +1,8 @@
 #ifndef _Watchdog_Client_Client_h_
 #define _Watchdog_Client_Client_h_
 
-#include <Watchdog/Watchdog.h>
+#include <Core/Core.h>
+using namespace Upp;
 
 namespace Upp { namespace Ini {
 	extern IniString host;

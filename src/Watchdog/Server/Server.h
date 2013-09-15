@@ -3,7 +3,6 @@
 
 #include <Skylark/Skylark.h>
 #include <Core/SMTP/SMTP.h>
-#include <Watchdog/Watchdog.h>
 using namespace Upp;
 
 #include "Sql.h"
@@ -44,6 +43,10 @@ namespace Upp{
 	}
 }
 
+enum {
+	WD_INPROGRESS=1,
+	WD_DONE=4
+};
 
 struct Watchdog : SkylarkApp {
 	DynamicSqlSession sql;

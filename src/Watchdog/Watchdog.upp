@@ -3,8 +3,7 @@ uses
 
 file
 	Common readonly separator,
-	Watchdog.h,
-	Watchdog.cpp,
+	dummy.cpp,
 	srcdoc.tpp,
 	TODO;
 
