@@ -1,7 +1,6 @@
 SERVER
 ------
-Clean-up states (leave only READY, IN_PROGRESS, DONE)
-Branches screen (remains: deleting)
+Clean-up states (leave only IN_PROGRESS, DONE)
 Descriptive message on auth screen
 Replace duration by end-start
 Versioning of schema and exports
