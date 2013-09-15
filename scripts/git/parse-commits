@@ -7,14 +7,18 @@
 # It needs correctly configured admin app to function. For this, you should set
 # correctly the command below. 
 WDADMIN="cat" # should be something like "/usr/bin/wda --update -C /etc/thewatchdog/wda.ini"
+SINCE="1 month ago"
+
 
 if [ $# -eq 0 ]; then
   read old new ref
   [ "$old" = "0000000000000000000000000000000000000000" ] && old=""
+  since="--since={$SINCE}"
 else
   old="$1"
   new="$2"
   ref="$3"
+  [ $# -eq 4 ] && since="--since={$4}" || since="--since={$SINCE}"
 fi
 
 function common_path() {
@@ -60,6 +64,6 @@ format='COMMIT="%H"%nABBR=%h%nread -r -d "" MSG <<"EOF"%n%B%nEOF%nAUTHOR="%an"%n
 
 [ "$old" = "" ] && range="origin/$new" || range="$old..origin/$new"
 
-logs="$(git log --pretty=format:"$format" $range)"
+logs="$(git log "$since" --pretty=format:"$format" $range)"
 
 eval "$logs" | $WDADMIN
