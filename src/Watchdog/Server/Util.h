@@ -4,18 +4,14 @@
 void CleanResults();
 void CleanAuth();
 
-struct PageInfo {
-	int limit;
-	int offset;
-	PageInfo(Http& http);
-};
-
 struct CommitFilter {
 	String branch;
 	String author;
 	String path;
 	String msg;
-	CommitFilter(Http& http);
+	int limit;
+	int offset;
+	CommitFilter(Http& http, bool skipPaging = false);
 	operator SqlBool() const;
 };
 

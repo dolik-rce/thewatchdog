@@ -12,14 +12,14 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 	clients.Add(IntStr(data["ID"])+";"+String(data["SALT"]),data["NAME"]);
 }
 
-ValueArray Client::FetchResults(const PageInfo& pg, const CommitFilter& f) const {
+ValueArray Client::FetchResults(const CommitFilter& f) const {
 	SQLR * Select(SqlAll(RESULT), DT, CMT, BRANCH, 
 	              UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(COMMITS)
 	       .LeftJoin(RESULT).On(UID == CMT_UID && CLIENT_ID == data["ID"])
 	       .Where(f)
 	       .OrderBy(Descending(DT))
-	       .Limit(pg.offset, pg.limit);
+	       .Limit(f.offset, f.limit);
 	ValueArray res;
 	ValueMap vm;
 	Time t = GetSysTime();
@@ -103,7 +103,7 @@ ValueArray Commit::FetchResults() const {
 	return res;
 }
 
-ValueArray Commit::LoadPage(const PageInfo& pg, const CommitFilter& f) {
+ValueArray Commit::LoadPage(const CommitFilter& f) {
 	SQLR * Select(SqlAll(),
 	             CountIf(1, STATUS==WD_INPROGRESS).As("RUNNING"),
 	             SqlFunc("sum",OK).As("OK"),
@@ -115,7 +115,7 @@ ValueArray Commit::LoadPage(const PageInfo& pg, const CommitFilter& f) {
 	      .Where(f)
 	      .GroupBy(UID)
 	      .OrderBy(Descending(DT))
-	      .Limit(pg.offset, pg.limit);
+	      .Limit(f.offset, f.limit);
 	ValueArray res;
 	ValueMap vm;
 	while (SQLR.Fetch(vm)){
@@ -147,14 +147,14 @@ bool Result::Load(const String& uid, int id) {
 	return true;
 }
 
-ValueMap Result::LoadPage(const PageInfo& pg, const CommitFilter& f) {
+ValueMap Result::LoadPage(const CommitFilter& f) {
 	SQLR * Select(SqlAll(RESULT),UID,CMT,BRANCH,CLIENT_ID)
 	       .From(
 	           Select(UID.As("FILTER"))
 	           .From(COMMITS)
 	           .Where(f)
 	           .OrderBy(Descending(DT))
-	           .Limit(pg.offset, pg.limit)
+	           .Limit(f.offset, f.limit)
 	           .AsTable("FILTER_TABLE")
 	       )
 	       .InnerJoin(COMMITS).On(SqlId("FILTER")==UID)

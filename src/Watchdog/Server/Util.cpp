@@ -10,7 +10,26 @@ void CleanAuth(){
 	SQL * Delete(AUTH).Where(VALID < GetSysTime()-600);
 }
 
-PageInfo::PageInfo(Http& http){
+CommitFilter::CommitFilter(Http& http, bool skipPaging){
+	//filter
+	if(IsNull(http["f_change"])){
+		branch = http[".f_branch"];
+		msg = http[".f_msg"];
+		author = http[".f_author"];
+		path = http[".f_path"];
+	} else {
+		branch = http["f_branch"];
+		msg = http["f_msg"];
+		author = http["f_author"];
+		path = http["f_path"];
+		http.SessionSet("f_branch", branch);
+		http.SessionSet("f_msg", msg);
+		http.SessionSet("f_author", author);
+		http.SessionSet("f_path", path);
+	}
+	//paging
+	if (skipPaging)
+		return;
 	int count = 3;
 	int pagesize = max(min(Nvl(http.Int("cnt"), Nvl(http.Int(".cnt"), 10)),100),1);
 	http.SessionSet("cnt",pagesize);
@@ -59,24 +78,6 @@ PageInfo::PageInfo(Http& http){
 		va.Add(vm);
 	}
 	http("PAGING", va);
-}
-
-CommitFilter::CommitFilter(Http& http){
-	if(IsNull(http["f_change"])){
-		branch = http[".f_branch"];
-		msg = http[".f_msg"];
-		author = http[".f_author"];
-		path = http[".f_path"];
-		return;
-	}
-	branch = http["f_branch"];
-	msg = http["f_msg"];
-	author = http["f_author"];
-	path = http["f_path"];
-	http.SessionSet("f_branch", branch);
-	http.SessionSet("f_msg", msg);
-	http.SessionSet("f_author", author);
-	http.SessionSet("f_path", path);
 }
 
 CommitFilter::operator SqlBool() const{
