@@ -30,8 +30,12 @@ SqlBool Regexp(const SqlVal& a, const SqlVal& b) {
 }
 
 SqlVal SqlEmptyString(){
-	static SqlVal s("''",SqlS::HIGH);
+	static SqlVal s("''", SqlS::HIGH);
 	return s;
+}
+
+SqlVal SqlInterval(const SqlVal& count, const String& unit) {
+	return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
 }
 
 String SqlEscape(const Value& in){
