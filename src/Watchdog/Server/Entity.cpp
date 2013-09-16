@@ -198,7 +198,7 @@ ValueMap Result::LoadPage(const CommitFilter& f) {
 }
 
 String Result::FetchOutput() const {
-	return LoadFile(Format("%s/%d/%d.log",(String)Ini::output_dir,data["CMT_UID"],data["CLIENT_ID"]));
+	return LoadFile(Format("%s/%s/%d.log",(String)Ini::output_dir,data["CMT_UID"],data["CLIENT_ID"]));
 }
 
 void Result::Delete(const String& uid, int id) {

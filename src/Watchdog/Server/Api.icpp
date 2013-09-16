@@ -63,7 +63,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 		end.Set(ScanInt64(AsString(http["end"])));
 	}
 	String output = http["output"];
-	String outputfile = Format("%s/%d/%d.log",(String)Ini::output_dir,http["commit"],cid);
+	String outputfile = Format("%s/%s/%d.log",(String)Ini::output_dir,http["commit"],cid);
 	RLOG("Saving output to '"<<outputfile<<"'");
 	RealizePath(outputfile);
 	SaveFile(outputfile, output);
