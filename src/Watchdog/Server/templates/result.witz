@@ -36,7 +36,7 @@ $endif
 <tr><td>Actions:</td><td><a href="/auth/remove/$RESULT.ID/$RESULT.UID?client=$RESULT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" alt="Delete" title="Delete" width=16 height=16>Delete</a></td></tr>
 </table>
 </div>
-$if(RESULT.STATUSN>1)
+$if(OUTPUT)
 <div class="ldiv">
 <h3 class="wide">Output<a class="dl_link" href=$Output(RESULT.UID,RESULT.ID)>Download</a></h3>
 <pre class="output">$OUTPUT</pre>
