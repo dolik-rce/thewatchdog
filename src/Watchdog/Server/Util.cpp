@@ -336,15 +336,19 @@ double SuccessRate(int ok, int fail, int err){
 	return roundr(100.0*ok/(ok+fail+err), 2);
 }
 
-String ComputeStatus(int ok, int fail, int err){
-	if (err>0) 
+String ComputeStatus(int status, int ok, int fail, int err){
+	if (status == WD_INPROGRESS)
+		return "In progress";
+	if (err>0)
 		return "Error";
 	if (fail>0)
 		return "Failed";
 	return "OK";
 }
 
-Value ComputeColor(int ok, int fail, int err, bool quoted){
+Value ComputeColor(int status, int ok, int fail, int err, bool quoted){
+	if(status == WD_INPROGRESS)
+		return Raw(quoted?"\"#88F\"":"s88F");
 	if (ok+fail+err == 0)
 		return Raw("");
 	double norm =  1.0 / (ok+fail+err);
@@ -356,7 +360,8 @@ Value ComputeColor(int ok, int fail, int err, bool quoted){
 
 void SetComputedAttributes(ValueMap& vm) {
 	vm.Add("RATE", SuccessRate(V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
-	vm.Add("COLOR", ComputeColor(V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
+	vm.Add("COLOR", ComputeColor(V2N(vm["STATUS"]), V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
+	vm.Add("STATUSSTR", ComputeStatus(V2N(vm["STATUS"]), V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)

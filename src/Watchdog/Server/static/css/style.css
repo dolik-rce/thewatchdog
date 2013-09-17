@@ -14,6 +14,11 @@ ul.menu { list-style-type: none; padding-left:0; }
 .prewrap {white-space: pre-wrap;}
 .icon { margin-right: 5px; margin-left: 5px; }
 .logo { width: 1eM; height: 1eM; }
+.inprogress {background-color: #88F;}
+.fail {background-color: #F88;}
+.error {background-color: #BBB;}
+.passsed {background-color: #8F8;}
+.skip {background-color: #FF8;}
 .trans {
     overflow: hidden;
     -moz-transition: all 1s ease-in-out;

@@ -34,10 +34,7 @@ ValueArray Client::FetchResults(const CommitFilter& f) const {
 			else
 				vm.Add("STATUSSTR", "Ready");
 		} else {
-			if (vm["STAT"] == WD_INPROGRESS)
-				vm.Add("STATUSSTR", "In progress");
-			else
-				vm.Add("STATUSSTR", Format("%s %d%%", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]), vm["RATE"]));
+			SetComputedAttributes(vm);
 		}
 		if(vm["STATUS"] == WD_INPROGRESS)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
@@ -92,11 +89,7 @@ ValueArray Commit::FetchResults() const {
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
-		int st = vm["STATUS"];
-		if(st > WD_INPROGRESS) {
-			vm.Set("STATUSSTR", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]));
-		}
-		if(st == WD_INPROGRESS)
+		if(vm["STATUS"] == WD_INPROGRESS)
 			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
 		res.Add(vm);
 	}
@@ -139,10 +132,7 @@ bool Result::Load(const String& uid, int id) {
 	if(!SQLR.Fetch(data))
 		return false;
 	SetComputedAttributes(data);
-	int st = data["STATUS"];
-	if(st > WD_INPROGRESS)
-		data.Set("STATUS", ComputeStatus(data["OK"], data["FAIL"], data["ERR"]));
-	if(st == WD_INPROGRESS)
+	if(data["STATUS"] == WD_INPROGRESS)
 		data.Set("DURATION", GetSysTime()-Time(data["START"]));
 	return true;
 }
@@ -228,8 +218,7 @@ ValueMap Branch::LoadAll() {
 	ValueMap vm;
 	ValueMap branches;
 	while(SQL.Fetch(vm)) {
-		vm.Add("RATE", SuccessRate(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
-		vm.Add("COLOR", ComputeColor(V2N(vm["OK"]),V2N(vm["FAIL"]),V2N(vm["ERR"])));
+		SetComputedAttributes(vm);
 		branches.Set(vm["BRANCH"],vm);
 	}
 	return branches;

@@ -34,7 +34,7 @@ SKYLARK(RssFeed, "rss")
 	ValueArray results;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
-		vm.Add("STATUSSTR", ComputeStatus(vm["OK"], vm["FAIL"], vm["ERR"]));
+		SetComputedAttributes(vm);
 		results.Add(vm);
 	}
 

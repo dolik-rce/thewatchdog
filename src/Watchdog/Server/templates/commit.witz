@@ -20,7 +20,7 @@
 </tr>
 $for(i in RESULTS)
     <tr>
-      <td><a href=$Client(i.CLIENT_ID)>$i.NAME</a></td>
+      <th><a href=$Client(i.CLIENT_ID)>$i.NAME</a></th>
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>

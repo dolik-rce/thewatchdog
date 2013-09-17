@@ -22,7 +22,7 @@ $if(count(CLIENTS)>0)
   <td class="centered">$j.BRANCH</td>
   $for(i in CLIENTS)
    $if(RESULTS[j._key][i])
-    <td><div class="icon circle $RESULTS[j._key][i].COLOR"></div><a href=$Result(j._key,i)>$RESULTS[j._key][i].RATE%</a></td>
+    <td><div class="icon circle $RESULTS[j._key][i].COLOR"></div><a href=$Result(j._key,i)>$RESULTS[j._key][i].STATUSSTR $RESULTS[j._key][i].RATE%</a></td>
    $else
     <td>&nbsp;</td>
    $endif
