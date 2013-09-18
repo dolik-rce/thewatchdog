@@ -111,7 +111,6 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      Insert(RESULT)(CMT_UID, commit)
 	                    (CLIENT_ID, cid)
 	                    (STATUS, WD_DONE)
-	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
 	                    (OK, tests - (errors + failures + skipped))
@@ -120,7 +119,6 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	                    (SKIP, skipped);
 	SqlUpdate update = 
 	      Update(RESULT)(STATUS, WD_DONE)
-	                    (DURATION, http.Int("duration"))
 	                    (START, start)
 	                    (FINISHED, end)
 	                    (OK, tests - (errors + failures + skipped))
@@ -137,7 +135,8 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	SQLR * Select(UID, BRANCH, CMT, DT, AUTHOR, MSG, PATH,
 	              ID, NAME, DESCR, SRC,
-	              START, FINISHED, DURATION, STATUS)
+	              START, FINISHED, STATUS,
+	              TimeDiff(START, FINISHED).As("DURATION"))
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)

@@ -272,7 +272,7 @@ SKYLARK(Stats, "stats/*") {
 	              ERR,
 	              FAIL,
 	              SKIP,
-	              DURATION,
+	              TimeDiff(START, FINISHED).As("DURATION"),
 	              MSG, AUTHOR, DT, CMT, BRANCH)
 	        .From(RESULT)
 	        .InnerJoin(COMMITS).On(CMT_UID==UID)

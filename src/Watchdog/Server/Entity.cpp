@@ -13,7 +13,8 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 }
 
 ValueArray Client::FetchResults(const CommitFilter& f) const {
-	SQLR * Select(SqlAll(RESULT), DT, CMT, BRANCH, 
+	SQLR * Select(SqlAll(RESULT), TimeDiff(START,FINISHED).As("DURATION"),
+	              DT, CMT, BRANCH,
 	              UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(COMMITS)
 	       .LeftJoin(RESULT).On(UID == CMT_UID && CLIENT_ID == data["ID"])
