@@ -1,6 +1,8 @@
 #include "Sql.h"
+#include "Server.h"
 
-SqlStatement InsertIgnore(int dialect, const SqlInsert& insert) {
+SqlStatement InsertIgnore(const SqlInsert& insert) {
+	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
 	String s = SqlStatement(insert).Get(dialect);
 	ASSERT(s.StartsWith("insert "));
 	switch(dialect) {
@@ -17,7 +19,7 @@ SqlStatement InsertIgnore(int dialect, const SqlInsert& insert) {
 }
 
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update) {
-	sql * InsertIgnore(sql.GetDialect(), insert);
+	sql * InsertIgnore(insert);
 	if (sql.GetRowsProcessed() == 0) {
 		sql * update;
 		return false;
@@ -36,6 +38,19 @@ SqlVal SqlEmptyString(){
 
 SqlVal SqlInterval(const SqlVal& count, const String& unit) {
 	return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
+}
+
+SqlVal TimeDiff(const SqlVal& a, const SqlVal& b) {
+	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
+	switch(dialect) {
+	case SQLITE3:
+		return SqlFunc("strftime", SqlSet("%s", b)) - SqlFunc("strftime", SqlSet("%s", a));
+	case MY_SQL:
+		return SqlFunc("timestampdiff", SqlSet("seconds", a, b));
+	default:
+		NEVER_("TimeDiff not implemented for this dialect");
+		return SqlVal();
+	}
 }
 
 String SqlEscape(const Value& in){

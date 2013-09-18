@@ -6,11 +6,12 @@
 #define  MODEL <Watchdog/Server/table.sch>
 #include <DynamicSql/sch_header.h>
 
-SqlStatement InsertIgnore(int dialect, const SqlInsert& insert);
+SqlStatement InsertIgnore(const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
 SqlBool Regexp(const SqlVal& a, const SqlVal& b);
 SqlVal SqlEmptyString();
 SqlVal SqlInterval(const SqlVal& count, const String& unit);
+SqlVal TimeDiff(const SqlVal& a, const SqlVal& b);
 String SqlEscape(const Value& in);
 
 inline SqlVal ToSqlVal(const SqlBool& b) {
