@@ -5,35 +5,37 @@
 #include templates/paging
 <table border="1">
 <tr>
- <th>Commit</th>
- <th>Branch</th>
- <th>Status</th>
- <th>Results</th>
- <th>Author</th>
- <th>Date</th>
- <th>Path</th>
+ <th rowspan=2>Commit</th>
+ <th rowspan=2>Branch</th>
+ <th rowspan=2>Status</th>
+ <th rowspan=2>Results</th>
+ <th rowspan=2>Author</th>
+ <th rowspan=2>Date</th>
  <th>Log message</th>
+</tr><tr>
+ <th>Path</th>
 </tr>
 $for(i in COMMITS)
     <tr>
-      <th><a href=$Commit(i.UID)>$i.CMT</a></th>
-      <td class="centered">$i.BRANCH</td>
+      <th rowspan=2><a href=$Commit(i.UID)>$i.CMT</a></th>
+      <td rowspan=2 class="centered">$i.BRANCH</td>
       $if(i.COLOR!="RAW: ")
-      <td><div class="icon circle $i.COLOR"></div>$i.RATE</td>
+      <td rowspan=2><div class="icon circle $i.COLOR"></div>$i.RATE</td>
       $else
-      <td></td>
+      <td rowspan=2></td>
       $endif
-      <td class="centered">
+      <td rowspan=2 class="centered">
       $if(i.RUNNING>0)<span title="In progress" class="inprogress">$i.RUNNING</span>$endif
       $if(i.FAIL>0)<span title="Failed" class="fail">$i.FAIL</span>$endif
       $if(i.ERROR>0)<span title="Error" class="error">$i.ERROR</span>$endif
       $if(i.SUCCESS>0)<span title="Succeeded" class="passed">$i.SUCCESS</span>$endif
       $if(i.SKIP>0)<span title="Skipped" class="skip">$i.SKIP</span>$endif
       </td>
-      <td>$i.AUTHOR</td>
-      <td>$i.DT</td>
-      <td>$i.PATH</td>
+      <td rowspan=2>$i.AUTHOR</td>
+      <td rowspan=2>$i.DT</td>
       <td>$i.MSG</td>
+    </tr><tr>
+      <td>$i.PATH&nbsp;</td>
     </tr>    
 $/
 </table>
