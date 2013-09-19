@@ -293,7 +293,7 @@ SKYLARK(Stats, "stats/*") {
 			point.Set("y", row[1+i]);
 			stats[i].Add(point);
 		}
-		colors.Add(ComputeColor(row[2], row[4], row[3], true).To<RawHtmlText>().text);
+		colors.Add(ComputeColor(0, row[2], row[4], row[3], true).To<RawHtmlText>().text);
 		vm.Set("MSG",row[7]);
 		vm.Set("AUTHOR",row[8]);
 		vm.Set("DT",row[9]);
