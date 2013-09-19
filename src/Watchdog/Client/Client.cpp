@@ -90,13 +90,9 @@ bool WatchdogClient::AcceptWork(const String& commit, Time start){
 	return true;
 }
 
-bool WatchdogClient::SubmitWork(const String& commit, const int duration, const String& output, Time start, Time end){
+bool WatchdogClient::SubmitWork(const String& commit, const String& output, Time start, Time end){
 	if (IsEmpty(commit)){
 		Cerr() << "ERROR: Wrong value of <commit>\n";
-		return false;
-	}
-	if (duration < 0){
-		Cerr() << "ERROR: Wrong value of <duration>\n";
 		return false;
 	}
 	if (output.IsVoid()){
@@ -112,7 +108,6 @@ bool WatchdogClient::SubmitWork(const String& commit, const int duration, const 
 	if(!Auth(req, target))
 		return false;
 	
-	req.Post("duration", IntStr(duration));
 	req.Post("commit", commit);
 	req.Post("output", output);
 	if(!IsNull(start)){
@@ -159,13 +154,13 @@ bool WatchdogClient::Run(String command){
 	String output;
 	Time start = GetSysTime();
 	int result = Sys(command, output);
-	int duration = GetSysTime()-start;
+	Time end = GetSysTime();
 	
 	if(Ini::log_level > 0) 
-		Cout() << "Execution finished after " << duration << " with exit code '" << result << "'\n";
+		Cout() << "Execution finished after " << (end-start) << " seconds with exit code '" << result << "'\n";
 	
 	// send the results
-	return SubmitWork(commit, duration, output);
+	return SubmitWork(commit, output, start, end);
 }
 
 void WatchdogClient::CheckParamCount(const Vector<String>& cmd, int current, int count) const {
@@ -205,7 +200,6 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 4);
 		commit = cmd[++i];
-		duration = StrInt(cmd[++i]);
 		output = cmd[++i];
 	} else if(cmd[i] == "--run" || cmd[i] == "-r") {
 		SetAction(cmd[i]);
@@ -248,9 +242,7 @@ bool WatchdogClient::ProcessAction(){
 	case 'a':
 		return AcceptWork(commit, start);
 	case 's':
-		return SubmitWork(commit,
-		                  duration,
-		                  LoadFile(output));
+		return SubmitWork(commit, LoadFile(output), start, end);
 	case 'r':
 		return Run(command);
 	default:
@@ -310,7 +302,7 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 		"\t\tReturns a list of not yet built commits\n";
 	actions.Add() = "\t-a --accept <commit>\n"
 		"\t\tNotifies server about building <commit>.\n";
-	actions.Add() = "\t-s --submit <commit> <duration> <output_file>\n"
+	actions.Add() = "\t-s --submit <commit> <output_file>\n"
 		"\t\tSends results to the server. Optional start and end times can\n"
 		"\t\tbe supplied as int64.\n";
 	actions.Add() = "\t-r --run <command>\n"
@@ -324,7 +316,7 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 		"\t\tand unlock after --submit)\n";
 	options.Add() = "\t-S --start <time>\n"
 		"\t\tStart date given in \"YYYY/MM/DD hh:mm:ss\" format, only \n"
-		"\t\thonoured with --accept and --submit\n";
+		"\t\thonoured with --accept or --submit\n";
 	options.Add() = "\t-E --end <time>\n"
 		"\t\tEnd date given given in \"YYYY/MM/DD hh:mm:ss\" format, only\n"
 		"\t\thonoured with --submit\n";
