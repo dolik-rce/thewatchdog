@@ -200,7 +200,8 @@ void Result::Delete(const String& uid, int id) {
 }
 
 void Result::Save() {
-	//TODO when changing API
+	Upsert(SQL, Insert(RESULT)(data),
+	            Update(RESULT)(data).Where(CMT_UID == data["CMT_UID"] && CLIENT_ID == data["CLIENT_ID"]));
 }
 
 ValueMap Branch::LoadAll() {

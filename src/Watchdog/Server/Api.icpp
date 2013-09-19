@@ -33,14 +33,12 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
 	Client::UpdateActivity(cid, true);
-	SqlInsert insert = Insert(RESULT)(CMT_UID,http["commit"])
-	                    (CLIENT_ID,cid)
-	                    (START,start)
-	                    (STATUS,WD_INPROGRESS);
-	SqlUpdate update = Update(RESULT)(START,start)
-		                    (STATUS,WD_INPROGRESS)
-		        .Where(CMT_UID == http["commit"] && CLIENT_ID == cid);
-	Upsert(SQL, insert, update);
+	Result result;
+	result("CMT_UID", http["commit"])
+	      ("CLIENT_ID", cid)
+	      ("START", start)
+	      ("STATUS", WD_INPROGRESS);
+	result.Save();
 	http.Response(200, "OK");
 }
 
@@ -51,9 +49,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 		return;
 	
 	Time start;
-	if(IsNull(http["start"])){
-		start.Set(GetSysTime().Get()-http.Int("duration"));
-	} else {
+	if(!IsNull(http["start"])) {
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
 	Time end;
@@ -107,26 +103,19 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 		}
 	}
 	
-	SqlInsert insert = 
-	      Insert(RESULT)(CMT_UID, commit)
-	                    (CLIENT_ID, cid)
-	                    (STATUS, WD_DONE)
-	                    (START, start)
-	                    (FINISHED, end)
-	                    (OK, tests - (errors + failures + skipped))
-	                    (ERR, errors)
-	                    (FAIL, failures)
-	                    (SKIP, skipped);
-	SqlUpdate update = 
-	      Update(RESULT)(STATUS, WD_DONE)
-	                    (START, start)
-	                    (FINISHED, end)
-	                    (OK, tests - (errors + failures + skipped))
-	                    (ERR, errors)
-	                    (FAIL, failures)
-	                    (SKIP, skipped)
-	        .Where(CMT_UID == commit && CLIENT_ID == cid);
-	Upsert(SQL, insert, update);
+	Result result;
+	result("CMT_UID", commit)
+	      ("CLIENT_ID", cid)
+	      ("STATUS", WD_DONE)
+	      ("FINISHED", end)
+	      ("OK", tests - (errors + failures + skipped))
+	      ("ERR", errors)
+	      ("FAIL", failures)
+	      ("SKIP", skipped);
+	if(IsNull(start))
+		result("START", start);
+	
+	result.Save();
 	
 	http.Response(200,"OK");
 	http.Finalize();
