@@ -18,7 +18,9 @@ SKYLARK(HomePage, "") {
 	              CountIf(1, STATUS == WD_INPROGRESS).As("RUNNING"),
 	              CountIf(1, DT > yesterday).As("COMMITS_DAILY"),
 	              CountIf(1, DT > monthago).As("COMMITS_MONTHLY"),
-	              CountIf(1, true).As("COMMITS_TOTAL"))
+	              CountIf(1, true).As("COMMITS_TOTAL"),
+	              Count(Distinct(BRANCH)).As("BRANCH_COUNT"),
+	              Count(Distinct(AUTHOR)).As("AUTHOR_COUNT"))
 	      .From(COMMITS)
 	      .LeftJoin(RESULT).On(CMT_UID == UID);
 	ValueMap stats;

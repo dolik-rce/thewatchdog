@@ -6,6 +6,8 @@
 <h3>Now</h3>
 <table>
 <tr><td>Currently running:</td><td>$STATS.RUNNING</td></tr>
+<tr><td>Branches:</td><td>$STATS.BRANCH_COUNT</td></tr>
+<tr><td>Authors:</td><td>$STATS.AUTHOR_COUNT</td></tr>
 </table>
 </div>
 <div class="ldiv">
