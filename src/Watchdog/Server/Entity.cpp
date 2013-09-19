@@ -29,16 +29,14 @@ ValueArray Client::FetchResults(const CommitFilter& f) const {
 		SetComputedAttributes(vm);
 		if (IsNull(vm["STATUS"])) {
 			if (!vm["FITS"])
-				vm.Add("STATUSSTR", "Not interested");
+				vm.Set("STATUSSTR", "Not interested");
 			else if (t-Time(vm["DT"]) > maxage)
-				vm.Add("STATUSSTR", "Too old");
+				vm.Set("STATUSSTR", "Too old");
 			else
-				vm.Add("STATUSSTR", "Ready");
-		} else {
-			SetComputedAttributes(vm);
+				vm.Set("STATUSSTR", "Ready");
 		}
 		if(vm["STATUS"] == WD_INPROGRESS)
-			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
+			vm.Set("DURATION", GetSysTime()-Time(vm["START"]));
 		res.Add(vm);
 	}
 	return res;
