@@ -13,7 +13,7 @@ $for(i in AUTHORS)
   <tr>
     <th class="centered"><a href="/commits?f_author=$i.AUTHOR&f_change=1">$i.AUTHOR</a></th>
     <td class="centered">$i.CMT_CNT</td>
-    <td class="centered">$if(i.OK)<div class="icon circle $i.COLOR"></div><a href="/results?f_author=$i.AUTHOR&f_change=1">$i.RATE%</a>$endif</td>
+    <td class="centered">$if(i.OK)<div class="icon circle $i.COLOR"></div><a href="/results?f_author=$i.AUTHOR&f_change=1">$i.RATE</a>$endif</td>
     <td class="centered">$i.FIRST</td>
     <td class="centered">$i.LAST</td>
   </tr>

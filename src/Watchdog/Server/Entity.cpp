@@ -218,7 +218,7 @@ ValueMap Branch::LoadAll() {
 	ValueMap vm;
 	ValueMap branches;
 	while(SQL.Fetch(vm)) {
-		SetComputedAttributes(vm);
+		SetComputedAttributes(vm, WD_DONE);
 		branches.Set(vm["BRANCH"],vm);
 	}
 	return branches;

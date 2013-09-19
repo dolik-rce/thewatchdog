@@ -33,7 +33,7 @@ $if(i.START)
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>
-      <td><div class="icon circle $i.COLOR"></div><a href=$Result(i.UID,CLIENT.ID)>$i.STATUSSTR $i.RATE%</a></td>
+      <td><div class="icon circle $i.COLOR"></div><a href=$Result(i.UID,CLIENT.ID)>$i.STATUSSTR $i.RATE</a></td>
 $else
       <td>&nbsp;</td>
       <td>&nbsp;</td>

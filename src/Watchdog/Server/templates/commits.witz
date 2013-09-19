@@ -19,7 +19,7 @@ $for(i in COMMITS)
       <th><a href=$Commit(i.UID)>$i.CMT</a></th>
       <td class="centered">$i.BRANCH</td>
       $if(i.COLOR!="RAW: ")
-      <td><div class="icon circle $i.COLOR"></div>$i.RATE%</td>
+      <td><div class="icon circle $i.COLOR"></div>$i.RATE</td>
       $else
       <td></td>
       $endif

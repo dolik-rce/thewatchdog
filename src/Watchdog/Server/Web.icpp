@@ -26,12 +26,9 @@ SKYLARK(HomePage, "") {
 		http << "Database error";
 		return;
 	}
-	stats.Add("RATE_DAILY", SuccessRate(V2N(stats["OK_DAILY"]),V2N(stats["FAIL_DAILY"]),V2N(stats["ERR_DAILY"])));
-	stats.Add("RATE_MONTHLY", SuccessRate(V2N(stats["OK_MONTHLY"]),V2N(stats["FAIL_MONTHLY"]),V2N(stats["ERR_MONTHLY"])));
-	stats.Add("RATE_TOTAL", SuccessRate(V2N(stats["OK_TOTAL"]),V2N(stats["FAIL_TOTAL"]),V2N(stats["ERR_TOTAL"])));
-	stats.Add("COLOR_DAILY", ComputeColor(0,V2N(stats["OK_DAILY"]),V2N(stats["FAIL_DAILY"]),V2N(stats["ERR_DAILY"])));
-	stats.Add("COLOR_MONTHLY", ComputeColor(0,V2N(stats["OK_MONTHLY"]),V2N(stats["FAIL_MONTHLY"]),V2N(stats["ERR_MONTHLY"])));
-	stats.Add("COLOR_TOTAL", ComputeColor(0,V2N(stats["OK_TOTAL"]),V2N(stats["FAIL_TOTAL"]),V2N(stats["ERR_TOTAL"])));
+	SetComputedAttributes(stats, WD_DONE, "_DAILY");
+	SetComputedAttributes(stats, WD_DONE, "_MONTHLY");
+	SetComputedAttributes(stats, WD_DONE, "_TOTAL");
 	ValueMap misc;
 	SQLR * Select(CountIf(1, LAST_WORK > (GetSysTime()-86400)).As("ACTIVE_DAILY"),
 	             CountIf(1, LAST_WORK > (GetSysDate()-30)).As("ACTIVE_MONTHLY"),
@@ -163,7 +160,7 @@ SKYLARK(Authors, "authors") {
 	ValueMap vm;
 	ValueMap authors;
 	while(SQL.Fetch(vm)) {
-		SetComputedAttributes(vm);
+		SetComputedAttributes(vm, WD_DONE);
 		authors.Set(vm["AUTHOR"],vm);
 	}
 	http("AUTHORS", authors).RenderResult("templates/authors");

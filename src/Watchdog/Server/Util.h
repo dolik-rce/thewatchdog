@@ -35,10 +35,10 @@ void SendEmail(const String& to, const String& token, const String& subject, con
 ValueArray ParseFilter(const String& Filter);
 bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
                  int client, bool result, const String& author, const String& path);
-double SuccessRate(int ok, int fail, int err);
+String SuccessRate(int status, int ok, int fail, int err);
 String ComputeStatus(int status, int ok, int fail, int err);
 Value ComputeColor(int status, int ok, int fail, int err, bool quoted = false);
-void SetComputedAttributes(ValueMap& vm);
+void SetComputedAttributes(ValueMap& vm, int status = 0, const String& suffix = "");
 
 namespace Upp { namespace Ini {
 	extern IniString output_dir;

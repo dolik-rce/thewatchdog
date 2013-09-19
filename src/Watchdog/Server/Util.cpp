@@ -330,15 +330,19 @@ bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
 	return true;
 }
 
-double SuccessRate(int ok, int fail, int err){
+String SuccessRate(int status, int ok, int fail, int err){
+	if (status != WD_DONE)
+		return "";
 	if (ok+fail+err == 0)
-		return 0;
-	return roundr(100.0*ok/(ok+fail+err), 2);
+		return "0%";
+	return DblStr(roundr(100.0*ok/(ok+fail+err), 2))+"%";
 }
 
 String ComputeStatus(int status, int ok, int fail, int err){
 	if (status == WD_INPROGRESS)
 		return "In progress";
+	if (status != WD_DONE)
+		return "";
 	if (err>0)
 		return "Error";
 	if (fail>0)
@@ -358,10 +362,14 @@ Value ComputeColor(int status, int ok, int fail, int err, bool quoted){
 	return Raw(Format(quoted?"\"#%X%X%X\"":"s%X%X%X", r, g, b));
 }
 
-void SetComputedAttributes(ValueMap& vm) {
-	vm.Add("RATE", SuccessRate(V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
-	vm.Add("COLOR", ComputeColor(V2N(vm["STATUS"]), V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
-	vm.Add("STATUSSTR", ComputeStatus(V2N(vm["STATUS"]), V2N(vm["OK"]), V2N(vm["FAIL"]), V2N(vm["ERR"])));
+void SetComputedAttributes(ValueMap& vm, int status, const String& suffix) {
+	int st = status ? status : V2N(vm["STATUS"+suffix]);
+	int ok = V2N(vm["OK"+suffix]);
+	int fail = V2N(vm["FAIL"+suffix]);
+	int err = V2N(vm["ERR"+suffix]);
+	vm.Add("RATE"+suffix, SuccessRate(st, ok, fail, err));
+	vm.Add("COLOR"+suffix, ComputeColor(st, ok, fail, err));
+	vm.Add("STATUSSTR"+suffix, ComputeStatus(st, ok, fail, err));
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)

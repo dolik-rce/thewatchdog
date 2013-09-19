@@ -13,7 +13,7 @@ $for(i in BRANCHES)
   <tr>
     <th class="centered"><a href="/commits?f_branch=$i.BRANCH&f_change=1">$i.BRANCH</a></th>
     <td class="centered">$i.CMT_CNT</td>
-    <td class="centered">$if(i.OK)<div class="icon circle $i.COLOR"></div><a href="/results?f_branch=$i.BRANCH&f_change=1">$i.RATE%</a>$endif</td>
+    <td class="centered">$if(i.OK)<div class="icon circle $i.COLOR"></div><a href="/results?f_branch=$i.BRANCH&f_change=1">$i.RATE</a>$endif</td>
     <td class="centered">$i.FIRST</td>
     <td class="centered">$i.LAST</td>
   </tr>

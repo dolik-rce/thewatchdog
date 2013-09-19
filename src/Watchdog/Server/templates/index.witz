@@ -15,7 +15,7 @@
 <tr><td>Successful tests:</td><td>$STATS.OK_DAILY</td></tr>
 <tr><td>Failed tests:</td><td>$STATS.FAIL_DAILY</td></tr>
 <tr><td>Errors:</td><td>$STATS.ERR_DAILY</td></tr>
-<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_DAILY"></div>$STATS.RATE_DAILY%</td></tr>
+<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_DAILY"></div>$STATS.RATE_DAILY</td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_DAILY</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_DAILY</td></tr>
 </table>
@@ -27,7 +27,7 @@
 <tr><td>Successful tests:</td><td>$STATS.OK_MONTHLY</td></tr>
 <tr><td>Failed tests:</td><td>$STATS.FAIL_MONTHLY</td></tr>
 <tr><td>Errors:</td><td>$STATS.ERR_MONTHLY</td></tr>
-<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_MONTHLY"></div>$STATS.RATE_MONTHLY%</td></tr>
+<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_MONTHLY"></div>$STATS.RATE_MONTHLY</td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_MONTHLY</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_MONTHLY</td></tr>
 </table>
@@ -39,7 +39,7 @@
 <tr><td>Successful tests:</td><td>$STATS.OK_TOTAL</td></tr>
 <tr><td>Failed tests:</td><td>$STATS.FAIL_TOTAL</td></tr>
 <tr><td>Errors:</td><td>$STATS.ERR_TOTAL</td></tr>
-<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_TOTAL"></div>$STATS.RATE_TOTAL%</td></tr>
+<tr><td>Succes rate:</td><td><div class="icon circle $STATS.COLOR_TOTAL"></div>$STATS.RATE_TOTAL</td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_TOTAL</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_TOTAL</td></tr>
 </table>

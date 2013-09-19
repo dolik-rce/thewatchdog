@@ -24,7 +24,7 @@ $for(i in RESULTS)
       <td>$i.START</td>
       <td>$i.FINISHED</td>
       <td>$Duration(i.DURATION)</td>
-      <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.UID,i.CLIENT_ID)>$i.STATUSSTR $i.RATE%</a></td>
+      <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.UID,i.CLIENT_ID)>$i.STATUSSTR $i.RATE</a></td>
     </tr>    
 $/
 </table>
