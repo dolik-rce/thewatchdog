@@ -46,7 +46,7 @@ SqlVal TimeDiff(const SqlVal& a, const SqlVal& b) {
 	case SQLITE3:
 		return SqlFunc("strftime", SqlSet("%s", b)) - SqlFunc("strftime", SqlSet("%s", a));
 	case MY_SQL:
-		return SqlFunc("timestampdiff", SqlSet("seconds", a, b));
+		return SqlFunc("timestampdiff", SqlSet(SqlVal("second", SqlS::HIGH), a, b));
 	default:
 		NEVER_("TimeDiff not implemented for this dialect");
 		return SqlVal();
