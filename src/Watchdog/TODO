@@ -1,8 +1,11 @@
 SERVER
 ------
+Fix graph legend
 Descriptive message on auth screen
-Replace duration by end-start
+Log all authorized actions
+Generalize test/error/fail/skip count format in output files
 Versioning of schema and exports
+Finish import/export capabilities
 On-line editable configuration
 Client-server communication in json (?)
 Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
@@ -19,5 +22,6 @@ Publish some usage examples
 
 GENERAL
 -------
+Write tests
 Update documentation
 Add and document the surrounding scripts (XUnit parser, fakesvn, ...)
