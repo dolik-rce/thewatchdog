@@ -182,26 +182,6 @@ bool CheckLocal(Http& http){
 	return false;
 }
 
-bool CheckAuth(Http& http, Sql& sql){
-	String nonce = http.GetHeader("wd-nonce");
-	sql * Delete(AUTH).Where(NONCE==nonce);
-	if(sql.GetRowsProcessed() == 0){
-		http << "Auth FAIL";
-		http.Response(403,"Auth FAIL (nonce)");
-		return false;
-	}
-	sql * Select(PASSWORD)
-	      .From(CLIENT).Where(ID == http.Int("client_id"));
-	String pwd;
-	sql.Fetch(pwd);
-	if (http.GetHeader("wd-auth")!=MD5String(nonce+pwd)) {
-		http << "Auth FAIL";
-		http.Response(403,"Auth FAIL (auth)");
-		return false;
-	}
-	return true;
-}
-
 bool CheckAuth2(Http& http, Sql& sql, int client, const String& action){
 	if(http.Int("client_id")!=client && http.Int("client_id")!=0){
 		http << "Permission denied";
