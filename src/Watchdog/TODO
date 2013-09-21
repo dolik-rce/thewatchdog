@@ -1,6 +1,5 @@
 SERVER
 ------
-Fix graph legend
 Descriptive message on auth screen
 Log all authorized actions
 Generalize test/error/fail/skip count format in output files
