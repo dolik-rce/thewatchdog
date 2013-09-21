@@ -249,11 +249,7 @@ bool WatchdogClient::ProcessAction(){
 }
 
 void WatchdogClient::SetConfig(const String& fn) {
-	if(!FileExists(fn)){
-		Cerr() << "ERROR: Configuration file '" << fn << "' not found\n";
-		Exit(64);
-	}
-	SetIniFile(fn);
+	LoadConfiguration(fn);
 	LOG_(Ini::log_level==2, GetIniInfoFormatted());
 }
 
@@ -269,8 +265,6 @@ void WatchdogClient::Execute(const Vector<String>& cmd) {
 	for(int i = 0; i < cmd.GetCount(); i++)
 		ParseArgument(i, cmd);
 	
-	if (cfg.IsEmpty())
-		cfg = GetExeDirFile(GetExeTitle()+".ini");
 	SetConfig(cfg);
 	
 	if(!ProcessAction())

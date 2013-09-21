@@ -3,17 +3,12 @@
 
 #include <Skylark/Skylark.h>
 #include <Core/SMTP/SMTP.h>
+#include <Watchdog/Watchdog.h>
 using namespace Upp;
 
 #include "Sql.h"
 #include "Util.h"
 #include "Entity.h"
-
-#ifdef _DEBUG
-#define IFDBG(D,R) D
-#else
-#define IFDBG(D,R) R
-#endif
 
 namespace Upp{ 
 	void ReopenLog();

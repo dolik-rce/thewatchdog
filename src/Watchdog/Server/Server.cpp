@@ -134,35 +134,18 @@ Watchdog::Watchdog() {
 
 #ifdef flagMAIN
 
-namespace Upp { namespace Ini {
-	extern IniString path;
-}}
-
-void ProcessIniFile(const String& fn){
-	String ini = LoadFile(fn);
-	ini = ReplaceVars(ini, Environment(), '$');
-	SaveFile(fn+".preprocessed", ini);
-	SetIniFile(fn+".preprocessed");
-}
-
-CONSOLE_APP_MAIN{
-	const Vector<String>& cmd = CommandLine();
-	
-	String ini;
-	if(cmd.GetCount())
-		ini = cmd[0];
-	else
-		ini = GetDataFile("Server.ini");
-	RLOG("Loading configuration from '" << ini << "'");
-	ProcessIniFile(ini);
-	
+CONSOLE_APP_MAIN {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
+	StdLogSetup(LOG_CERR|LOG_TIMESTAMP);
+	
+	const Vector<String>& cmd=CommandLine();
+	LoadConfiguration(cmd.GetCount()?cmd[0]:"");
 	
 	StdLogSetup(LOG_FILE
 	           |LOG_TIMESTAMP
 	           |LOG_APPEND
-	           |(Ini::log_stderr?LOG_CERR:0)
-	           , (String)Ini::log_file);
+	           |(Ini::log_stderr?LOG_CERR:0),
+	           (String)Ini::log_file);
 	Smtp::Trace(Ini::log_level == 2);
 	
 	RLOG(" === STARTING WATCHDOG === ");

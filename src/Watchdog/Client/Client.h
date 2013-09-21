@@ -1,7 +1,7 @@
 #ifndef _Watchdog_Client_Client_h_
 #define _Watchdog_Client_Client_h_
 
-#include <Core/Core.h>
+#include <Watchdog/Watchdog.h>
 using namespace Upp;
 
 namespace Upp { namespace Ini {
