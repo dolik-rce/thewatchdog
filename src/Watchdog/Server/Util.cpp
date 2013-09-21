@@ -182,7 +182,7 @@ bool CheckLocal(Http& http){
 	return false;
 }
 
-bool CheckAuth2(Http& http, Sql& sql, int client, const String& action){
+bool CheckAuth(Http& http, Sql& sql, int client, const String& action){
 	if(http.Int("client_id")!=client && http.Int("client_id")!=0){
 		http << "Permission denied";
 		http.Response(403,"Permission denied");

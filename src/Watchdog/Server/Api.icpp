@@ -3,7 +3,7 @@
 SKYLARK(GetWork, "api/getwork/*:POST")
 {
 	int cid = http.Int(0);
-	if(!CheckAuth2(http, SQL, cid, "/api/getwork/"+IntStr(cid)))
+	if(!CheckAuth(http, SQL, cid, "/api/getwork/"+IntStr(cid)))
 		return;
 	
 	Client::UpdateActivity(cid);
@@ -23,7 +23,7 @@ SKYLARK(GetWork, "api/getwork/*:POST")
 SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 {
 	int cid = http.Int(0);
-	if(!CheckAuth2(http, SQL, cid, "/api/acceptwork/"+IntStr(cid)))
+	if(!CheckAuth(http, SQL, cid, "/api/acceptwork/"+IntStr(cid)))
 		return;
 
 	Time start;
@@ -45,7 +45,7 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 SKYLARK(SubmitWork, "api/submitwork/*:POST")
 {
 	int cid = http.Int(0);
-	if(!CheckAuth2(http, SQL, cid, "/api/submitwork/"+IntStr(cid)))
+	if(!CheckAuth(http, SQL, cid, "/api/submitwork/"+IntStr(cid)))
 		return;
 	
 	Time start;
@@ -151,7 +151,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 }
 
 SKYLARK(GetState, "api/getstate:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/api/getstate"))
+	if(!CheckAuth(http, SQL, 0, "/api/getstate"))
 		return;
 	SQLR * Select(BRANCH, SqlFunc("max",SqlSet(DT)).As("STATE"))
 	       .From(COMMITS)
@@ -163,7 +163,7 @@ SKYLARK(GetState, "api/getstate:POST") {
 }
 
 SKYLARK(Update, "api/update:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/api/update"))
+	if(!CheckAuth(http, SQL, 0, "/api/update"))
 		return;
 	Vector<String> data = Split(AsString(http["data"]), "\n");
 	for(int i = 0; i < data.GetCount(); i++){
@@ -187,7 +187,7 @@ SKYLARK(Update, "api/update:POST") {
 }
 
 SKYLARK(Delete, "api/deletebranch:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/api/deletebranch"))
+	if(!CheckAuth(http, SQL, 0, "/api/deletebranch"))
 		return;
 	Vector<String> data = Split(AsString(http["data"]), "\n");
 	for(int i = 0; i < data.GetCount(); i++){
@@ -197,7 +197,7 @@ SKYLARK(Delete, "api/deletebranch:POST") {
 }
 
 SKYLARK(Clean, "api/clean:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/api/clean"))
+	if(!CheckAuth(http, SQL, 0, "/api/clean"))
 		return;
 	http << "OK\n";
 	http.Finalize();

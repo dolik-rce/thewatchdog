@@ -68,7 +68,7 @@ SKYLARK(EditClient, "editclient/*") {
 
 SKYLARK(SaveClient, "saveclient:POST"){
 	int cid = http.Int("client");
-	if(!CheckAuth2(http, SQL, cid, "/saveclient"))
+	if(!CheckAuth(http, SQL, cid, "/saveclient"))
 		return;
 	Client client;
 	if(cid>0) {
@@ -90,7 +90,7 @@ SKYLARK(SaveClient, "saveclient:POST"){
 
 SKYLARK(RemoveClient, "removeclient/*:POST"){
 	int cid = http.Int(0);
-	if(!CheckAuth2(http, SQL, cid, "/removeclient/"+IntStr(cid)))
+	if(!CheckAuth(http, SQL, cid, "/removeclient/"+IntStr(cid)))
 		return;
 	Result::Delete(Null, cid);
 	Client::Delete(cid);
@@ -237,7 +237,7 @@ SKYLARK(WebAuthPost, "auth/**:POST"){
 SKYLARK(Remove, "remove/*/*:POST"){
 	int cid = http.Int(0);
 	String uid = http[1];
-	if(!CheckAuth2(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+uid))
+	if(!CheckAuth(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+uid))
 		return;
 	Result::Delete(uid, cid);
 	http.Redirect("/client/"+IntStr(cid)+"?uid="+uid);

@@ -28,7 +28,7 @@ private:
 };
 
 bool CheckLocal(Http& http);
-bool CheckAuth2(Http& http, Sql& sql, int client, const String& action);
+bool CheckAuth(Http& http, Sql& sql, int client, const String& action);
 void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const String& subject, const String& text, const String& html = "");
 void SendEmail(const String& to, const String& token, const String& subject, const String& text, const String& html = "");
 ValueArray ParseFilter(const String& Filter);

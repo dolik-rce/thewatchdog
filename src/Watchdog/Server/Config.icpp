@@ -54,7 +54,7 @@ String ExportTable(const SqlId& table, const SqlSet& columns) {
 }
 
 SKYLARK(Export, "export:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/export"))
+	if(!CheckAuth(http, SQL, 0, "/export"))
 		return;
 	
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
@@ -104,7 +104,7 @@ SKYLARK(Export, "export:POST") {
 }
 
 SKYLARK(Import, "import:POST") {
-	if(!CheckAuth2(http, SQL, 0, "/import"))
+	if(!CheckAuth(http, SQL, 0, "/import"))
 		return;
 	
 	//we must finish the previous session, otherwise block table would fail
