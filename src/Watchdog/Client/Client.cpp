@@ -41,8 +41,6 @@ bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 bool WatchdogClient::GetWork(){
 	String target = "/api/getwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
-	if(!Auth(req, target))
-		return false;
 	
 	String resp = req.Execute();
 	if(!req.IsSuccess()){

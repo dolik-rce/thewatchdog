@@ -1,10 +1,8 @@
 #include "Server.h"
 
-SKYLARK(GetWork, "api/getwork/*:POST")
+SKYLARK(GetWork, "api/getwork/*")
 {
 	int cid = http.Int(0);
-	if(!CheckAuth(http, SQL, cid, "/api/getwork/"+IntStr(cid)))
-		return;
 	
 	Client::UpdateActivity(cid);
 	SQLR * Select(UID)
