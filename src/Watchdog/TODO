@@ -1,7 +1,6 @@
 SERVER
 ------
 Descriptive message on auth screen
-Log all authorized actions
 Generalize test/error/fail/skip count format in output files
 Versioning of schema and exports
 Finish import/export capabilities

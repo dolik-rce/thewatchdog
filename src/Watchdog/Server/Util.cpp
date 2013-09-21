@@ -183,14 +183,18 @@ bool CheckLocal(Http& http){
 }
 
 bool CheckAuth(Http& http, Sql& sql, int client, const String& action){
-	if(http.Int("client_id")!=client && http.Int("client_id")!=0){
+	#define AUTHLOG(X) RLOG("AUTH "<<X<<" (client:"<<cid<<", action:"<<http["wd_action"]<<"ip:"<<http.GetPeerAddr()<<")")
+	int cid=http.Int("client_id");
+	if(cid!=client && cid!=0){
 		http << "Permission denied";
 		http.Response(403,"Permission denied");
+		AUTHLOG("FAIL [wrong client id]");
 		return false;
 	}
 	if(http["wd_action"] != action) {
 		http << "Auth FAIL (action)";
 		http.Response(403,"Permission denied");
+		AUTHLOG("FAIL [wrong action]");
 		return false;
 	}
 	String nonce = http["wd_nonce"];
@@ -199,6 +203,7 @@ bool CheckAuth(Http& http, Sql& sql, int client, const String& action){
 	if(sql.GetRowsProcessed() == 0){
 		http << "Auth FAIL (nonce)";
 		http.Response(403,"Permission denied");
+		AUTHLOG("FAIL [wrong nonce]");
 		return false;
 	}
 	sql * Select(PASSWORD)
@@ -208,9 +213,12 @@ bool CheckAuth(Http& http, Sql& sql, int client, const String& action){
 	if (auth!=MD5String(nonce+String(http["wd_action"])+pwd)) {
 		http << "Auth FAIL (auth)";
 		http.Response(403,"Permission denied");
+		AUTHLOG("FAIL [wrong password]");
 		return false;
 	}
+	AUTHLOG("OK");
 	return true;
+	#undef AUTHLOG
 }
 
 void SendEmails(const Vector<String>& to, const Vector<String>& tokens, const String& subject, const String& text, const String& html){
