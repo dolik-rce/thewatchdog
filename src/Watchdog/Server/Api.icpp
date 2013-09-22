@@ -63,50 +63,17 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SaveFile(outputfile, output);
 	Client::UpdateActivity(cid, true);
 	String commit = http["commit"];
-	
-	//expected format: TEST_SUMMARY: tests=67 errors=4 failures=7 skip=0
-	//XUnit/JUnit output example: <testsuite name="nosetests" tests="67" errors="4" failures="7" skip="0">
-	//convertor: sed -n '/<testsuite/{;s/.*<testsuite//;s/>.*//;s/"//g;s/name=\S*//;s/^\s*/TEST_SUMMARY: /;p;};' nosetests.xml
-	int tests = 1;
-	int errors = 0;
-	int failures = 0;
-	int skipped = 0;
-	int pos = output.Find("TEST_SUMMARY: ");
-	if (pos >= 0){
-		try {
-			CParser p(output.Begin()+pos+14);
-			String id;
-			while(!p.IsEof()){
-				if(p.IsId()) {
-					id = p.ReadId();
-					if(!p.Char('='))
-						break;
-				} else
-					break;
-				if(id=="tests") {
-					tests = p.ReadInt();
-				} else if(id=="errors") {
-					errors = p.ReadInt(0, tests);
-				} else if(id=="failures") {
-					failures = p.ReadInt(0, tests);
-				} else if(id=="skip") {
-					skipped = p.ReadInt(0, tests);
-				} else
-					break;
-			}
-		} catch (...) {
-			RLOG("Failed to parse TEST_SUMMARY");
-			tests=1;
-			errors = failures = skipped = 0;
-		}
-	}
+	int ok = Nvl(http.Int("ok"), 1);
+	int errors = Nvl(http.Int("errors"), 0);
+	int failures = Nvl(http.Int("failures"), 0);
+	int skipped = Nvl(http.Int("skipped"), 0);
 	
 	Result result;
 	result("CMT_UID", commit)
 	      ("CLIENT_ID", cid)
 	      ("STATUS", WD_DONE)
 	      ("FINISHED", end)
-	      ("OK", tests - (errors + failures + skipped))
+	      ("OK", ok)
 	      ("ERR", errors)
 	      ("FAIL", failures)
 	      ("SKIP", skipped);
@@ -130,7 +97,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      .Where(CMT_UID==commit && CLIENT_ID == cid);
 	ValueMap data;
 	SQLR.Fetch(data);
-	data.Add("STATUSSTR", ComputeStatus(WD_DONE, tests - (errors + failures + skipped), failures, errors));
+	data.Add("STATUSSTR", ComputeStatus(WD_DONE, ok, failures, errors));
 	http("DATA", data)("SELF", String(Ini::server_url));
 	String html = http.RenderString("templates/resultmail");
 	http("PLAIN",1);

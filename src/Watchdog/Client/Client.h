@@ -22,6 +22,7 @@ struct WatchdogClient {
 	String cfg;
 	Time start;
 	Time end;
+	int ok, errors, failures, skipped;
 	
 	void Usage(int exitcode = 0) const;
 	void CheckParamCount(const Vector<String>& cmd, int current, int count) const;
@@ -34,8 +35,8 @@ struct WatchdogClient {
 	virtual void Execute(const Vector<String>& cmd);
 	
 	virtual bool GetWork();
-	virtual bool AcceptWork(const String& commit, Time start=Null);
-	virtual bool SubmitWork(const String& commit, const String& output, Time start=Null, Time end=Null);
+	virtual bool AcceptWork(const String& commit);
+	virtual bool SubmitWork(const String& commit, const String& output);
 	virtual bool Run(String command);
 	
 	WatchdogClient();

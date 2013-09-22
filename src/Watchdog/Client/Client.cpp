@@ -53,7 +53,7 @@ bool WatchdogClient::GetWork(){
 	return true;
 }
 
-bool WatchdogClient::AcceptWork(const String& commit, Time start){
+bool WatchdogClient::AcceptWork(const String& commit){
 	if (IsEmpty(commit)){
 		Cerr() << "ERROR: Wrong value of <commit>\n";
 		return false;
@@ -88,7 +88,7 @@ bool WatchdogClient::AcceptWork(const String& commit, Time start){
 	return true;
 }
 
-bool WatchdogClient::SubmitWork(const String& commit, const String& output, Time start, Time end){
+bool WatchdogClient::SubmitWork(const String& commit, const String& output){
 	if (IsEmpty(commit)){
 		Cerr() << "ERROR: Wrong value of <commit>\n";
 		return false;
@@ -108,12 +108,18 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output, Time
 	
 	req.Post("commit", commit);
 	req.Post("output", output);
-	if(!IsNull(start)){
+	if(!IsNull(start))
 		req.Post("start", IntStr64(start.Get()));
-	}
-	if(!IsNull(end)){
+	if(!IsNull(end))
 		req.Post("end", IntStr64(end.Get()));
-	}
+	if(!IsNull(ok))
+		req.Post("ok", IntStr(ok));
+	if(!IsNull(errors))
+		req.Post("errors", IntStr(errors));
+	if(!IsNull(failures))
+		req.Post("failures", IntStr(failures));
+	if(!IsNull(skipped))
+		req.Post("skipped", IntStr(skipped));
 	req.Execute();
 	if(lock && FileExists(String(Ini::lock_file))){
 		DeleteFile(String(Ini::lock_file));
@@ -150,15 +156,38 @@ bool WatchdogClient::Run(String command){
 	if(Ini::log_level > 0) 
 		Cout() << "Executing command '" << command << "'\n";
 	String output;
-	Time start = GetSysTime();
+	start = GetSysTime();
 	int result = Sys(command, output);
-	Time end = GetSysTime();
+	end = GetSysTime();
 	
-	if(Ini::log_level > 0) 
+	if(Ini::log_level > 0) {
 		Cout() << "Execution finished after " << (end-start) << " seconds with exit code '" << result << "'\n";
-	
+		Cout() << "Parsing command output\n";
+	}
+	int pos = output.Find("\n@");
+	while (pos >= 0) {
+		String id;
+		const char* c = output.Begin() + pos + 2;
+		for (; *c != '=' && *c != '\n' && *c != 0; ++c)
+			id.Cat(*c);
+		if(id == "ok") {
+			ok = max(ScanInt(++c), 0);
+		} else if(id == "errors") {
+			errors = max(ScanInt(++c), 0);
+		} else if(id == "failures") {
+			failures = max(ScanInt(++c), 0);
+		} else if(id == "skipped") {
+			skipped = max(ScanInt(++c), 0);
+		} else {
+			pos = output.Find("\n@", pos + 2);
+			continue;
+		}
+		int endpos = output.Find('\n', pos + 2);
+		output.Remove(pos, endpos - pos);
+		pos = output.Find("\n@", pos);
+	}
 	// send the results
-	return SubmitWork(commit, output, start, end);
+	return SubmitWork(commit, output);
 }
 
 void WatchdogClient::CheckParamCount(const Vector<String>& cmd, int current, int count) const {
@@ -214,6 +243,18 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 	} else if(cmd[i] == "--end" || cmd[i] == "-E") {
 		CheckParamCount(cmd, i, 1);
 		end = ScanTime(cmd[++i]);
+	} else if(cmd[i] == "--ok" || cmd[i] == "-O") {
+		CheckParamCount(cmd, i, 1);
+		ok = StrInt(cmd[++i]);
+	} else if(cmd[i] == "--errors" || cmd[i] == "-R") {
+		CheckParamCount(cmd, i, 1);
+		errors = StrInt(cmd[++i]);
+	} else if(cmd[i] == "--failures" || cmd[i] == "-F") {
+		CheckParamCount(cmd, i, 1);
+		failures = StrInt(cmd[++i]);
+	} else if(cmd[i] == "--skipped" || cmd[i] == "-K") {
+		CheckParamCount(cmd, i, 1);
+		skipped = StrInt(cmd[++i]);
 	} else {
 		Cerr() << "ERROR: Unknown argument '" << cmd[i] << "'\n\n";
 		Usage(3);
@@ -238,9 +279,9 @@ bool WatchdogClient::ProcessAction(){
 		}
 		return true;
 	case 'a':
-		return AcceptWork(commit, start);
+		return AcceptWork(commit);
 	case 's':
-		return SubmitWork(commit, LoadFile(output), start, end);
+		return SubmitWork(commit, LoadFile(output));
 	case 'r':
 		return Run(command);
 	default:
@@ -287,7 +328,8 @@ void WatchdogClient::Usage(int exitcode) const {
 	Exit(exitcode);
 }
 
-WatchdogClient::WatchdogClient() : lock(true), action(0) {
+WatchdogClient::WatchdogClient() : lock(true), action(0), 
+		ok(Null), errors(Null), failures(Null), skipped(Null) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
 	actions.Add() = "\t-g --get\n"
@@ -306,6 +348,12 @@ WatchdogClient::WatchdogClient() : lock(true), action(0) {
 	options.Add() = "\t-L --nolock\n"
 		"\t\tDo not use locking (default is to lock before --accept\n"
 		"\t\tand unlock after --submit)\n";
+	options.Add() = "\t-O --ok <count>\n"
+	                "\t-R --errors <count>\n"
+	                "\t-F --failures <count>\n"
+	                "\t-K --skipped <count>\n"
+		"\t\tNumber of tests for each status. Ok defaults to 1, others to 0.\n"
+		"\t\tOnly honoured with --submit\n";
 	options.Add() = "\t-S --start <time>\n"
 		"\t\tStart date given in \"YYYY/MM/DD hh:mm:ss\" format, only \n"
 		"\t\thonoured with --accept or --submit\n";
