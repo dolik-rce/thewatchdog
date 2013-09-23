@@ -38,6 +38,7 @@ namespace Upp{ namespace Ini {
 void Watchdog::WorkThread()
 {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
+	sql.ResetSession();
 	
 	OpenDB();
 	RunThread();
@@ -91,14 +92,21 @@ void Watchdog::SaveSchema(){
 }
 
 void Watchdog::UpdateDB(){
+	RLOG("Checking for database updates");
 	OpenDB();
 	SqlSchema sch(sql.GetDialect());
+	All_Tables(sch, sql.GetDialect());
 	String schdir=AppendFileName(Ini::db_scripts_dir, sql.DialectToString());
-	if(sch.ScriptChanged(SqlSchema::UPGRADE, schdir))
+	if(sch.ScriptChanged(SqlSchema::UPGRADE, schdir)){
+		RLOG("\tUpgrading schema");
 		SqlPerformScript(sch.Upgrade());
-	if(sch.ScriptChanged(SqlSchema::ATTRIBUTES, schdir))
+	}
+	if(sch.ScriptChanged(SqlSchema::ATTRIBUTES, schdir)){
+		RLOG("\tUpgrading indices");
 		SqlPerformScript(sch.Attributes());
+	}
 	if(sch.ScriptChanged(SqlSchema::CONFIG, schdir)) {
+		RLOG("\tUpgrading config");
 		SqlPerformScript(sch.ConfigDrop());
 		SqlPerformScript(sch.Config());
 	}
@@ -128,8 +136,8 @@ Watchdog::Watchdog() {
 	// dialect plugin must be initialized while still in single thread mode
 	sql.SetLibraryPath(Ini::dsql_plugin_path);
 	sql.SetDialect(DynamicSqlSession::StringToDialect((String)Ini::db_backend));
+	UpdateDB();
 	SaveSchema();
-	//UpdateDB();
 }
 
 #ifdef flagMAIN
