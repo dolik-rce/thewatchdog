@@ -1,4 +1,5 @@
 FN(void*, GetSession, ())
+FN(void*, ResetSession, ())
 FN(bool, Open, (const char*))
 FN(void, Close, ())
 

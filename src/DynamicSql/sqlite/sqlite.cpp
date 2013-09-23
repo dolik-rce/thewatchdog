@@ -2,12 +2,23 @@
 
 using namespace Upp;
 
+One<Sqlite3Session>& gSession(){
+	static One<Sqlite3Session> session;
+	return session;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 void* GetSession(){
-	static Sqlite3Session session;
-	return &session;
+	One<Sqlite3Session>& s = gSession();
+	if(s.IsEmpty())
+		s.Create();
+	return ~s;
+}
+
+void* ResetSession(){
+	return &(gSession().Create());
 }
 
 bool Open(const char* filename){
