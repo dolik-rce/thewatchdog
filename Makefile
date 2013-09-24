@@ -76,7 +76,7 @@ uppsrc/uppconfig.h: $(UPPTAR)
 	$(GETUPPDEPFILE)
 
 update-uppsrc: $(CLIENT_DEPS) $(SERVER_DEPS) $(DSQL_SQLITE_DEPS) $(DSQL_MYSQL_DEPS)
-	$(USESVN) || (echo "ERROR: 'update-uppsrc' goal should be only used when USESVN=true" && exit 1)
+	@$(USESVN) || (echo "ERROR: 'update-uppsrc' goal should be only used when USESVN=true" && exit 1)
 	for d in $^; do \
 	  [ -d "$$d" ] && svn up "$$d" || svn export --force "$(UPPSVN)/$$d" "$$d"; \
 	done;
