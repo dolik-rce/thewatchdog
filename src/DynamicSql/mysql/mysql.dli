@@ -1,5 +1,4 @@
 FN(void*, GetSession, ())
-FN(void*, ResetSession, ())
 FN(bool, Connect, (const char *user, const char *, const char *, const char *, int, const char *))
 FN(void, AutoReconnect, ())
 FN(void, Close, ())
