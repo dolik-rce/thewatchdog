@@ -1,7 +1,6 @@
 #include "Watchdog.h"
 
 void ProcessIniFile(const String& fn){
-	RLOG("Loading configuration from file '" << fn << "'");
 	String ini = LoadFile(fn);
 	ini = ReplaceVars(ini, Environment());
 	String tmp = GetTempFileName(GetFileName(fn));

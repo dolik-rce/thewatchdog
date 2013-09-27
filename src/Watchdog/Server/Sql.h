@@ -10,6 +10,7 @@ SqlStatement InsertIgnore(const SqlInsert& insert);
 bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update);
 SqlBool Regexp(const SqlVal& a, const SqlVal& b);
 SqlVal SqlEmptyString();
+SqlVal DateSub(const SqlVal& date, const SqlVal& interval);
 SqlVal SqlInterval(const SqlVal& count, const String& unit);
 SqlVal TimeDiff(const SqlVal& a, const SqlVal& b);
 String SqlEscape(const Value& in);

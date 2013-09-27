@@ -38,7 +38,6 @@ namespace Upp{ namespace Ini {
 void Watchdog::WorkThread()
 {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
-	sql.ResetSession();
 	
 	OpenDB();
 	RunThread();

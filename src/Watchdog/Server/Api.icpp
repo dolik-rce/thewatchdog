@@ -12,7 +12,7 @@ SKYLARK(GetWork, "api/getwork/*")
 	       .Where((IsNull(STATUS)) 
 	              && Regexp(PATH, SRC)
 	              && Regexp(BRANCH, BRANCHES)
-	              && DT >= SqlFunc("date_sub", SqlSet(GetSysDate()).Cat(SqlInterval(MAX_AGE,"DAY"))))
+	              && DT >= DateSub(GetSysDate(), SqlInterval(MAX_AGE, "DAY")))
 	       .OrderBy(DT);
 	while(SQLR.Fetch())
 		http << SQLR[0] << ",";

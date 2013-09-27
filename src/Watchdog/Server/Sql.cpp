@@ -36,8 +36,30 @@ SqlVal SqlEmptyString(){
 	return s;
 }
 
+SqlVal DateSub(const SqlVal& date, const SqlVal& interval) {
+	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
+	switch(dialect) {
+	case SQLITE3:
+		return SqlFunc("datetime", SqlSet(date, "-" + ~interval));
+	case MY_SQL:
+		return SqlFunc("date_sub", SqlSet(date, interval));
+	default:
+		NEVER_("DateSub not implemented for this dialect");
+		return SqlVal();
+	}
+}
+
 SqlVal SqlInterval(const SqlVal& count, const String& unit) {
-	return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
+	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
+	switch(dialect) {
+	case SQLITE3:
+		return SqlTxt("interval " + ~count + " " + unit);
+	case MY_SQL:
+		return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
+	default:
+		NEVER_("SqlInterval not implemented for this dialect");
+		return SqlVal();
+	}
 }
 
 SqlVal TimeDiff(const SqlVal& a, const SqlVal& b) {
