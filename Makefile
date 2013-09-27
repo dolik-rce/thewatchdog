@@ -24,7 +24,7 @@ DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
 DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
 
 MAKE_WD=$(MAKE) -f src/mkfile NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
-MAKE_DSQL=$(MAKE_WD) LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="$(CXX) -fPIC" CC="$(CC) -fPIC"
+MAKE_DSQL=$(MAKE_WD) LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="$(CXX) -fPIC --std=c++11" CC="$(CC) -fPIC"
 
 
 all: $(BIN)/wds $(BIN)/wdc $(BIN)/wda $(DSQL_LIBS)

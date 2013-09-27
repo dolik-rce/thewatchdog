@@ -6,7 +6,8 @@ using namespace Upp;
 extern "C" {
 #endif
 void* GetSession(){
-	static Sqlite3Session session;
+	// thread_local requires C++11
+	static thread_local Sqlite3Session session;
 	return &session;
 }
 

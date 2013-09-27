@@ -6,7 +6,8 @@ using namespace Upp;
 extern "C" {
 #endif
 void* GetSession(){
-	static MySqlSession session;
+	// thread_local requires C++11
+	static thread_local MySqlSession session;
 	return &session;
 }
 
