@@ -2,23 +2,12 @@
 
 using namespace Upp;
 
-One<MySqlSession>& gSession(){
-	static One<MySqlSession> session;
-	return session;
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 void* GetSession(){
-	One<MySqlSession>& s = gSession();
-	if(s.IsEmpty())
-		s.Create();
-	return ~s;
-}
-
-void* ResetSession(){
-	return &(gSession().Create());
+	static MySqlSession session;
+	return &session;
 }
 
 bool Connect(const char *user, const char *password, const char *database,

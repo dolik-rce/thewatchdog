@@ -71,16 +71,6 @@ public:
 		return *(SqlSession*)session;
 	}
 	
-	SqlSession& ResetSession() const{
-		void *session;
-		switch(dialect) {
-			case MY_SQL: session = mysql.ResetSession(); break;
-			case SQLITE3: session = sqlite.ResetSession(); break;
-		}
-		ASSERT(session!=NULL);
-		return *(SqlSession*)session;
-	}
-	
 	MySqlSession& GetMySqlSession(){
 		ASSERT(dialect == MY_SQL);
 		return *((MySqlSession*)&GetSession());
