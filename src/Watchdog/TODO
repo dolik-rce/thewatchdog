@@ -1,14 +1,12 @@
 SERVER
 ------
 Descriptive message on auth screen
-Generalize test/error/fail/skip count format in output files
 Versioning of schema and exports
 Finish import/export capabilities
 On-line editable configuration
 Client-server communication in json (?)
-Support multiple SQL dialects (remains: sessions in sql, updateDB on startup)
 Extend graphing, link graphs from more places
-Setup helper (create tables on first run, create admin user, get svn history)
+Setup helper (create admin user, import historical repo data)
 Nicer icons, real css styling
 
 
@@ -20,6 +18,6 @@ Publish some usage examples
 
 GENERAL
 -------
-Write tests
+Write more tests
 Update documentation
 Add and document the surrounding scripts (XUnit parser, fakesvn, ...)
