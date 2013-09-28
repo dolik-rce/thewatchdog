@@ -14,14 +14,17 @@ fails=0
 errors=0
 
 sql() {
+    [ "$1" = "-q" ] && OUT="/dev/null" && shift || OUT="/dev/stdout"
     echo "SQL: $1" >> "$TEST_TMP/sql.log"
-    echo "$1" | sqlite3 "$TEST_TMP/watchdog.db" >> "$TEST_TMP/sql.log"
+    echo "$1" | sqlite3 "$TEST_TMP/watchdog.db" | tee -a "$TEST_TMP/sql.log" >> "$OUT"
 }
 
 test_result() {
     if [ $1 -ne 0 ]; then
         errors=$(( $errors + 1 ))
-        echo "ERROR"
+        echo "ERROR (exit code $1)"
+        echo "OUTPUT:"
+        echo "$2"
     else
         if [ "$2" != "$3" ]; then
             fails=$(( $fails + 1 ))
@@ -63,7 +66,7 @@ until netstat -ntl | grep -q ":8042"; do
 done
 echo "OK"
 
-sql "insert into CLIENT (ID, NAME, PASSWORD, DESCR, SRC, SALT, BRANCHES) VALUES 
+sql -q "insert into CLIENT (ID, NAME, PASSWORD, DESCR, SRC, SALT, BRANCHES) VALUES
   (0, 'admin', 'a1e2d68814ed9b1df3d7fe7bc3a243a2', 'Administrator account', '', 'QWER', '.*'),
   (1, 'Test1', '516dc66aa87480f104c3bcfd1c0d6f05', 'Test client', '.*', '3glx', '.*');"
 
@@ -87,5 +90,13 @@ test_result $? "$RES" "TestBranch	$DATE"
 echo "Testing wdc --get"
 RES="$(bin/wdc -C "$TEST_ROOT/wdc.cfg" --get)"
 test_result $? "$RES" "TestCommit1"
+
+echo "Testing import script"
+RES="$(scripts/git/import.sh | bin/wda -C "$TEST_ROOT/wda.cfg" --update)"
+test_result $? "$RES" ""
+
+echo "Checking results of import script"
+RES="$(sql "select count(*) from COMMITS;")"
+test_result $? "$([ $RES -gt 1 ]; echo $?)" "0"
 
 test_end
