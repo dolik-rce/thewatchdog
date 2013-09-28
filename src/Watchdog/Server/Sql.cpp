@@ -40,7 +40,7 @@ SqlVal DateSub(const SqlVal& date, const SqlVal& interval) {
 	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
 	switch(dialect) {
 	case SQLITE3:
-		return SqlFunc("datetime", SqlSet(date, "-" + ~interval));
+		return SqlFunc("datetime", SqlSet(date, SqlVal("'-'||" + ~interval, SqlS::HIGH)));
 	case MY_SQL:
 		return SqlFunc("date_sub", SqlSet(date, interval));
 	default:
@@ -53,7 +53,7 @@ SqlVal SqlInterval(const SqlVal& count, const String& unit) {
 	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
 	switch(dialect) {
 	case SQLITE3:
-		return SqlTxt("interval " + ~count + " " + unit);
+		return SqlVal(~count + "||" + ("' " + unit+"'"), SqlS::HIGH);
 	case MY_SQL:
 		return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
 	default:
