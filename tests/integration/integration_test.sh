@@ -9,15 +9,28 @@ mkdir -p "$TEST_TMP"
 
 make bin/wds bin/wdc bin/wda lib/sqlite.so CXX="g++ -ggdb3 -O0" FLAGS="GCC DEBUG"
 
-total=3
+total=$(grep -c "test_result[^([]" $0)
 fails=0
 errors=0
+
+sql() {
+    echo "SQL: $1" >> "$TEST_TMP/sql.log"
+    echo "$1" | sqlite3 "$TEST_TMP/watchdog.db" >> "$TEST_TMP/sql.log"
+}
 
 test_result() {
     if [ $1 -ne 0 ]; then
         errors=$(( $errors + 1 ))
+        echo "ERROR"
     else
-        [ "$2" = "$3" ] || fails=$(( $fails + 1 ))
+        if [ "$2" != "$3" ]; then
+            fails=$(( $fails + 1 ))
+            echo "FAILED"
+            echo "ACTUAL: $2"
+            echo "EXPECTED: $3"
+        else
+            echo "OK"
+        fi
     fi
 }
 
@@ -38,25 +51,41 @@ test_end() {
     exit $1
 }
 
+echo "Starting wds"
 bin/wds "$TEST_ROOT/wds.cfg" &
 WDS_PID=$!
 
 lim=""
 until netstat -ntl | grep -q ":8042"; do
-    [ "$lim" = "xxxxx" ] && errors=$(( errors + 1 )) && test_end 1
+    [ "$lim" = "xxxxx" ] && test_result 1 && test_end 1
     lim="x$lim"
     sleep 1
 done
+echo "OK"
 
-echo "insert into CLIENT (ID, NAME, PASSWORD, DESCR, SRC, SALT) VALUES 
-  (0, 'admin', 'a1e2d68814ed9b1df3d7fe7bc3a243a2', 'Administrator account', '', 'QWER'),
-  (1, 'Test1', '516dc66aa87480f104c3bcfd1c0d6f05', 'Test client', '.*', '3glx');
-" | sqlite3 "$TEST_TMP/watchdog.db"
+sql "insert into CLIENT (ID, NAME, PASSWORD, DESCR, SRC, SALT, BRANCHES) VALUES 
+  (0, 'admin', 'a1e2d68814ed9b1df3d7fe7bc3a243a2', 'Administrator account', '', 'QWER', '.*'),
+  (1, 'Test1', '516dc66aa87480f104c3bcfd1c0d6f05', 'Test client', '.*', '3glx', '.*');"
 
+echo "Testing wdc --get"
 RES="$(bin/wdc -C "$TEST_ROOT/wdc.cfg" --get)"
 test_result $? "$RES" "Nothing to do."
 
+echo "Testing wda --clean"
 RES="$(bin/wda -C "$TEST_ROOT/wda.cfg" --clean)"
 test_result $? "$RES" "Instructing server to clean up ..."
+
+echo "Testing wda --update"
+DATE="$(date '+%Y/%m/%d %H:%M:%S')"
+RES="$(/bin/echo -e "TestCommit1\tTestBranch\tCommit 1\tTester\t$DATE\tTest commit 1\tCommit msg\t" | bin/wda -C "$TEST_ROOT/wda.cfg" --update)"
+test_result $? "$RES" ""
+
+echo "Testing wda --state"
+RES="$(bin/wda -C "$TEST_ROOT/wda.cfg" --state)"
+test_result $? "$RES" "TestBranch	$DATE"
+
+echo "Testing wdc --get"
+RES="$(bin/wdc -C "$TEST_ROOT/wdc.cfg" --get)"
+test_result $? "$RES" "TestCommit1"
 
 test_end
