@@ -53,7 +53,7 @@ SqlVal SqlInterval(const SqlVal& count, const String& unit) {
 	int dialect = (*(Watchdog*)(&SkylarkApp::TheApp())).sql.GetDialect();
 	switch(dialect) {
 	case SQLITE3:
-		return SqlVal(~count + "||" + ("' " + unit+"'"), SqlS::HIGH);
+		return SqlVal(~count + "||" + ("' " + unit + "'"), SqlS::HIGH);
 	case MY_SQL:
 		return SqlVal("interval " + ~count + " " + unit, SqlS::HIGH);
 	default:
