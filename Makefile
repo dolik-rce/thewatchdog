@@ -12,6 +12,7 @@ UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
 UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
 UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
 USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
+CPP_STD:=c++98
 
 # dependencies
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
@@ -23,8 +24,8 @@ DSQL_LIBS:=$(foreach d,$(DSQL), $(LIB)/$d.so)
 DSQL_MYSQL_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/MySql
 DSQL_SQLITE_DEPS:=$(COMMON_DEPS) uppsrc/Sql uppsrc/plugin/sqlite3
 
-MAKE_WD=$(MAKE) -f src/mkfile NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" $(JOBS) TARGET=$@
-MAKE_DSQL=$(MAKE_WD) LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="$(CXX) -fPIC --std=c++11" CC="$(CC) -fPIC"
+MAKE_WD=$(MAKE) -f src/mkfile NESTS="src uppsrc" OUT=$(OBJ) BIN=$(BIN) COLOR=0 SHELL=bash FLAGS="GCC SSE2 MT" CXX="$(CXX) --std=$(CPP_STD)" $(JOBS) TARGET=$@
+MAKE_DSQL=$(MAKE_WD) LDFLAGS="-shared -Wl,-O,2 -Wl,--gc-sections -u GetSession" CXX="$(CXX) -fPIC --std=$(CPP_STD)" CC="$(CC) -fPIC"
 
 
 all: $(BIN)/wds $(BIN)/wdc $(BIN)/wda $(DSQL_LIBS)
