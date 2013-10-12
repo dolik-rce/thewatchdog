@@ -11,9 +11,9 @@
  <th rowspan=2>Results</th>
  <th rowspan=2>Author</th>
  <th rowspan=2>Date</th>
- <th>Log message</th>
+ <th class="odd">Log message</th>
 </tr><tr>
- <th>Path</th>
+ <th class="even">Path</th>
 </tr>
 $for(i in COMMITS)
     <tr>
@@ -33,9 +33,9 @@ $for(i in COMMITS)
       </td>
       <td rowspan=2>$i.AUTHOR</td>
       <td rowspan=2>$i.DT</td>
-      <td>$i.MSG</td>
+      <td class="odd">$i.MSG</td>
     </tr><tr>
-      <td>$i.PATH&nbsp;</td>
+      <td class="even">$i.PATH&nbsp;</td>
     </tr>    
 $/
 </table>

@@ -19,6 +19,8 @@ ul.menu { list-style-type: none; padding-left:0; }
 .error {background-color: #BBB;}
 .passsed {background-color: #8F8;}
 .skip {background-color: #FF8;}
+.odd {background-color: #E5E5FF;}
+.even {background-color: #FFF;}
 .trans {
     overflow: hidden;
     -moz-transition: all 1s ease-in-out;
