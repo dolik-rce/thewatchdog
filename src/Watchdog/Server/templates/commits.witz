@@ -27,7 +27,7 @@ $for(i in COMMITS)
       <td rowspan=2 class="centered">
       $if(i.RUNNING>0)<span title="In progress" class="inprogress">$i.RUNNING</span>$endif
       $if(i.FAIL>0)<span title="Failed" class="fail">$i.FAIL</span>$endif
-      $if(i.ERROR>0)<span title="Error" class="error">$i.ERROR</span>$endif
+      $if(i.ERR>0)<span title="Error" class="error">$i.ERR</span>$endif
       $if(i.SUCCESS>0)<span title="Succeeded" class="passed">$i.SUCCESS</span>$endif
       $if(i.SKIP>0)<span title="Skipped" class="skip">$i.SKIP</span>$endif
       </td>
