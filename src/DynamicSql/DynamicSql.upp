@@ -8,5 +8,6 @@ file
 	sch_header.h,
 	sch_schema.h,
 	sch_source.h,
+	Common.h,
 	macro.usc;
 

@@ -1,3 +1,4 @@
+#include <DynamicSql/Common.h>
 #include <plugin/sqlite3/Sqlite3.h>
 
 using namespace Upp;
@@ -6,9 +7,13 @@ using namespace Upp;
 extern "C" {
 #endif
 void* GetSession(){
+#if __cplusplus >= 201103L
 	// thread_local requires C++11
 	static thread_local Sqlite3Session session;
 	return &session;
+#else
+	return GetTLSession<Sqlite3Session>();
+#endif
 }
 
 bool Open(const char* filename){

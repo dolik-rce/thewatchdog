@@ -1,3 +1,4 @@
+#include <DynamicSql/Common.h>
 #include <MySql/MySql.h>
 
 using namespace Upp;
@@ -6,9 +7,13 @@ using namespace Upp;
 extern "C" {
 #endif
 void* GetSession(){
+#if __cplusplus >= 201103L
 	// thread_local requires C++11
 	static thread_local MySqlSession session;
 	return &session;
+#else
+	return GetTLSession<MySqlSession>();
+#endif
 }
 
 bool Connect(const char *user, const char *password, const char *database,
