@@ -24,7 +24,7 @@ struct Client : public Entity<Client>, public Moveable<Client> {
 	static ValueMap LoadAll();
 	static void Delete(int id);
 	static void UpdateActivity(int id, bool work = false);
-	void Save();
+	void Save(int force_id = -1);
 };
 
 struct Commit : public Entity<Commit>, public Moveable<Commit> {

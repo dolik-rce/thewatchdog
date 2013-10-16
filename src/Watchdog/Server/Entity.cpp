@@ -64,11 +64,15 @@ void Client::UpdateActivity(int id, bool work) {
 }
 
 
-void Client::Save() {
+void Client::Save(int force_id) {
 	if(IsNull(data["ID"])) {
-		int n = data.GetKeys().Find("ID");
-		if(n>=0)
-			data.Remove(n);
+		if(force_id >= 0) {
+			data.Set("ID", force_id);
+		} else {
+			int n = data.GetKeys().Find("ID");
+			if(n>=0)
+				data.Remove(n);
+		}
 		SQL * Insert(CLIENT)(data);
 	} else {
 		SQL * Update(CLIENT)(data).Where(ID == data["ID"]);

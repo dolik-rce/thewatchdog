@@ -152,7 +152,7 @@ void Watchdog::SetAdmin(){
 	Cout().Flush();
 	admin("PASSWORD", MD5String(String(salt) + ReadStdIn()));
 	
-	admin.Save();
+	admin.Save(0);
 }
 
 Watchdog::Watchdog() {
