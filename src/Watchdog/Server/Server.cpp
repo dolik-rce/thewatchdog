@@ -92,7 +92,6 @@ void Watchdog::SaveSchema(){
 
 void Watchdog::UpdateDB(){
 	RLOG("Checking for database updates");
-	OpenDB();
 	SqlSchema sch(sql.GetDialect());
 	All_Tables(sch, sql.GetDialect());
 	String schdir=AppendFileName(Ini::db_scripts_dir, sql.DialectToString());
@@ -109,7 +108,6 @@ void Watchdog::UpdateDB(){
 		SqlPerformScript(sch.ConfigDrop());
 		SqlPerformScript(sch.Config());
 	}
-	CloseDB();
 }
 
 void Watchdog::CloseDB(){
@@ -126,6 +124,36 @@ void Watchdog::CloseDB(){
 	}
 }
 
+void Watchdog::SetAdmin(){
+	String salt = FormatIntBase(Random()+1679616, 36).Right(4);
+	
+	Client admin;
+	bool exists = admin.Load(0);
+	if(!exists)
+		SQLR.Cancel(); // Crashes when closing DB if we don't call Cancel... WTF?
+	admin("SALT", String(salt));
+	if (!exists)
+		admin("NAME", "Admin");
+	Cout() << "Enter name of the administrator account [defaults to '" << admin["NAME"] << "']: ";
+	Cout().Flush();
+	String ans = ReadStdIn();
+	if(!ans.IsEmpty())
+		admin("NAME", ans);
+	
+	if (!exists)
+		admin("DESCR", "Administrator account");
+	Cout() << "Enter description of the administrator account [defaults to '" << admin["DESCR"] << "']: ";
+	Cout().Flush();
+	ans = ReadStdIn();
+	if(!ans.IsEmpty())
+		admin("DESCR", ans);
+	
+	Cout() << "Enter new administrator password: ";
+	Cout().Flush();
+	admin("PASSWORD", MD5String(String(salt) + ReadStdIn()));
+	
+	admin.Save();
+}
 
 Watchdog::Watchdog() {
 	root = "";
@@ -135,8 +163,6 @@ Watchdog::Watchdog() {
 	// dialect plugin must be initialized while still in single thread mode
 	sql.SetLibraryPath(Ini::dsql_plugin_path);
 	sql.SetDialect(DynamicSqlSession::StringToDialect((String)Ini::db_backend));
-	UpdateDB();
-	SaveSchema();
 }
 
 #ifdef flagMAIN
@@ -147,6 +173,19 @@ CONSOLE_APP_MAIN {
 	
 	const Vector<String>& cmd=CommandLine();
 	LoadConfiguration(cmd.GetCount()?cmd[0]:"");
+	
+	Watchdog wd;
+	wd.OpenDB();
+	wd.UpdateDB();
+	wd.SaveSchema();
+	
+	if(cmd.GetCount() > 1 && cmd[1] == "--set-admin") {
+		wd.SetAdmin();
+		wd.CloseDB();
+		return;
+	}
+	
+	wd.CloseDB();
 	
 	StdLogSetup(LOG_FILE
 	           |LOG_TIMESTAMP
@@ -159,7 +198,7 @@ CONSOLE_APP_MAIN {
 	RLOG(GetIniInfoFormatted());
 	RDUMPM(Environment());
 	
-	Watchdog().Run();
+	wd.Run();
 }
 
 #endif

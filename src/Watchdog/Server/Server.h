@@ -55,6 +55,8 @@ struct Watchdog : SkylarkApp {
 	void UpdateDB();
 	void CloseDB();
 	
+	void SetAdmin();
+	
 	Watchdog();
 };
 
