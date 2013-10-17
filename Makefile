@@ -6,13 +6,16 @@ BIN:=bin
 LIB:=lib
 TMP:=.
 DSQL:=mysql sqlite
-UPPVER:=$(shell wget -O- 'http://www.ultimatepp.org/downloads/' | sed -n 's/.*upp-x11-src-\([0-9]*\)[.]tar[.]gz.*/\1/p' | tail -n 1)
-UPPFILE:=upp-x11-src-$(UPPVER)
-UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
-UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
-UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
-USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
 CPP_STD:=c++98
+USESVN:=$(shell which svn &> /dev/null && echo "true" || echo "false")
+ifeq ($(USESVN),true)
+  UPPSVN:=http://upp-mirror.googlecode.com/svn/trunk
+else
+  UPPVER:=$(shell wget -O- 'http://www.ultimatepp.org/downloads/' | sed -n 's/.*upp-x11-src-\([0-9]*\)[.]tar[.]gz.*/\1/p' | tail -n 1)
+  UPPFILE:=upp-x11-src-$(UPPVER)
+  UPPTAR:=$(TMP)/$(UPPFILE).tar.gz
+  UPPSRC:=http://ultimatepp.org/downloads/$(UPPTAR)
+endif
 
 # dependencies
 COMMON_DEPS:=uppsrc/Core uppsrc/plugin/z uppsrc/uppconfig.h
