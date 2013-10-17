@@ -174,6 +174,16 @@ CONSOLE_APP_MAIN {
 	const Vector<String>& cmd=CommandLine();
 	LoadConfiguration(cmd.GetCount()?cmd[0]:"");
 	
+	StdLogSetup(LOG_FILE
+	           |LOG_TIMESTAMP
+	           |LOG_APPEND
+	           |(Ini::log_stderr?LOG_CERR:0),
+	           (String)Ini::log_file);
+	Smtp::Trace(Ini::log_level == 2);
+	
+	RLOG(GetIniInfoFormatted());
+	RDUMPM(Environment());
+	
 	Watchdog wd;
 	wd.OpenDB();
 	wd.UpdateDB();
@@ -187,16 +197,7 @@ CONSOLE_APP_MAIN {
 	
 	wd.CloseDB();
 	
-	StdLogSetup(LOG_FILE
-	           |LOG_TIMESTAMP
-	           |LOG_APPEND
-	           |(Ini::log_stderr?LOG_CERR:0),
-	           (String)Ini::log_file);
-	Smtp::Trace(Ini::log_level == 2);
-	
 	RLOG(" === STARTING WATCHDOG === ");
-	RLOG(GetIniInfoFormatted());
-	RDUMPM(Environment());
 	
 	wd.Run();
 }
