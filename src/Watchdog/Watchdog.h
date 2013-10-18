@@ -4,8 +4,6 @@
 #include <Core/Core.h>
 using namespace Upp;
 
-String ReplaceVars(const String& src, const VectorMap<String, String>& vars);
-void ProcessIniFile(const String& fn);
 void LoadConfiguration(const String& fn);
 
 #ifdef _DEBUG
