@@ -52,3 +52,5 @@ $for(i in PASS)
   <input type="hidden" name="$i._key" value="$i">
 $/
 </form>
+<br><hr><br>
+<a href=$EditClient(0)>Configure administrator account ...</a>

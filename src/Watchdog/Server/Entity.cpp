@@ -63,7 +63,6 @@ void Client::UpdateActivity(int id, bool work) {
 	SQL * update(LAST_ACTIVITY, t).Where(ID==id);
 }
 
-
 void Client::Save(int force_id) {
 	if(IsNull(data["ID"])) {
 		if(force_id >= 0) {

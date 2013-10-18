@@ -23,17 +23,19 @@ function togglePwd(b){
 <form action="/auth/saveclient" method="POST" onsubmit="updateForm()">
 <table>
 <tr><td>Name:</td><td><input type="text" name="wd_name" value="$CLIENT.NAME"></td></tr>
-$if(CLIENT.ID > 0)
+$if(CLIENT.ID >= 0)
   <tr><td>Change password:</td><td><input type="checkbox" name="wd_changepwd" onchange="togglePwd(this)"></td></tr>
 <tr><td>New password:</td><td><input id="pwd" type="password" disabled></td></tr>
 $else
 <tr><td>Password:</td><td><input id="pwd" type="password"></td></tr>
 $/
 <tr><td>Description:</td><td><input type="text" name="wd_description" value="$CLIENT.DESCR"></td></tr>
-<tr><td>Followed path:</td><td><input type="text" name="wd_path" value="$CLIENT.SRC"></td></tr>
-<tr><td>Followed branches:</td><td><input type="text" name="wd_branches" value="$CLIENT.BRANCHES"></td></tr>
-<tr><td>Maximum commit age:</td><td><input type="text" name="wd_max_age" value="$CLIENT.MAX_AGE"></td></tr>
-<tr><td>&nbsp;</td><td><input type="submit" value="$if(CLIENT.ID > 0) Save $else Add $/"></td></tr>
+$if(CLIENT.ID != 0)
+  <tr><td>Followed path:</td><td><input type="text" name="wd_path" value="$CLIENT.SRC"></td></tr>
+  <tr><td>Followed branches:</td><td><input type="text" name="wd_branches" value="$CLIENT.BRANCHES"></td></tr>
+  <tr><td>Maximum commit age:</td><td><input type="text" name="wd_max_age" value="$CLIENT.MAX_AGE"></td></tr>
+$/
+<tr><td>&nbsp;</td><td><input type="submit" value="$if(CLIENT.ID >= 0) Save $else Add $/"></td></tr>
 </table>
 <input type="hidden" name="wd_client" value="$CLIENT.ID">
 <input type="hidden" name="__post_identity__" value="$WD_ID">

@@ -71,7 +71,7 @@ SKYLARK(SaveClient, "saveclient:POST"){
 	if(!CheckAuth(http, SQL, cid, "/saveclient"))
 		return;
 	Client client;
-	if(cid>0) {
+	if(cid>=0) {
 		client.Load(cid);
 	}
 	int maxage = http.Int("max_age");
