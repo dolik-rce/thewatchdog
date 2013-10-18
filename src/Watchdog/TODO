@@ -1,12 +1,12 @@
 SERVER
 ------
+Universal handler for user extensions
 Descriptive message on auth screen
 Versioning of schema and exports
 Finish import/export capabilities
 On-line editable configuration
 Client-server communication in json (?)
 Extend graphing, link graphs from more places
-Setup helper (create admin user, import historical repo data)
 Nicer icons, real css styling
 
 
