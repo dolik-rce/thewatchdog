@@ -1,0 +1,20 @@
+#include templates/base
+#define TITLE Current settings
+#define BODY
+
+<script>
+  function toggleDefaults(c){
+    var e=document.getElementsByClassName('default');
+    var s=c.checked?'none':'';
+    for(i=0; i<e.length;i++) {e[i].style.display=s;}
+  }
+</script>
+
+<input type="checkbox" onchange="toggleDefaults(this);">
+Hide keys that are set to default values
+
+$for(i in INI)
+  <p $if(i.CURRENT == i.DEFAULT) class="default" $endif>
+    &#35; $i.INFO &#91;<i>default: $i.DEFAULT</i>&#93;<br><b>$i._key = $i.CURRENT</b>
+  </p>
+$/

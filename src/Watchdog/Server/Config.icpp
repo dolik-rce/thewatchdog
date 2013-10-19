@@ -175,3 +175,16 @@ SKYLARK(Import, "import:POST") {
 	
 	http.Redirect("/config?import=1");
 }
+
+SKYLARK(Settings, "settings") {
+	ValueMap data;
+	const Array<IniInfo>& ini = GetIniInfo();
+	for(int i = 0; i < ini.GetCount(); i++){
+		ValueMap vm;
+		vm("DEFAULT", ini[i].def())
+		  ("CURRENT", ini[i].current())
+		  ("INFO", ini[i].info);
+		data.Add(ini[i].id, vm);
+	}
+	http("INI", data).RenderResult("templates/settings");
+}
