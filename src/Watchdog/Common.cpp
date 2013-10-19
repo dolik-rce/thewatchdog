@@ -4,6 +4,7 @@ void LoadConfiguration(const String& fn) {
 	String base;
 	if(!fn.IsEmpty()) {
 		if (FileExists(fn)) {
+			RLOG("Loading configuration from '" << fn << "'");
 			SetIniFile(fn);
 			return;
 		}
@@ -21,6 +22,8 @@ void LoadConfiguration(const String& fn) {
 		StdLogSetup(LOG_CERR);
 		RLOG("Configuration file " << base << "{.cfg,.ini,} not found on path " << path);
 		Exit();
-	} else
+	} else {
+		RLOG("Loading configuration from '" << ini << "'");
 		SetIniFile(ini);
+	}
 }

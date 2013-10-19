@@ -170,6 +170,7 @@ Watchdog::Watchdog() {
 CONSOLE_APP_MAIN {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
 	StdLogSetup(LOG_CERR|LOG_TIMESTAMP);
+	RLOG(" === INITIALIZING WATCHDOG === ");
 	
 	const Vector<String>& cmd=CommandLine();
 	LoadConfiguration(cmd.GetCount()?cmd[0]:"");
