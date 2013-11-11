@@ -17,7 +17,7 @@ ul.menu { list-style-type: none; padding-left:0; }
 .inprogress {background-color: #88F;}
 .fail {background-color: #F88;}
 .error {background-color: #BBB;}
-.passsed {background-color: #8F8;}
+.passed {background-color: #8F8;}
 .skip {background-color: #FF8;}
 .odd {background-color: #E5E5FF;}
 .even {background-color: #FFF;}

@@ -5,7 +5,7 @@ $if(.f_msg)Log message: $.f_msg$endif
 $if(.f_author)Author: $.f_author$endif
 $if(.f_path)Path: $.f_path$endif
 </span>
-<form action="">
+<form>
 <table>
 <tr>
 <td>Branch:</td><td><input type="text" name="f_branch" value="$.f_branch" accesskey="b" onfocus="showFilter()" onblur="setTimeout(hideFilter,100)"></td>
