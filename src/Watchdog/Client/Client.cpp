@@ -225,7 +225,7 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		commit = cmd[++i];
 	} else if(cmd[i] == "--submit" || cmd[i] == "-s") {
 		SetAction(cmd[i]);
-		CheckParamCount(cmd, i, 4);
+		CheckParamCount(cmd, i, 2);
 		commit = cmd[++i];
 		output = cmd[++i];
 	} else if(cmd[i] == "--run" || cmd[i] == "-r") {
