@@ -319,16 +319,16 @@ bool MatchFilter(const ValueMap& m, const String& commit, const String& branch,
 }
 
 String SuccessRate(int status, int ok, int fail, int err){
-	if (status != WD_DONE)
+	if (status != WD_DONE || ok+fail+err == 0)
 		return "";
-	if (ok+fail+err == 0)
-		return "0%";
 	return DblStr(roundr(100.0*ok/(ok+fail+err), 2))+"%";
 }
 
 String ComputeStatus(int status, int ok, int fail, int err){
 	if (status == WD_INPROGRESS)
 		return "In progress";
+	if (ok+err+fail == 0)
+		return "No results";
 	if (status != WD_DONE)
 		return "";
 	if (err>0)

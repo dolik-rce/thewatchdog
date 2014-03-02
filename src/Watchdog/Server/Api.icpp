@@ -63,7 +63,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	SaveFile(outputfile, output);
 	Client::UpdateActivity(cid, true);
 	String commit = http["commit"];
-	int ok = Nvl(http.Int("ok"), 1);
+	int ok = Nvl(http.Int("ok"), 0);
 	int errors = Nvl(http.Int("errors"), 0);
 	int failures = Nvl(http.Int("failures"), 0);
 	int skipped = Nvl(http.Int("skipped"), 0);
