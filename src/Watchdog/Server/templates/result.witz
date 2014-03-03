@@ -29,7 +29,7 @@ $if(RESULT.FAIL > 0) <tr><td>Tests failed:</td><td>$RESULT.FAIL</td></tr> $/
 $if(RESULT.SKIP > 0) <tr><td>Tests skipped:</td><td>$RESULT.SKIP</td></tr> $/
 $if(RESULT.ERR > 0) <tr><td>Test errors:</td><td>$RESULT.ERR</td></tr> $/
 <tr><td>Start time:</td><td>$RESULT.START</td></tr>
-$if(RESULT.STATUSN>1)
+$if(RESULT.STATUS>1)
 <tr><td>End time:</td><td>$RESULT.FINISHED</td></tr>
 $endif
 <tr><td>Duration:</td><td>$Duration(RESULT.DURATION)</td></tr>

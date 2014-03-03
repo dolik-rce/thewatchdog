@@ -360,6 +360,10 @@ void SetComputedAttributes(ValueMap& vm, int status, const String& suffix) {
 	vm.Add("STATUSSTR"+suffix, ComputeStatus(st, ok, fail, err));
 }
 
+void SetDuration(ValueMap& vm, int status) {
+	vm.Set("DURATION", ((status == WD_INPROGRESS)?GetSysTime():Time(vm["FINISHED"]))-Time(vm["START"]));
+}
+
 Value Duration(const Vector<Value>& arg, const Renderer *)
 {
 	int t = arg[0];

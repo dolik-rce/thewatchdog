@@ -38,6 +38,7 @@ String SuccessRate(int status, int ok, int fail, int err);
 String ComputeStatus(int status, int ok, int fail, int err);
 Value ComputeColor(int status, int ok, int fail, int err, bool quoted = false);
 void SetComputedAttributes(ValueMap& vm, int status = 0, const String& suffix = "");
+void SetDuration(ValueMap& vm, int status);
 
 namespace Upp { namespace Ini {
 	extern IniString output_dir;

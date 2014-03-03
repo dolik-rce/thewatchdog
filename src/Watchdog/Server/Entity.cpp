@@ -13,7 +13,7 @@ void Client::SetAuthInfo(String& salts, ValueMap& clients) {
 }
 
 ValueArray Client::FetchResults(const CommitFilter& f) const {
-	SQLR * Select(SqlAll(RESULT), TimeDiff(START,FINISHED).As("DURATION"),
+	SQLR * Select(SqlAll(RESULT),
 	              DT, CMT, BRANCH,
 	              UID, ToSqlVal(Regexp(PATH,data["SRC"])).As("FITS"))
 	       .From(COMMITS)
@@ -27,6 +27,7 @@ ValueArray Client::FetchResults(const CommitFilter& f) const {
 	int maxage = int(data["MAX_AGE"])*24*60*60;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
+		SetDuration(vm, vm["STATUS"]);
 		if (IsNull(vm["STATUS"])) {
 			if (!vm["FITS"])
 				vm.Set("STATUSSTR", "Not interested");
@@ -35,8 +36,6 @@ ValueArray Client::FetchResults(const CommitFilter& f) const {
 			else
 				vm.Set("STATUSSTR", "Ready");
 		}
-		if(vm["STATUS"] == WD_INPROGRESS)
-			vm.Set("DURATION", GetSysTime()-Time(vm["START"]));
 		res.Add(vm);
 	}
 	return res;
@@ -91,8 +90,7 @@ ValueArray Commit::FetchResults() const {
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
-		if(vm["STATUS"] == WD_INPROGRESS)
-			vm.Set("DURATION",GetSysTime()-Time(vm["START"]));
+		SetDuration(vm, vm["STATUS"]);
 		res.Add(vm);
 	}
 	return res;
@@ -134,8 +132,7 @@ bool Result::Load(const String& uid, int id) {
 	if(!SQLR.Fetch(data))
 		return false;
 	SetComputedAttributes(data);
-	if(data["STATUS"] == WD_INPROGRESS)
-		data.Set("DURATION", GetSysTime()-Time(data["START"]));
+	SetDuration(data, data["STATUS"]);
 	return true;
 }
 

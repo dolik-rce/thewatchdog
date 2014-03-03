@@ -23,8 +23,7 @@ SKYLARK(RssFeed, "rss")
 	
 	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC, OK, ERR, FAIL, SKIP,
-	             START, FINISHED, STATUS,
-	             TimeDiff(START, FINISHED).As("DURATION"))
+	             START, FINISHED, STATUS)
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
@@ -36,6 +35,7 @@ SKYLARK(RssFeed, "rss")
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
+		SetDuration(vm, vm["STATUS"]);
 		results.Add(vm);
 	}
 
