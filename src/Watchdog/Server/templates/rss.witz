@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 
 <channel>
   <title>Watchdog</title>
   <link>$SELF</link>
   <description>U++ code quality watchdog</description>
+  <atom:link href="$SELF/rss" rel="self" type="application/rss+xml" />
 $for(i in ITEMS)
   <item>
     <title>$i.NAME ($i.CMT)</title>
     <link>$SELF/result/$i.UID/$i.ID</link>
+    <guid isPermaLink="true">$SELF/result/$i.UID/$i.ID</guid>
     <description>
 <![CDATA[
 	<table border=0>
@@ -32,7 +34,7 @@ $for(i in ITEMS)
 	</table>
 ]]> 
     </description>
-    <author>$i.AUTHOR</author>
+    <author>$(EMAIL) ($i.AUTHOR)</author>
   </item>
 $/
 </channel>

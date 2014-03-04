@@ -40,6 +40,7 @@ SKYLARK(RssFeed, "rss")
 	}
 
 	http("ITEMS", results)("SELF", String(Ini::server_url))
+	    ("EMAIL", String(Ini::smtp_sender))
 	 .ContentType("application/rss+xml")
 	 .RenderResult("templates/rss");
 }
