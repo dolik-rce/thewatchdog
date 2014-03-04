@@ -36,6 +36,8 @@ namespace Upp{
 		extern IniString smtp_sender;
 		extern IniInt    filter_cache_size;
 		extern IniInt    filter_cache_expiration;
+		extern IniInt    rss_max_age;
+		extern IniInt    rss_max_count;
 	}
 }
 

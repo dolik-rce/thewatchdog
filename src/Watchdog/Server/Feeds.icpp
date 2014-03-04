@@ -28,9 +28,10 @@ SKYLARK(RssFeed, "rss")
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
 	      .Where(STATUS==WD_DONE
-	             && FINISHED>(GetSysTime()-30*60*60*24)
+	             && FINISHED>(GetSysTime()-int(Ini::rss_max_age)*60*60*24)
 	             && filter)
-	      .OrderBy(Descending(FINISHED));
+	      .OrderBy(Descending(FINISHED))
+	      .Limit(Ini::rss_max_count);
 	ValueArray results;
 	ValueMap vm;
 	while(SQLR.Fetch(vm)){

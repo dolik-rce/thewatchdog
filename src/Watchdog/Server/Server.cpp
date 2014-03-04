@@ -33,6 +33,8 @@ namespace Upp{ namespace Ini {
 	INI_STRING(smtp_sender, "Watchdog@example.com", "E-mail to put in the From field of sent e-mails");
 	INI_INT(filter_cache_size, 16, "Maximum number of items in filter/pagination cache");
 	INI_INT(filter_cache_expiration, 30, "Expiration time of filter/pagination cache items (in seconds)");
+	INI_INT(rss_max_age, 30, "How old results should be shown in RSS feeds");
+	INI_INT(rss_max_count, 500, "Maximal amount of results that can be shown in RSS feeds");
 }}
 
 void Watchdog::WorkThread()
