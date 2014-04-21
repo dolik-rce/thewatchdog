@@ -50,7 +50,8 @@ print_commit() {
   DATE="$(date -d"$DATE" +"%Y/%m/%d %H:%M:%S")"
   DIR="$(common_path_all $PATHS)"
   MSG="$(echo "$MSG" | sed '1!s/^/<br>/;s/\t/    /;' | tr -d '\n')"
-  BRANCH="trunk"
+  BRANCH="$(echo $DIR | sed '/^branches/!s/^\([^/]*\).*/\1/;s|^branches/\([^/]*\).*|\1|;')"
+  [ "$BRANCH" ] || BRANCH="<unknown>"
   $ECHO -e "$COMMIT\t$BRANCH\t$COMMIT\t$AUTHOR\t$DATE\t$MSG\t$DIR"
 }
 
