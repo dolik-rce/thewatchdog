@@ -285,10 +285,15 @@ SKYLARK(Stats, "stats/*") {
 	Vector<Value> row;
 	stats.SetCount(6);
 	Vector<String> colors;
-	int n=SQLR.GetRowsProcessed();
+	Vector<Vector<Value> > rows;
 	while(SQLR.Fetch(row)){
+		rows.AddPick(row);
+	}
+	int top = rows.GetCount() - 1;
+	for (int n = top; n >= 0; --n) {
+		Vector<Value>& row = rows[n];
 		for(int i = 0; i < 6; i++){
-			point.Set("x", n);
+			point.Set("x", top-n);
 			point.Set("y", row[1+i]);
 			stats[i].Add(point);
 		}
@@ -298,13 +303,8 @@ SKYLARK(Stats, "stats/*") {
 		vm.Set("DT",row[9]);
 		vm.Set("CMT",row[10]);
 		vm.Set("BRANCH",row[11]);
-		revlog.Add(n,vm);
-		--n;
+		revlog.Add(top-n, vm);
 	}
-	for(int i = 0; i < 6; i++){
-		Reverse(stats[i]);
-	}
-	Reverse(colors);
 	
 	http("CLIENT", client)
 	    ("TOTAL", ValueArray(stats[0]))
