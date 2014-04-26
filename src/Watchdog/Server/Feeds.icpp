@@ -21,7 +21,7 @@ SKYLARK(RssFeed, "rss")
 	else if(state == "ok")
 		filter = SqlBool(filter && ERR+FAIL == 0);
 	
-	SQLR * Select(UID, DT, AUTHOR, MSG, PATH,
+	SQLR * Select(UID, CMT, BRANCH, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC, OK, ERR, FAIL, SKIP,
 	             START, FINISHED, STATUS)
 	      .From(RESULT)
