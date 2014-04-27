@@ -248,12 +248,20 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		cfg = cmd[++i];
 	} else if(cmd[i] == "--nolock" || cmd[i] == "-L") {
 		lock = false;
+	} else if(cmd[i] == "--utc" || cmd[i] == "-U") {
+		utc = true;
 	} else if(cmd[i] == "--start" || cmd[i] == "-S") {
 		CheckParamCount(cmd, i, 1);
-		start = ScanTimeToUtc(cmd[++i]);
+		if (utc)
+			start = ScanTime(cmd[++i]);
+		else
+			start = ScanTimeToUtc(cmd[++i]);
 	} else if(cmd[i] == "--end" || cmd[i] == "-E") {
 		CheckParamCount(cmd, i, 1);
-		end = ScanTimeToUtc(cmd[++i]);
+		if (utc)
+			end = ScanTime(cmd[++i]);
+		else
+			end = ScanTimeToUtc(cmd[++i]);
 	} else if(cmd[i] == "--ok" || cmd[i] == "-O") {
 		CheckParamCount(cmd, i, 1);
 		ok = StrInt(cmd[++i]);
@@ -339,7 +347,7 @@ void WatchdogClient::Usage(int exitcode) const {
 	Exit(exitcode);
 }
 
-WatchdogClient::WatchdogClient() : lock(true), action(0), 
+WatchdogClient::WatchdogClient() : lock(true), utc(false), action(0),
 		ok(Null), errors(Null), failures(Null), skipped(Null) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
@@ -359,6 +367,8 @@ WatchdogClient::WatchdogClient() : lock(true), action(0),
 	options.Add() = "\t-L --nolock\n"
 		"\t\tDo not use locking (default is to lock before --accept\n"
 		"\t\tand unlock after --submit)\n";
+	options.Add() = "\t-U --utc\n"
+		"\t\tTimes passed to --start and/or --end are in UTC, not local time\n";
 	options.Add() = "\t-O --ok <count>\n"
 	                "\t-R --errors <count>\n"
 	                "\t-F --failures <count>\n"
