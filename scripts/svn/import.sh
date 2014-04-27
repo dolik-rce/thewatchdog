@@ -47,7 +47,7 @@ function common_path_all() {
 }
 
 print_commit() {
-  DATE="$(date -d"$DATE" +"%Y/%m/%d %H:%M:%S")"
+  DATE="$(date -u -d"$DATE" +"%Y/%m/%d %H:%M:%S")"
   DIR="$(common_path_all $PATHS)"
   MSG="$(echo "$MSG" | sed '1!s/^/<br>/;s/\t/    /;' | tr -d '\n')"
   [ "$MSG" ] || MSG="<no log message>"
