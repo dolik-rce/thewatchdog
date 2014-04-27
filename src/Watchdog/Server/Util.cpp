@@ -401,6 +401,20 @@ Value Email(const Vector<Value>& arg, const Renderer *)
 	return RawPickToValue(r);
 }
 
+Value LocalTime(const Vector<Value>& arg, const Renderer *) {
+	Time t = arg[0];
+	bool js = arg.GetCount() > 1 && (int)arg[1] == 1;
+	RawHtmlText r;
+	if (!js)
+		r.text.Cat("<script type=\"text/javascript\">document.write(");
+	r.text.Cat("(new Date(");
+	r.text.Cat(AsString(GetUTCSeconds(t)*1000));
+	r.text.Cat(")).toLocaleString()");
+	if (!js)
+		r.text.Cat(");</script>");
+	return RawPickToValue(r);
+}
+
 Value Dbg(const Vector<Value>& arg, const Renderer *r)
 {
 	int force = arg.GetCount() ? int(arg[0]) : -1;
@@ -425,5 +439,6 @@ Value Dbg(const Vector<Value>& arg, const Renderer *r)
 INITBLOCK {
 	Compiler::Register("Duration", Duration);
 	Compiler::Register("email", Email);
+	Compiler::Register("time", LocalTime);
 	Compiler::Register("dbg", Dbg);
 };

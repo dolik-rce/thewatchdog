@@ -5,8 +5,8 @@
 <tr><td>Name:</td><td>$CLIENT.NAME</td></tr>
 <tr><td>Description:</td><td>$raw(CLIENT.DESCR)</td></tr>
 <tr><td>Followed path:</td><td>$CLIENT.SRC</td></tr>
-<tr><td>Last contact:</td><td>$CLIENT.LAST_ACTIVITY</td></tr>
-<tr><td>Last work:</td><td>$CLIENT.LAST_WORK</td></tr>
+<tr><td>Last contact:</td><td>$time(CLIENT.LAST_ACTIVITY)</td></tr>
+<tr><td>Last work:</td><td>$time(CLIENT.LAST_WORK)</td></tr>
 <tr><td valign="top">Actions:</td><td>
   <a href="/editclient/$CLIENT.ID"><img src="$CachedStatic("img/edit.png")" class="icon" width=16 height=16>Edit</a><br>
   <a href="/auth/removeclient/$CLIENT.ID"><img src="$CachedStatic("img/remove.png")" class="icon" width=16 height=16>Delete</a><br>
@@ -30,8 +30,8 @@ $for(i in RESULTS)
       <th><a href=$Commit(i.UID)>$i.CMT</a></th>
       <td class="centered">$i.BRANCH</td>
 $if(i.START)      
-      <td>$i.START</td>
-      <td>$i.FINISHED</td>
+      <td>$time(i.START)</td>
+      <td>$time(i.FINISHED)</td>
       <td>$Duration(i.DURATION)</td>
       <td><div class="icon circle $i.COLOR"></div><a href=$Result(i.UID,CLIENT.ID)>$i.STATUSSTR $i.RATE</a></td>
 $else

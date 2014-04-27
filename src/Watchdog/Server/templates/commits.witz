@@ -32,7 +32,7 @@ $for(i in COMMITS)
       $if(i.SKIP>0)<span title="Skipped" class="skip">$i.SKIP</span>$endif
       </td>
       <td rowspan=2>$i.AUTHOR</td>
-      <td rowspan=2>$i.DT</td>
+      <td rowspan=2>$time(i.DT)</td>
       <td class="odd">$i.MSG</td>
     </tr><tr>
       <td class="even">$i.PATH&nbsp;</td>

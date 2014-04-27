@@ -5,7 +5,7 @@
 <tr><td>Commit:</td><td>$COMMIT.CMT</td></tr>
 <tr><td>Branch:</td><td>$COMMIT.BRANCH</td></tr>
 <tr><td>Author:</td><td>$COMMIT.AUTHOR</td></tr>
-<tr><td>Date:</td><td>$COMMIT.DT</td></tr>
+<tr><td>Date:</td><td>$time(COMMIT.DT)</td></tr>
 <tr><td>Log Message:</td><td>$COMMIT.MSG</td></tr>
 <tr><td>Path:</td><td>$COMMIT.PATH</td></tr>
 </table>
@@ -21,8 +21,8 @@
 $for(i in RESULTS)
     <tr>
       <th><a href=$Client(i.CLIENT_ID)>$i.NAME</a></th>
-      <td>$i.START</td>
-      <td>$i.FINISHED</td>
+      <td>$time(i.START)</td>
+      <td>$time(i.FINISHED)</td>
       <td>$Duration(i.DURATION)</td>
       <td><div class="icon circle $i.COLOR"></div><a href=$Result(COMMIT.UID,i.CLIENT_ID)>$i.STATUSSTR $i.RATE</a></td>
     </tr>    
