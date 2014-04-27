@@ -1,8 +1,8 @@
 #include "Server.h"
 
 SKYLARK(HomePage, "") {
-	Time yesterday(GetSysTime()-86400);
-	Date monthago(GetSysDate()-30);
+	Time yesterday(GetUtcTime()-86400);
+	Date monthago(AddMonths(GetUtcTime(), -1));
 	SQLR * Select(CountIf(OK+ERR+FAIL+SKIP, DT > yesterday).As("TESTS_DAILY"),
 	              CountIf(OK,  DT > yesterday).As("OK_DAILY"),
 	              CountIf(ERR,  DT > yesterday).As("ERR_DAILY"),
@@ -32,8 +32,8 @@ SKYLARK(HomePage, "") {
 	SetComputedAttributes(stats, WD_DONE, "_MONTHLY");
 	SetComputedAttributes(stats, WD_DONE, "_TOTAL");
 	ValueMap misc;
-	SQLR * Select(CountIf(1, LAST_WORK > (GetSysTime()-86400)).As("ACTIVE_DAILY"),
-	             CountIf(1, LAST_WORK > (GetSysDate()-30)).As("ACTIVE_MONTHLY"),
+	SQLR * Select(CountIf(1, LAST_WORK > (GetUtcTime()-86400)).As("ACTIVE_DAILY"),
+	             CountIf(1, LAST_WORK > AddMonths(GetUtcTime(), -1)).As("ACTIVE_MONTHLY"),
 	             CountIf(1, SqlBool::True()).As("ACTIVE_TOTAL"))
 	      .From(CLIENT)
 	      .Where(ID>0);
@@ -201,7 +201,7 @@ void Auth(Http& http, int cid) {
 	    .SetHeader("wd_id", id)
 	    .SetHeader("wd_action", target)
 	    .SetHeader("wd_salts", salts);
-	SQL * Insert(AUTH)(NONCE, nonce)(VALID, GetSysTime());
+	SQL * Insert(AUTH)(NONCE, nonce)(VALID, GetUtcTime());
 	http("WD_ID", id)
 	    ("WD_NONCE", nonce)
 	    ("CLIENTS", clients)

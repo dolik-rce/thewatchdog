@@ -23,7 +23,7 @@ ValueArray Client::FetchResults(const CommitFilter& f) const {
 	       .Limit(f.offset, f.limit);
 	ValueArray res;
 	ValueMap vm;
-	Time t = GetSysTime();
+	Time t = GetUtcTime();
 	int maxage = int(data["MAX_AGE"])*24*60*60;
 	while(SQLR.Fetch(vm)){
 		SetComputedAttributes(vm);
@@ -55,7 +55,7 @@ void Client::Delete(int id) {
 }
 
 void Client::UpdateActivity(int id, bool work) {
-	Time t = GetSysTime();
+	Time t = GetUtcTime();
 	SqlUpdate update(CLIENT);
 	if (work)
 		update(LAST_WORK, t);

@@ -28,7 +28,7 @@ SKYLARK(RssFeed, "rss")
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
 	      .Where(STATUS==WD_DONE
-	             && FINISHED>(GetSysTime()-int(Ini::rss_max_age)*60*60*24)
+	             && FINISHED>(GetUtcTime()-int(Ini::rss_max_age)*60*60*24)
 	             && filter)
 	      .OrderBy(Descending(FINISHED))
 	      .Limit(Ini::rss_max_count);
@@ -86,7 +86,7 @@ SKYLARK(Subscribe, "subscribe:POST")
 	                  (FILTER, filter.IsEmpty()?SqlEmptyString():filter)
 	                  (TOKEN, token)
 	                  (UNIQ, int(CRC32(email+filter)))
-	                  (CTIME, GetSysTime());
+	                  (CTIME, GetUtcTime());
 	String md5 = MD5String(email+filter+token);
 	
 	http("ACTION",1)("EMAIL",email)

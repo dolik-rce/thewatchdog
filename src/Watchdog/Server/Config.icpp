@@ -20,7 +20,7 @@ SKYLARK(Config, "config") {
 	
 	String target="import";
 	
-	Time t = GetSysTime();
+	Time t = GetUtcTime();
 	
 	SQL * Insert(AUTH)(NONCE, nonce)(VALID, t);
 	http("WD_ID", id)
@@ -60,7 +60,7 @@ SKYLARK(Export, "export:POST") {
 	SetDateFormat("%1:4d/%2:02d/%3:02d");
 	
 	StringZip zip;
-	Time now = GetSysTime();
+	Time now = GetUtcTime();
 	
 	zip.WriteFolder("schema", now);
 	zip.WriteFolder("data", now);

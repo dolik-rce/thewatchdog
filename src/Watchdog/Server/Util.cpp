@@ -3,11 +3,11 @@
 
 void CleanResults(){
 	SQL * Delete(RESULT)
-	       .Where(STATUS==WD_INPROGRESS && START < GetSysTime()-int(Ini::max_test_time));
+	       .Where(STATUS==WD_INPROGRESS && START < GetUtcTime()-int(Ini::max_test_time));
 }
 
 void CleanAuth(){
-	SQL * Delete(AUTH).Where(VALID < GetSysTime()-600);
+	SQL * Delete(AUTH).Where(VALID < GetUtcTime()-600);
 }
 
 CommitFilter::CommitFilter(Http& http, bool skipPaging){
@@ -109,7 +109,7 @@ unsigned CommitFilter::GetHash() const {
 
 CommitFilter::CacheEntry::CacheEntry(const CommitFilter& f) {
 	hash = f.GetHash();
-	used = stamp = GetSysTime();
+	used = stamp = GetUtcTime();
 	Sql sql;
 	sql * Select(Count(SqlAll()).As("CNT"))
 	      .From(COMMITS)
@@ -132,7 +132,7 @@ int CommitFilter::FindInCache(unsigned hash, const Time& maxage) const {
 				cache[i] = CacheEntry(*this);
 			} else {
 				// .. and it is not expired, we only update the usage timestamp
-				cache[i].used = GetSysTime();
+				cache[i].used = GetUtcTime();
 			}
 			return i;
 		}
@@ -170,7 +170,7 @@ int CommitFilter::FindInCache(unsigned hash, const Time& maxage) const {
 Vector<CommitFilter::CacheEntry> CommitFilter::cache;
 
 int CommitFilter::commitcount(){
-	int p = FindInCache(GetHash(), GetSysTime()-Ini::filter_cache_expiration);
+	int p = FindInCache(GetHash(), GetUtcTime()-Ini::filter_cache_expiration);
 	return cache[p].count;
 }
 
@@ -361,7 +361,7 @@ void SetComputedAttributes(ValueMap& vm, int status, const String& suffix) {
 }
 
 void SetDuration(ValueMap& vm, int status) {
-	vm.Set("DURATION", ((status == WD_INPROGRESS)?GetSysTime():Time(vm["FINISHED"]))-Time(vm["START"]));
+	vm.Set("DURATION", ((status == WD_INPROGRESS)?GetUtcTime():Time(vm["FINISHED"]))-Time(vm["START"]));
 }
 
 Value Duration(const Vector<Value>& arg, const Renderer *)
