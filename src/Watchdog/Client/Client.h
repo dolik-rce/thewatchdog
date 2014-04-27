@@ -13,6 +13,8 @@ namespace Upp { namespace Ini {
 	extern IniString lock_file;
 }}
 
+Time ScanTimeToUtc(const char *s);
+
 struct WatchdogClient {
 	Vector<String> todo;
 	bool lock;

@@ -9,6 +9,17 @@ namespace Upp { namespace Ini {
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
 }}
 
+Time ScanTimeToUtc(const char *s) {
+	int offset;
+	ONCELOCK {
+		offset = GetUtcTime() - GetSysTime();
+	}
+	Time t = ScanTime(s);
+	if (IsNull(t))
+		return t;
+	return t + offset;
+}
+
 bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 	HttpRequest auth(Ini::host+("/auth"+action));
 	auth.Execute();
@@ -156,9 +167,9 @@ bool WatchdogClient::Run(String command){
 	if(Ini::log_level > 0) 
 		Cout() << "Executing command '" << command << "'\n";
 	String output;
-	start = GetSysTime();
+	start = GetUtcTime();
 	int result = Sys(command, output);
-	end = GetSysTime();
+	end = GetUtcTime();
 	
 	if(Ini::log_level > 0) {
 		Cout() << "Execution finished after " << (end-start) << " seconds with exit code '" << result << "'\n";
@@ -239,10 +250,10 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		lock = false;
 	} else if(cmd[i] == "--start" || cmd[i] == "-S") {
 		CheckParamCount(cmd, i, 1);
-		start = ScanTime(cmd[++i]);
+		start = ScanTimeToUtc(cmd[++i]);
 	} else if(cmd[i] == "--end" || cmd[i] == "-E") {
 		CheckParamCount(cmd, i, 1);
-		end = ScanTime(cmd[++i]);
+		end = ScanTimeToUtc(cmd[++i]);
 	} else if(cmd[i] == "--ok" || cmd[i] == "-O") {
 		CheckParamCount(cmd, i, 1);
 		ok = StrInt(cmd[++i]);
