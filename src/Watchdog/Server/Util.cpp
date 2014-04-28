@@ -404,6 +404,8 @@ Value Email(const Vector<Value>& arg, const Renderer *)
 Value LocalTime(const Vector<Value>& arg, const Renderer *) {
 	Time t = arg[0];
 	bool js = arg.GetCount() > 1 && (int)arg[1] == 1;
+	if (IsNull(t))
+		return js ? "''" : "";
 	RawHtmlText r;
 	if (!js)
 		r.text.Cat("<script type=\"text/javascript\">document.write(");
