@@ -30,12 +30,14 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 	} else {
 		start.Set(ScanInt64(AsString(http["start"])));
 	}
+	String builder = Nvl((String)http["builder"], http.GetPeerAddr());
 	Client::UpdateActivity(cid, true);
 	Result result;
 	result("CMT_UID", http["commit"])
 	      ("CLIENT_ID", cid)
 	      ("START", start)
-	      ("STATUS", WD_INPROGRESS);
+	      ("STATUS", WD_INPROGRESS)
+	      ("BUILDER", builder);
 	result.Save();
 	http.Response(200, "OK");
 }
@@ -67,6 +69,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	int errors = Nvl(http.Int("errors"), 0);
 	int failures = Nvl(http.Int("failures"), 0);
 	int skipped = Nvl(http.Int("skipped"), 0);
+	String builder = Nvl((String)http["builder"], http.GetPeerAddr());
 	
 	Result result;
 	result("CMT_UID", commit)
@@ -76,7 +79,8 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      ("OK", ok)
 	      ("ERR", errors)
 	      ("FAIL", failures)
-	      ("SKIP", skipped);
+	      ("SKIP", skipped)
+	      ("BUILDER", builder);
 	if(IsNull(start))
 		result("START", start);
 	
