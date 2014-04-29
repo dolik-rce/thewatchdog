@@ -18,6 +18,7 @@ Time ScanTimeToUtc(const char *s);
 struct WatchdogClient {
 	Vector<String> todo;
 	bool lock, utc;
+	String name;
 	String commit;
 	String output;
 	String command;

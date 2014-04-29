@@ -7,6 +7,7 @@ namespace Upp { namespace Ini {
 	INI_INT(log_level, 1, "Verbosity (0=errors only, 1=normal, 2=verbose)");
 	INI_STRING(session_cookie, "__watchdog_cookie__", "Skylark session cookie ID");
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
+	INI_STRING(name, TrimBoth(LoadFile("/etc/hostname")), "Builder unique identification string");
 }}
 
 Time ScanTimeToUtc(const char *s) {
@@ -86,6 +87,7 @@ bool WatchdogClient::AcceptWork(const String& commit){
 	if(!Auth(req, target))
 		return false;
 	
+	req.Post("builder", name);
 	req.Post("commit", commit);
 	if(!IsNull(start)){
 		req.Post("start", IntStr64(start.Get()));
@@ -117,6 +119,7 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output){
 	if(!Auth(req, target))
 		return false;
 	
+	req.Post("builder", name);
 	req.Post("commit", commit);
 	req.Post("output", output);
 	if(!IsNull(start))
@@ -326,6 +329,7 @@ void WatchdogClient::Execute(const Vector<String>& cmd) {
 		ParseArgument(i, cmd);
 	
 	SetConfig(cfg);
+	name = Ini::name;
 	
 	if(!ProcessAction())
 		Exit(65);
