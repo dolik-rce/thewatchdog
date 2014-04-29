@@ -20,7 +20,11 @@ SKYLARK(HomePage, "") {
 	              CountIf(1, DT > monthago).As("COMMITS_MONTHLY"),
 	              CountIf(1, true).As("COMMITS_TOTAL"),
 	              Count(Distinct(BRANCH)).As("BRANCH_COUNT"),
-	              Count(Distinct(AUTHOR)).As("AUTHOR_COUNT"))
+	              Count(Distinct(AUTHOR)).As("AUTHOR_COUNT"),
+	              Count(Distinct(BUILDER)).As("BUILDERS_TOTAL"),
+	              CountDistinctIf(BUILDER, STATUS == WD_INPROGRESS).As("BUILDERS_NOW"),
+	              CountDistinctIf(BUILDER, DT > yesterday).As("BUILDERS_DAILY"),
+	              CountDistinctIf(BUILDER, DT > monthago).As("BUILDERS_MONTHLY"))
 	      .From(COMMITS)
 	      .LeftJoin(RESULT).On(CMT_UID == UID);
 	ValueMap stats;

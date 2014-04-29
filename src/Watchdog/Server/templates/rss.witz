@@ -19,6 +19,7 @@ $for(i in ITEMS)
 	<tr><td>Start time:</td><td>$i.START</td></tr>
 	<tr><td>End time:</td><td>$i.FINISHED</td></tr>
 	<tr><td>Duration:</td><td>$Duration(i.DURATION)</td></tr>
+	<tr><td>Builder:</td><td>$i.BUILDER</td></tr>
 	<tr><td>Output:</td><td><a href=$SELF/output/$i.UID/$i.ID>download</a></td></tr>
 	<tr><td>Commit:</td><td><a href="$SELF/commit/$i.UID">$i.CMT</a></td></tr>
 	<tr><td>Branch:</td><td>$i.BRANCH</td></tr>

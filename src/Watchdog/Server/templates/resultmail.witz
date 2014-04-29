@@ -3,6 +3,7 @@ Status: $DATA.STATUSSTR
 Start time: $DATA.START
 End time: $DATA.FINISHED
 Duration: $Duration(DATA.DURATION)
+Builder: $DATA.BUILDER
 
 Output: $SELF/output/$DATA.UID/$DATA.ID
 
@@ -32,6 +33,7 @@ $else
 	<tr><td>Start time:</td><td>$DATA.START</td></tr>
 	<tr><td>End time:</td><td>$DATA.FINISHED</td></tr>
 	<tr><td>Duration:</td><td>$Duration(DATA.DURATION)</td></tr>
+	<tr><td>Builder:</td><td>$DATA.BUILDER</td></tr>
 	<tr><td>Output:</td><td><a href=$SELF/output/$DATA.UID/$DATA.ID>download</a></td></tr>
 	<tr><td>Commit:</td><td><a href="$SELF/commit/$DATA.UID">$DATA.CMT</a></td></tr>
 	<tr><td>Branch:</td><td>$DATA.BRANCH</td></tr>

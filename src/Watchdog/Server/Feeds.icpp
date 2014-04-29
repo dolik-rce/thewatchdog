@@ -23,7 +23,7 @@ SKYLARK(RssFeed, "rss")
 	
 	SQLR * Select(UID, CMT, BRANCH, DT, AUTHOR, MSG, PATH,
 	             ID, NAME, DESCR, SRC, OK, ERR, FAIL, SKIP,
-	             START, FINISHED, STATUS)
+	             START, FINISHED, STATUS, BUILDER)
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)

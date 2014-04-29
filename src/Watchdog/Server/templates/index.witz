@@ -8,6 +8,7 @@
 <tr><td>Currently running:</td><td>$STATS.RUNNING</td></tr>
 <tr><td>Branches:</td><td>$STATS.BRANCH_COUNT</td></tr>
 <tr><td>Authors:</td><td>$STATS.AUTHOR_COUNT</td></tr>
+<tr><td>Active builders:</td><td>$STATS.BUILDERS_NOW</td></tr>
 </table>
 </div>
 <div class="ldiv">
@@ -26,6 +27,7 @@ $endif
 </td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_DAILY</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_DAILY</td></tr>
+<tr><td>Active builders:</td><td>$STATS.BUILDERS_DAILY</td></tr>
 </table>
 </div>
 <div class="ldiv">
@@ -44,6 +46,7 @@ $endif
 </td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_MONTHLY</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_MONTHLY</td></tr>
+<tr><td>Active builders:</td><td>$STATS.BUILDERS_MONTHLY</td></tr>
 </table>
 </div>
 <div class="ldiv">
@@ -62,5 +65,6 @@ $endif
 </td></tr>
 <tr><td>Commits:</td><td>$STATS.COMMITS_TOTAL</td></tr>
 <tr><td>Active clients:</td><td>$MISC.ACTIVE_TOTAL</td></tr>
+<tr><td>Active builders:</td><td>$STATS.BUILDERS_TOTAL</td></tr>
 </table>
 </div>
