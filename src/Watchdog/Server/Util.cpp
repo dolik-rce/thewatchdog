@@ -331,11 +331,12 @@ String ComputeStatus(int status, int ok, int fail, int err){
 		return "No results";
 	if (status != WD_DONE)
 		return "";
+	String s;
 	if (err>0)
-		return "Error";
+		s = "E:" + IntStr(err);
 	if (fail>0)
-		return "Failed";
-	return "OK";
+		s += (s.IsEmpty() ? "F:" : ", F:") + IntStr(fail);
+	return s.IsEmpty() ? "OK" : ("(" + s + ")");
 }
 
 Value ComputeColor(int status, int ok, int fail, int err, bool quoted){
@@ -357,7 +358,7 @@ void SetComputedAttributes(ValueMap& vm, int status, const String& suffix) {
 	int err = V2N(vm["ERR"+suffix]);
 	vm.Add("RATE"+suffix, SuccessRate(st, ok, fail, err));
 	vm.Add("COLOR"+suffix, ComputeColor(st, ok, fail, err));
-	vm.Add("STATUSSTR"+suffix, ComputeStatus(st, ok, fail, err));
+	vm.Add("STATUSSTR"+suffix, String(vm["RATE"+suffix]) + " " + ComputeStatus(st, ok, fail, err));
 }
 
 void SetDuration(ValueMap& vm, int status) {
