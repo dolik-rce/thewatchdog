@@ -33,13 +33,17 @@ SKYLARK(Config, "config") {
 	http.RenderResult("templates/config");
 }
 
-String ExportTable(const SqlId& table, const SqlSet& columns) {
+template<class T>
+String ExportTable(const SqlId& tableId, const T& table) {
 	StringStream data;
 	
-	data << ~columns << "\n";
+	const Vector<SqlId>& columns = table.GetColumnIds();
+	for(int i = 0; i < columns.GetCount(); i++){
+		data << (i?"\t":"") << ~columns[i];
+	}
+	data << "\n";
 	
-	SQL * Select(columns)
-	        .From(table);
+	SQL * Select(table.ColumnSet()).From(tableId);
 	
 	Vector<Value> row;
 	while(SQL.Fetch(row)) {
@@ -74,7 +78,7 @@ SKYLARK(Export, "export:POST") {
 			zip.WriteFile(sch.Script(i), sch.NormalFileName(i,dir));
 	}
 	
-	#define EXPORT_TABLE(T) zip.WriteFile(ExportTable(T, SqliteSchema::S_##T::ColumnSet()), "data/" #T ".tsv")
+	#define EXPORT_TABLE(T) zip.WriteFile(ExportTable(T, SqliteSchema::S_##T()), "data/" #T ".tsv")
 	
 	EXPORT_TABLE(SESSION);
 	EXPORT_TABLE(CLIENT);
