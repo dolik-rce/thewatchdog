@@ -65,7 +65,21 @@ test_end() {
     echo @errors=$errors
     echo @skipped=$(( $total - $executed ))
     clean_up
-    exit $1
+    if [ "$1" ]; then
+        exit $1
+    elif [ "$fails" != "0" -o "$errors" -gt "0" ]; then
+        exit 1
+    else
+        exit 0
+    fi
+}
+
+wda() {
+    bin/wda -C "$TEST_ROOT/wda.cfg" $@ | sed '/Loading configuration from/d'
+}
+
+wdc() {
+    bin/wdc -C "$TEST_ROOT/wdc.cfg" $@ | sed '/Loading configuration from/d'
 }
 
 rm -rf "$TEST_TMP"

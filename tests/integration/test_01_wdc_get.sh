@@ -5,5 +5,5 @@ sql -q "$SQL_MODE
   (0, 'admin', 'a1e2d68814ed9b1df3d7fe7bc3a243a2', 'Administrator account', '', 'QWER', '.*'),
   (1, 'Test1', '516dc66aa87480f104c3bcfd1c0d6f05', 'Test client', '.*', '3glx', '.*');"
 
-RES="$(bin/wdc -C "$TEST_ROOT/wdc.cfg" --get)"
+RES="$(wdc --get)"
 test_result $? "$RES" "Nothing to do."

@@ -1,3 +1,3 @@
 echo "Testing wdc --get"
-RES="$(bin/wdc -C "$TEST_ROOT/wdc.cfg" --get)"
+RES="$(wdc --get)"
 test_result $? "$RES" "TestCommit1"
