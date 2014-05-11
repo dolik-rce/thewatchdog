@@ -8,6 +8,7 @@ namespace Upp { namespace Ini {
 	INI_STRING(session_cookie, "__watchdog_cookie__", "Skylark session cookie ID");
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
 	INI_STRING(name, TrimBoth(LoadFile("/etc/hostname")), "Builder unique identification string");
+	INI_INT(upload_interval, 60, "How often should be output send to server (in seconds)");
 }}
 
 Time ScanTimeToUtc(const char *s) {
@@ -101,7 +102,7 @@ bool WatchdogClient::AcceptWork(const String& commit){
 	return true;
 }
 
-bool WatchdogClient::SubmitWork(const String& commit, const String& output){
+bool WatchdogClient::SubmitWork(const String& commit, const String& output, bool partial){
 	if (IsEmpty(commit)){
 		Cerr() << "ERROR: Wrong value of <commit>\n";
 		return false;
@@ -112,7 +113,7 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output){
 	}
 	
 	if(Ini::log_level > 0) 
-		Cout() << "Sending results\n";
+		Cout() << "Sending " << (partial ? "partial" : "") << " results\n";
 
 	String target = "/api/submitwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
@@ -134,6 +135,8 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output){
 		req.Post("failures", IntStr(failures));
 	if(!IsNull(skipped))
 		req.Post("skipped", IntStr(skipped));
+	if (partial)
+		req.Post("partial", "1");
 	req.Execute();
 	if(lock && FileExists(String(Ini::lock_file))){
 		DeleteFile(String(Ini::lock_file));
@@ -170,8 +173,22 @@ bool WatchdogClient::Run(String command){
 	if(Ini::log_level > 0) 
 		Cout() << "Executing command '" << command << "'\n";
 	String output;
+	int result = -1;
 	start = GetUtcTime();
-	int result = Sys(command, output);
+	LocalProcess p;
+	if(p.Start(command)) {
+		Time sync = GetUtcTime();
+		while(p.IsRunning()) {
+			output.Cat(p.Get());
+			Sleep(100);
+			if (GetUtcTime() - sync > Ini::upload_interval) {
+				SubmitWork(commit, output, true);
+				sync = GetUtcTime();
+			}
+		}
+		output.Cat(p.Get());
+		result = p.GetExitCode();
+	}
 	end = GetUtcTime();
 	
 	if(Ini::log_level > 0) {

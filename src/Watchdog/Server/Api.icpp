@@ -70,12 +70,12 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	int failures = Nvl(http.Int("failures"), 0);
 	int skipped = Nvl(http.Int("skipped"), 0);
 	String builder = Nvl((String)http["builder"], http.GetPeerAddr());
+	bool partial = Nvl(http.Int("partial"), 0) > 0;
 	
 	Result result;
 	result("CMT_UID", commit)
 	      ("CLIENT_ID", cid)
-	      ("STATUS", WD_DONE)
-	      ("FINISHED", end)
+	      ("STATUS", partial ? WD_INPROGRESS : WD_DONE)
 	      ("OK", ok)
 	      ("ERR", errors)
 	      ("FAIL", failures)
@@ -83,13 +83,18 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	      ("BUILDER", builder);
 	if(IsNull(start))
 		result("START", start);
+	if(!partial)
+		result("FINISHED", end);
 	
 	result.Save();
 	
 	http.Response(200,"OK");
-	http.Finalize();
+	
+	if (partial)
+		return;
 	
 	// now send emails
+	http.Finalize();
 	
 	SQLR * Select(UID, BRANCH, CMT, DT, AUTHOR, MSG, PATH,
 	              ID, NAME, DESCR, SRC,

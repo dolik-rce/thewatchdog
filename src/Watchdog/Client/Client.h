@@ -39,7 +39,7 @@ struct WatchdogClient {
 	
 	virtual bool GetWork();
 	virtual bool AcceptWork(const String& commit);
-	virtual bool SubmitWork(const String& commit, const String& output);
+	virtual bool SubmitWork(const String& commit, const String& output, bool partial=false);
 	virtual bool Run(String command);
 	
 	WatchdogClient();
