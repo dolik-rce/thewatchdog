@@ -91,6 +91,9 @@ clean:
 distclean: clean
 	rm -rf uppsrc $(TMP)/upp-x11-src-*.tar.gz
 
+test:
+	tests/integration/integration_test.sh tests/integration/sqlite.cfg
+
 install: all
 	install -d $(DESTDIR)/etc/thewatchdog \
 	           $(DESTDIR)/usr/bin \
@@ -130,4 +133,4 @@ uninstall:
 
 FORCE::
 
-.PHONY: all clean dist-clean update-uppsrc install uninstall
+.PHONY: all clean dist-clean update-uppsrc install uninstall test
