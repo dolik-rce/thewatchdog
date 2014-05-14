@@ -36,7 +36,7 @@ test_result() {
         if [ "$2" != "$3" ]; then
             fails=$(( $fails + 1 ))
             echo "FAILED"
-            echo "ACTUAL: $2"
+            echo "ACTUAL:   $2"
             echo "EXPECTED: $3"
         else
             echo "OK"

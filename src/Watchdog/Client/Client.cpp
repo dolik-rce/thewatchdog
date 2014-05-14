@@ -9,6 +9,7 @@ namespace Upp { namespace Ini {
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
 	INI_STRING(name, TrimBoth(LoadFile("/etc/hostname")), "Builder unique identification string");
 	INI_INT(upload_interval, 60, "How often should be output send to server (in seconds)");
+	INI_INT(test_timeout, 3600, "Maximum time one test can run (in seconds). It will be killed after this time.");
 }}
 
 Time ScanTimeToUtc(const char *s) {
@@ -175,24 +176,40 @@ bool WatchdogClient::Run(String command){
 	String output;
 	int result = -1;
 	start = GetUtcTime();
+	bool killed = false;
 	LocalProcess p;
 	if(p.Start(command)) {
 		Time sync = GetUtcTime();
 		while(p.IsRunning()) {
 			output.Cat(p.Get());
 			Sleep(100);
-			if (GetUtcTime() - sync > Ini::upload_interval) {
+			Time t = GetUtcTime();
+			if (t - sync > Ini::upload_interval) {
 				SubmitWork(commit, output, true);
 				sync = GetUtcTime();
 			}
+			if (t - start > Ini::test_timeout) {
+				p.Kill();
+				RLOG("DBG: killed "<<GetSysTime());
+				output.Cat(p.Get());
+				p.Detach();
+				killed = true;
+				result = -1;
+				break;
+			}
 		}
-		output.Cat(p.Get());
-		result = p.GetExitCode();
+		if(!killed) {
+			output.Cat(p.Get());
+			result = p.GetExitCode();
+		}
 	}
 	end = GetUtcTime();
 	
 	if(Ini::log_level > 0) {
-		Cout() << "Execution finished after " << (end-start) << " seconds with exit code '" << result << "'\n";
+		if (killed)
+			Cout() << "Execution aborted after " << (end-start) << " seconds\n";
+		else
+			Cout() << "Execution finished after " << (end-start) << " seconds with exit code '" << result << "'\n";
 		Cout() << "Parsing command output\n";
 	}
 	int pos = output.Find("\n@");
@@ -216,6 +233,9 @@ bool WatchdogClient::Run(String command){
 		int endpos = output.Find('\n', pos + 2);
 		output.Remove(pos, endpos - pos);
 		pos = output.Find("\n@", pos);
+	}
+	if (killed && IsNull(ok) && IsNull(errors) && IsNull(failures) && IsNull(skipped)) {
+		errors = 1;
 	}
 	// send the results
 	return SubmitWork(commit, output);
