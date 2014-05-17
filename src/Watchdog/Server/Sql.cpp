@@ -28,7 +28,8 @@ bool Upsert(Sql& sql, const SqlInsert& insert, const SqlUpdate& update) {
 }
 
 SqlBool Regexp(const SqlVal& a, const SqlVal& b) {
-	return SqlBool(a, " regexp ", b, SqlS::COMP);
+	static SqlVal any("'.*'", SqlS::HIGH);
+	return SqlBool(Nvl(a, SqlEmptyString()), " regexp ", If(b == SqlEmptyString(), any, Nvl(b, any)), SqlS::COMP);
 }
 
 SqlVal SqlEmptyString(){
