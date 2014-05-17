@@ -192,6 +192,7 @@ bool WatchdogClient::Run(String command){
 				p.Kill();
 				RLOG("DBG: killed "<<GetSysTime());
 				output.Cat(p.Get());
+				output.Cat() << "\nTIMEOUT: Compilation aborted after " << (end-start) << "seconds\n";
 				p.Detach();
 				killed = true;
 				result = -1;
