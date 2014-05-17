@@ -1,3 +1,24 @@
+thewatchdog (0.1.1) testing; urgency=low
+
+  * New screen "authors"
+  * New screen with current configuration
+  * Homepage shows more informations
+  * Admin account editation form
+  * Configurable rss item age and count
+  * Commits screen optimized for narrow displays
+  * Client command line and API simplified
+  * Fixed errors in status and duration displaying
+  * Added some basic tests
+  * Ability to (re)set admin password from commandline
+  * SVN import script
+  * Fixed problem with timezones
+  * New client side formating of dates
+  * Clients now send builder identification, which is displayed with the results
+  * Uploading test output on the fly
+  * Timeout for stalled tests
+
+ -- Jan Dolinar <jan.dolinar@firma.seznam.cz>  Wed, 17 May 2014 08:12:17 +0200
+
 thewatchdog (0.1.0) testing; urgency=low
 
   * New administrative commandline tool
