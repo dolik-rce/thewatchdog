@@ -114,7 +114,7 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output, bool
 	}
 	
 	if(Ini::log_level > 0) 
-		Cout() << "Sending " << (partial ? "partial" : "") << " results\n";
+		Cout() << "Sending " << (partial ? "partial" : "final") << " results\n";
 
 	String target = "/api/submitwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
@@ -139,7 +139,7 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output, bool
 	if (partial)
 		req.Post("partial", "1");
 	req.Execute();
-	if(lock && FileExists(String(Ini::lock_file))){
+	if(!partial && lock && FileExists(String(Ini::lock_file))){
 		DeleteFile(String(Ini::lock_file));
 	}
 	if(!req.IsSuccess()){
