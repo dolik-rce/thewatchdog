@@ -40,6 +40,14 @@ $endif
 $if(OUTPUT)
 <div class="ldiv">
 <h3 class="wide">Output<a class="dl_link" href=$Output(RESULT.UID,RESULT.ID)>Download</a></h3>
-<pre class="output">$OUTPUT</pre>
+<pre id="output" class="output">$OUTPUT</pre>
 </div>
+<script>
+	var out=document.getElementById('output');
+	if (out)
+		out.scrollTop=out.scrollHeight;
+$if(RESULT.STATUS<=1)
+	setTimeout("location.reload(true);", 30000);
+$endif
+</script>
 $endif
