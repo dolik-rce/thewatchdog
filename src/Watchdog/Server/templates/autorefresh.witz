@@ -1,0 +1,12 @@
+<span class="autorefresh">
+Autorefresh<br>
+<select id="refresh" onload="init_refresh(this)" onchange="set_refresh(this)">
+<option value="0">never</option>
+<option value="10">every 10 s</option>
+<option value="30">every 30 s</option>
+<option value="60">every 1 min</option>
+<option value="120">every 2 min</option>
+<option value="300">every 5 min</option>
+<option value="600">every 10 min</option>
+</select>
+</span>

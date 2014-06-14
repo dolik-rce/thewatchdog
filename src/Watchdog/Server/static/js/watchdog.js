@@ -12,6 +12,33 @@ function set_page(sel,event){
 		event.preventDefault();
 }
 
+var refresh_timeout = null;
+
+function init_refresh(){
+	var interval = document.cookie.replace(/(?:(?:^|.*;\s*)autorefresh\s*\=\s*([^;]*).*$$)|^.*$$/, "$$1");
+	var sel = document.getElementById("refresh");
+	sel.value = interval;
+	set_refresh(sel);
+}
+
+function disable_refresh(){
+	var sel = document.getElementById("refresh");
+	sel.parentNode.style.display="none";
+}
+
+function set_refresh(sel){
+	var interval = sel.options[sel.selectedIndex].value;
+	if (interval == 0) {
+		clearTimeout(refresh_timeout);
+	} else {
+		refresh_timeout = setTimeout("window.location.reload(true);", 1000*interval);
+	}
+	var expires = new Date();
+	expires.setDate(expires.getDate() + 30);
+	document.cookie = "autorefresh="+interval+";path=/;expires="+expires.toUTCString();
+	return false;
+}
+
 function feedfilter(){
 	url=document.getElementById('url').value
 	var filter='';

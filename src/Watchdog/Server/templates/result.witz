@@ -44,10 +44,6 @@ $if(OUTPUT)
 </div>
 <script>
 	var out=document.getElementById('output');
-	if (out)
-		out.scrollTop=out.scrollHeight;
-$if(RESULT.STATUS<=1)
-	setTimeout("location.reload(true);", 30000);
-$endif
+	if (out) out.scrollTop=out.scrollHeight;
 </script>
 $endif

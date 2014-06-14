@@ -25,10 +25,13 @@
 <li><a href=$Authors>Authors</a></li>
 <li><a href=$Feeds>Feeds</a></li>
 </ul>
+#include templates/autorefresh
+#INITREFRESH
 <div id="content">
 #BODY
 $dbg()
 </div>
 </body>
 </html>
+#define INITREFRESH <script type="text/javascript">init_refresh();</script>
 #define HEAD

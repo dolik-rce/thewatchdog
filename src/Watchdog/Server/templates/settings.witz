@@ -1,5 +1,6 @@
 #include templates/base
 #define TITLE Current settings
+#define INITREFRESH <script type="text/javascript">disable_refresh();</script>
 #define BODY
 
 <script>

@@ -2,6 +2,7 @@ file
 	dummy.cpp,
 	404.witz,
 	auth.witz,
+	autorefresh.witz,
 	authors.witz,
 	base.witz,
 	branches.witz,

@@ -1,4 +1,5 @@
 #include templates/base
+#define INITREFRESH <script type="text/javascript">disable_refresh();</script>
 #define TITLE
 $if(CLIENT.ID > 0)
   Edit $CLIENT.NAME

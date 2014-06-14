@@ -5,6 +5,8 @@ ul.menu { list-style-type: none; padding-left:0; }
 #content {position: absolute; left: 150px;}
 .output {overflow: auto; width: 800px; height: 400px;}
 .paging {font-size: 75%;}
+#refresh {font-size: 75%; opacity: 0.5;}
+span.autorefresh {font-size: 75%; color: gray; background-color: white; z-index: 100; position: fixed; top: 0px; right: 0px; padding: 5px;}
 .wide {position:relative;width:100%;}
 .dl_link {font-size: 75%; position:absolute; right:0;}
 .indent {padding-left: 25px; border: 0;}

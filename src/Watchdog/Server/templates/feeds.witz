@@ -1,5 +1,6 @@
 #include templates/base
 #define TITLE RSS feeds
+#define INITREFRESH <script type="text/javascript">disable_refresh();</script>
 #define BODY
 
 <p class="big">I want to see whats going on filtered by:</p>

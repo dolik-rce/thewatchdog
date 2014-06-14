@@ -1,5 +1,6 @@
 #include templates/base
 #define TITLE Configuration
+#define INITREFRESH <script type="text/javascript">disable_refresh();</script>
 #define BODY
 <script src=$CachedStatic("js/md5.js") type="text/javascript"></script>
 <script type="text/javascript">
