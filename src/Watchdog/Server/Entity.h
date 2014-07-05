@@ -37,6 +37,7 @@ struct Commit : public Entity<Commit>, public Moveable<Commit> {
 struct Result : public Entity<Result>, public Moveable<Result> {
 	bool Load(const String& uid, int id);
 	static ValueMap LoadPage(const CommitFilter& f);
+	static String OutputPath(const String& uid, int id);
 	String FetchOutput() const;
 	static void Delete(const String& uid, int id);
 	void Save();

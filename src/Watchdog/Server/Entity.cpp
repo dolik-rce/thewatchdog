@@ -186,15 +186,31 @@ ValueMap Result::LoadPage(const CommitFilter& f) {
 	return res;
 }
 
+String Result::OutputPath(const String& uid, int id) {
+	return Format("%s/%s/%d.log",(String)Ini::output_dir, uid, id);
+}
+
 String Result::FetchOutput() const {
-	return LoadFile(Format("%s/%s/%d.log",(String)Ini::output_dir,data["CMT_UID"],data["CLIENT_ID"]));
+	return LoadFile(OutputPath(data["CMT_UID"], data["CLIENT_ID"]));
 }
 
 void Result::Delete(const String& uid, int id) {
-	if(IsEmpty(uid))
+	if(IsEmpty(uid)) {
 		SQL * ::Delete(RESULT).Where(CLIENT_ID==id);
-	else
+		String fn = IntStr(id)+".log";
+		for(FindFile ff(AppendFileName(Ini::output_dir, "*")); ff; ff.Next()) {
+			if(ff.GetName() == "." || ff.GetName() == "..")
+				continue;
+			String path = AppendFileName(ff.GetPath(), fn);
+			LOG("Deleting file " << path);
+			DeleteFile(path);
+		}
+	} else {
 		SQL * ::Delete(RESULT).Where(CLIENT_ID==id && CMT_UID==uid);
+		String path = OutputPath(uid, id);
+		LOG("Deleting file " << path);
+		DeleteFile(path);
+	}
 }
 
 void Result::Save() {
