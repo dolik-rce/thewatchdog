@@ -40,20 +40,22 @@ function set_refresh(sel){
 }
 
 function feedfilter(){
-	url=document.getElementById('url').value
+	url=document.getElementById('url').value;
+	var rss='';
 	var filter='';
-	var k = ["author","client","path","branch","status"]
-	var s=''
+	var k = ["author","client","path","branch","status"];
+	var s='';
 	for (var i = 0; i < k.length; i++) {
-		x=document.getElementById(k[i]).value
+		x=document.getElementById(k[i]).value;
 		if (x!=''){
-			filter+=s+k[i]+'='+encodeURIComponent(x)
-			s='&'
+			rss+=s+k[i]+'='+encodeURIComponent(x);
+			filter+=s+k[i]+'='+x;
+			s='&';
 		}
 	}
-	s=(s!='')?'?':''
-	document.getElementById('feedurl').innerHTML='<a href="'+url+s+filter+'">'+url+s+filter+'</a>'
-	document.getElementById('filter').value=filter
+	s=(s!='')?'?':'';
+	document.getElementById('feedurl').innerHTML='<a href="'+url+s+rss+'">'+url+s+rss+'</a>';
+	document.getElementById('filter').value=filter;
 }
 
 function getRadioValue (group){

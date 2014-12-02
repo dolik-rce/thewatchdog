@@ -285,9 +285,9 @@ ValueArray ParseFilter(const String& filter){
 	return res;
 }
 
-bool MatchFilter(const ValueMap& m, const String& commit, const String& branch, 
+bool MatchFilter(const String& filter, const String& commit, const String& branch,
 		int client, bool result, const String& author, const String& path){
-	Vector<String> v = Split(AsString(m["FILTER"]),"&");
+	Vector<String> v = Split(filter,"&");
 	if(v.IsEmpty())
 		return true;
 	for(int i = 0; i < v.GetCount(); i++){
