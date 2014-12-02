@@ -249,7 +249,7 @@ SKYLARK(Remove, "remove/*/*:POST"){
 
 SKYLARK(Output, "output/*/*"){
 	struct Result result;
-	result("CLIENT_ID", http.Int(0))("CMT_UID", http.Int(1));
+	result("CLIENT_ID", http.Int(1))("CMT_UID", http[0]);
 	
 	String output = result.FetchOutput();
 	if(output.IsVoid()){
