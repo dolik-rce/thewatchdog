@@ -66,17 +66,19 @@ SKYLARK(Feeds, "feeds")
 SKYLARK(Subscribe, "subscribe:POST")
 {
 	String email = http["email"];
-	if(email.Find('@', 1) < 0){
+	if(email.GetCount() < 3 || email.Find('@', 1) < 0){
 		http << "<div class=alert>Invalid email address</div>";
 		Feeds(http);
 		return;
 	}
 	String filter = http["filter"];
+	String freq = http["freq"];
 	String token = Uuid::Create().ToString();
+	int uniq = CRC32(email+filter+freq);
 	http("FILTER", ParseFilter(filter));
 	http("SELF", String(Ini::server_url));
 
-	SQLR * Select(ACTIVE).From(MAIL).Where(UNIQ == int(CRC32(email+filter)));
+	SQLR * Select(ACTIVE).From(MAIL).Where(UNIQ == uniq);
 	if(SQLR.Fetch()){
 		http("ACTION",-2)("STATE",SQLR[0])
 		 .RenderResult("templates/subscription");
@@ -85,20 +87,22 @@ SKYLARK(Subscribe, "subscribe:POST")
 	SQL * Insert(MAIL)(EMAIL, email)
 	                  (FILTER, filter.IsEmpty()?SqlEmptyString():filter)
 	                  (TOKEN, token)
-	                  (UNIQ, int(CRC32(email+filter)))
-	                  (CTIME, GetUtcTime());
-	String md5 = MD5String(email+filter+token);
+	                  (UNIQ, uniq)
+	                  (CTIME, GetUtcTime())
+	                  (FREQ, freq);
+	String md5 = MD5String(email+filter+token+freq);
 	
-	http("ACTION",1)("EMAIL",email)
+	http("ACTION",1)("EMAIL",email)("TOKEN", md5)
 	 .RenderResult("templates/subscription");
 	http.Finalize();
-	SendEmail(email, md5, "Verify Watchdog subscription", http.RenderString("templates/verifymail"));
+	String body = http.RenderString("templates/verifymail");
+	SendEmail(email, "Verify Watchdog subscription", body);
 }
 
 SKYLARK(Verify, "verify")
 {
 	SQL * Update(MAIL)(ACTIVE,true)
-	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))));
+	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN,FREQ))));
 	if(!SQL.GetRowsProcessed()){
 		http("ACTION",-1)
 		 .RenderResult("templates/subscription");
@@ -112,7 +116,7 @@ SKYLARK(Verify, "verify")
 SKYLARK(Unsubscribe, "unsubscribe")
 {
 	SQL * Delete(MAIL)
-	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))));
+	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN,FREQ))));
 	if(SQL.GetRowsProcessed())
 	http("FILTER",String("???"))("ACTION",3)
 	 .RenderResult("templates/subscription");

@@ -1,0 +1,76 @@
+$if(PLAIN==1)
+$for(i in CLIENTS)
+	=== $i ===
+	$for(j in DATA[i._key])
+		Branch $j.BRANCH
+			Executed:        $(j.OK+j.ERR+j.FAIL+j.SKIP) testcases in $j.CNT runs
+			Status:          $j.STATUSSTR
+			Last successful:$if(j.LAST_OK) $j.LAST_OK $else --- $endif
+			Last failed:    $if(j.LAST_FAIL) $j.LAST_FAIL $else --- $endif
+			Avg. duration:   $Duration(j.AVG_DURATION)
+	$endfor
+$endfor
+
+Filter used when generating this report:
+$for(i in FILTER)
+    - $i
+$endfor
+
+You received this e-mail because you have subscribed to the above mentioned
+filter on $SELF.
+
+To unsubscribe click following link:
+    $SELF/unsubscribe?v=$TOKEN
+$else
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<title>Daily report</title>
+<style>
+table { border: 2px solid black;border-collapse:collapse; }
+th, td { text-align:center; border: 1px solid black; }
+.green { background-color: #8F8; }
+.red { background-color: #F88; }
+</style>
+</head>
+<body>
+$for(i in CLIENTS)
+	<h3>$i</h3>
+	<table>
+	<tr><th>Branch</th>
+	<th>Testcases (runs)</th>
+	<th>Status</th>
+	<th>Last successful</th>
+	<th>Last fail</th>
+	<th>Avg. duration</th></tr>
+	$for(j in DATA[i._key])
+		<tr>
+		<th>$j.BRANCH</th>
+		<td>$(j.OK+j.ERR+j.FAIL+j.SKIP) ($j.CNT)</td>
+		<td style="background-color: #$j.COLOR">$j.STATUSSTR</td>
+		<td $if(j.LAST_OK > j.LAST_FAIL) class="green" $endif>
+			$if(j.LAST_OK) $j.LAST_OK $else --- $endif</td>
+		<td $if(j.LAST_OK < j.LAST_FAIL) class="red" $endif>
+			$if(j.LAST_FAIL) $j.LAST_FAIL $else --- $endif</td>
+		<td>$Duration(j.AVG_DURATION)</td>
+		</tr>
+	$endfor
+	</table>
+$endfor
+<br><br>
+Filter used when generating this report:
+<ul>
+$for(i in FILTER)
+	<li>$i</li>
+$/
+</ul>
+
+You received this e-mail because you have subscribed to the above mentioned
+filter on <a href="$SELF">$SELF</a>.<br><br>
+
+To unsubscribe click following link:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="$SELF/unsubscribe?v=$TOKEN">$SELF/unsubscribe?v=$TOKEN</a><br>
+</body>
+</html>
+$endif

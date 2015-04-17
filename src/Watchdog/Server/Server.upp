@@ -12,8 +12,8 @@ uses
 file
 	Server.h,
 	Server.cpp,
-	Entity.cpp,
 	Entity.h,
+	Entity.cpp,
 	Web.icpp,
 	Api.icpp,
 	Feeds.icpp,
@@ -23,6 +23,8 @@ file
 	SqliteCompat.cpp,
 	Util.h,
 	Util.cpp,
+	Email.h,
+	Email.cpp,
 	table.sch,
 	stylegen.sh,
 	Server.ini,

@@ -27,15 +27,20 @@ $/
 </table>
 <br>
 <input type="hidden" id="url" value="$SELF/rss">
-<div class="big">This news can be delivered either by RSS feed:
-  <p class="indent" id="feedurl"><a href="$SELF/rss">$SELF/rss</a></p>
-or via e-mail anouncements:
+<div class="big">This news can be delivered using e-mail subscription:
   <form action=$Subscribe() method="POST">
     <p class="indent">
-      <small>E-mail address:</small> <input name="email">
+      <small>E-mail address: <input name="email"><br>
       <input id="filter" name="filter" value="" type="hidden">
       $post_identity()
+      <input type="radio" name="freq" id="f_each" value="each" onchange="feedfilter();" checked="checked">
+      <label for="f_each">As it happens</label><br>
+      <input type="radio" name="freq" id="f_daily" value="daily" onchange="feedfilter();">
+      <label for="f_daily">Daily digest</label><br>
       <input type="submit" value="Subscribe">
+      </small>
     </p>
   </form>
+or via RSS feed:
+  <p class="indent" id="feedurl"><a href="$SELF/rss">$SELF/rss</a></p>
 </div>

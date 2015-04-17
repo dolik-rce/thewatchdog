@@ -95,33 +95,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	
 	// now send emails
 	http.Finalize();
-	
-	SQLR * Select(UID, BRANCH, CMT, DT, AUTHOR, MSG, PATH,
-	              ID, NAME, DESCR, SRC,
-	              START, FINISHED, STATUS,
-	              TimeDiff(START, FINISHED).As("DURATION"))
-	      .From(RESULT)
-	      .InnerJoin(COMMITS).On(CMT_UID == UID)
-	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(CMT_UID==commit && CLIENT_ID == cid);
-	ValueMap data;
-	SQLR.Fetch(data);
-	data.Add("STATUSSTR", ComputeStatus(WD_DONE, ok, failures, errors));
-	http("DATA", data)("SELF", String(Ini::server_url));
-	String html = http.RenderString("templates/resultmail");
-	http("PLAIN",1);
-	String text = http.RenderString("templates/resultmail");
-	
-	ValueMap m;
-	Vector<String> to, tokens;
-	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN))).As("TOK")).From(MAIL);
-	while(SQLR.Fetch(m)){
-		if(MatchFilter(m["FILTER"], commit, data["BRANCH"], cid, errors+failures==0, data["AUTHOR"], data["PATH"])){
-			to.Add(m["EMAIL"]);
-			tokens.Add(m["TOK"]);
-		}
-	}
-	SendEmails(to, tokens, Format("%s %d", data["NAME"], commit), text, html);
+	SendResultMails(http, commit, cid, ok, failures, errors);
 }
 
 SKYLARK(GetState, "api/getstate:POST") {
@@ -177,4 +151,25 @@ SKYLARK(Clean, "api/clean:POST") {
 	http.Finalize();
 	CleanResults();
 	CleanAuth();
+}
+
+SKYLARK(DailyReport, "api/dailyreport:POST") {
+	if(!CheckAuth(http, SQL, 0, "/api/dailyreport"))
+		return;
+	http << "OK\n";
+	http.Finalize();
+
+	SQLR * Select(EMAIL, FILTER, TOKEN)
+	       .From(MAIL)
+	       .Where(FREQ == "daily");
+	ValueMap vm;
+	Vector<ValueMap> emails;
+	while(SQLR.Fetch(vm)) {
+		emails.Add(vm);
+	}
+	for(int i=0; i<emails.GetCount(); ++i) {
+		String text, html;
+		GenerateDailyMail(http, emails[i]["FILTER"], emails[i]["TOKEN"], text, html);
+		SendEmail(emails[i]["EMAIL"], "Daily report", text, html);
+	}
 }

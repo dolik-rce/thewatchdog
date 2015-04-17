@@ -8,7 +8,7 @@ $/
 
 Please follow this link to verify your email and finish the subscription:
 
-    $SELF/verify?v=@token@
+    $SELF/verify?v=$TOKEN
 
 If you don't know what this e-mail means and where it came from, please ignore 
 it. If it happens more than once, you are encouraged to notify the page 

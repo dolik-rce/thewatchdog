@@ -11,6 +11,7 @@ file
 	commit.witz,
 	commits.witz,
 	config.witz,
+	dailymail.witz,
 	editclient.witz,
 	feeds.witz,
 	filter.witz,

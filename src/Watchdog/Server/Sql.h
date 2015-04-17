@@ -14,6 +14,7 @@ SqlVal DateSub(const SqlVal& date, const SqlVal& interval);
 SqlVal SqlInterval(const SqlVal& count, const String& unit);
 SqlVal TimeDiff(const SqlVal& a, const SqlVal& b);
 String SqlEscape(const Value& in);
+SqlBool SqlFilter(const String& filter);
 
 inline SqlVal ToSqlVal(const SqlBool& b) {
 	return SqlVal(~b, SqlS::HIGH);

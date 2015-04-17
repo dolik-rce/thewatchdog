@@ -121,3 +121,23 @@ String SqlEscape(const Value& in){
 	t.Cat('\'');
 	return t;
 }
+
+SqlBool SqlFilter(const String& filter) {
+	Vector<String> v = Split(filter,"&");
+	SqlBool res(true);
+	if(v.IsEmpty()) {
+		return res;
+	}
+	for(int i = 0; i < v.GetCount(); i++){
+		if(v[i].StartsWith("author=")){
+			res &= (AUTHOR == v[i].Mid(7));
+		} else if(v[i].StartsWith("path=")){
+			res &= Regexp(PATH, v[i].Mid(5));
+		} else if(v[i].StartsWith("client=")){
+			res &= (CLIENT_ID == v[i].Mid(7));
+		} else if(v[i].StartsWith("status=")){
+			res &= (v[i].EndsWith("=ok") ? (ERR + FAIL == 0) : (ERR + FAIL != 0));
+		}
+	}
+	return res;
+}

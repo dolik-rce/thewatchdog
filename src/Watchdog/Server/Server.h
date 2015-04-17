@@ -9,6 +9,7 @@ using namespace Upp;
 #include "Sql.h"
 #include "Util.h"
 #include "Entity.h"
+#include "Email.h"
 
 namespace Upp{ 
 	void ReopenLog();
