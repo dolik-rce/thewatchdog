@@ -5,6 +5,7 @@
 #include <DynamicSql/sch_schema.h>
 
 namespace Upp{ namespace Ini {
+	INI_STRING(skylark_root, "", "Application root");
 	INI_STRING(db_backend, "sqlite", "Database backend (mysql, sqlite)");
 	INI_STRING(db_scripts_dir, "/tmp/wd_db", "Database update scripts directory");
 	INI_STRING(dsql_plugin_path, "/tmp", "Directory containing DynamicSql plugins");
@@ -158,7 +159,7 @@ void Watchdog::SetAdmin(){
 }
 
 Watchdog::Watchdog() {
-	root = "";
+	root = Ini::skylark_root;
 #ifdef _DEBUG
 	use_caching = false;
 #endif

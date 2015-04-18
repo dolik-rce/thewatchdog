@@ -14,6 +14,7 @@ using namespace Upp;
 namespace Upp{ 
 	void ReopenLog();
 	namespace Ini {
+		extern IniString skylark_root;
 		extern IniString sql_user;
 		extern IniString sql_password;
 		extern IniString sql_database;
