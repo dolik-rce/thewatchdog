@@ -10,6 +10,7 @@ struct WatchdogAdmin : public WatchdogClient {
 	virtual bool GetState();
 	virtual bool Update();
 	virtual bool Clean();
+	virtual bool DailyReport();
 	virtual bool Delete(const String& branch);
 
 	void ParseArgument(int& i, const Vector<String>& cmd);
