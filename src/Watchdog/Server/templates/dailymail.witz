@@ -1,4 +1,6 @@
 $if(PLAIN==1)
+Daily report for $FROM
+
 $for(i in CLIENTS)
 	=== $i ===
 	$for(j in DATA[i._key])
@@ -35,6 +37,8 @@ th, td { text-align:center; border: 1px solid black; }
 </style>
 </head>
 <body>
+<h2>Daily report</h2>
+Generated for commits between $FROM and $TO.
 $for(i in CLIENTS)
 	<h3>$i</h3>
 	<table>

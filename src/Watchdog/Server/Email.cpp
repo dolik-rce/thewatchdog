@@ -71,6 +71,10 @@ void SendResultMails(Http& http, const String& commit, int cid, int ok, int fail
 }
 
 void GenerateDailyMail(Http& http, const String& filter, const String& token, String&text, String& html) {
+	Time now = GetUtcTime();
+	Date to(now.year, now.month, now.day);
+	Date from = to - 1;
+
 	SQLR * Select(CLIENT_ID, BRANCH, NAME,
 	              SqlSum(OK).As("OK"), SqlSum(ERR).As("ERR"), SqlSum(FAIL).As("FAIL"), SqlSum(SKIP).As("SKIP"),
 	              SqlSum(1).As("CNT"), Avg(TimeDiff(START, FINISHED)).As("AVG_DURATION"),
@@ -78,7 +82,7 @@ void GenerateDailyMail(Http& http, const String& filter, const String& token, St
 	      .From(RESULT)
 	      .InnerJoin(COMMITS).On(CMT_UID == UID)
 	      .InnerJoin(CLIENT).On(ID == CLIENT_ID)
-	      .Where(FINISHED >= GetUtcTime()-86400 && STATUS == WD_DONE && SqlFilter(filter))
+	      .Where(DT >= from && DT < to && STATUS == WD_DONE && SqlFilter(filter))
 	      .GroupBy(CLIENT_ID, BRANCH);
 
 	ValueMap data;
@@ -107,6 +111,8 @@ void GenerateDailyMail(Http& http, const String& filter, const String& token, St
 	    ("DATA", data)
 	    ("FILTER", ParseFilter(filter))
 	    ("TOKEN", token)
+	    ("FROM", from)
+	    ("TO", to)
 	    ("SELF", String(Ini::server_url));
 	html = http.RenderString("templates/dailymail");
 	http("PLAIN",1);
