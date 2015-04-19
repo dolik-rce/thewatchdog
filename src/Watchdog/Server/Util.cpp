@@ -403,9 +403,17 @@ Value Dbg(const Vector<Value>& arg, const Renderer *r)
 	return Raw(html);
 }
 
+Value Params(const Vector<Value>& arg, const Renderer *) {
+	RawHtmlText r;
+	r.text = arg[0].To<RawHtmlText>().text;
+	r.text.Insert(r.text.GetCount()-1, AsString(arg[1]));
+	return RawPickToValue(r);
+}
+
 INITBLOCK {
 	Compiler::Register("Duration", Duration);
 	Compiler::Register("email", Email);
 	Compiler::Register("time", LocalTime);
 	Compiler::Register("dbg", Dbg);
+	Compiler::Register("params", Params);
 };
