@@ -37,6 +37,6 @@ $for(i in COMMITS)
     </tr><tr>
       <td class="even">$i.PATH&nbsp;</td>
     </tr>    
-$/
+$endfor
 </table>
 #include templates/paging

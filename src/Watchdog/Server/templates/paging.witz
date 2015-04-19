@@ -3,7 +3,11 @@ $for(i in PAGING)
   $if(i.PAGE=="current")
     Page&nbsp;<input class="goto" onkeypress="set_page(this,event)" type="text" value="$i.TEXT">
   $else
-    <a href="?$if(i.PAGE>=0)page=$i.PAGE$endif">$i.TEXT</a>
+    $if(i.PAGE>=0)
+      <a href="?page=$i.PAGE">$i.TEXT</a>
+    $else
+      <a href="">$i.TEXT</a>
+    $endif
   $endif
 $/
 <select class="paging" onchange="set_cnt(this)">

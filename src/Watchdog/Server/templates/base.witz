@@ -8,7 +8,7 @@
 </style>
 #HEAD
 <link rel="icon" type="image/png" href="$CachedStatic("img/favicon.png")"/>
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss"/>
+<link rel="alternate" type="application/rss+xml" title="RSS" href=$RssFeed/>
 <script type="text/javascript">
 #include js/watchdog.js
 </script>

@@ -1,9 +1,9 @@
 <div class="trans" id="filter" style="height:1.5eM" onmouseout="hideFilter()" onmouseover="showFilter()">
 <strong style="margin-right:10px">Filter</strong><span class="trans">
-$if(.f_branch)Branch: $.f_branch$endif
-$if(.f_msg)Log message: $.f_msg$endif
-$if(.f_author)Author: $.f_author$endif
-$if(.f_path)Path: $.f_path$endif
+$if(.f_branch)Branch: $.f_branch $endif
+$if(.f_msg)Log message: $.f_msg $endif
+$if(.f_author)Author: $.f_author $endif
+$if(.f_path)Path: $.f_path $endif
 </span>
 <form>
 <table>
