@@ -23,7 +23,9 @@ $/
   <option value="">Any</option>
   <option value="failed">Only failed</option>
   <option value="ok">Only successful</option>
-</select></td></tr>
+</select>
+<span style="display:none;" id="status_warning"><small><span style="color:red;">Warning:</span> It is recommended to use "Any" for digest mails, otherwise the reports might be misleading.</small></span>
+</td></tr>
 </table>
 <br>
 <input type="hidden" id="url" value="$SELF/rss">
