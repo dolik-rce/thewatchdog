@@ -74,7 +74,7 @@ $(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
 
 uppsrc/%: $(UPPTAR)
 	$(GETUPPDEP)
-	[ -e patch/$*.patch ] && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
+	[ -e patch/$*.patch ] && svn revert -R $@ && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
 
 uppsrc/uppconfig.h: $(UPPTAR)
 	$(GETUPPDEPFILE)
