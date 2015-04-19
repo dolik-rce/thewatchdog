@@ -54,7 +54,7 @@ function feedfilter(){
 		}
 	}
 	s=(s!='')?'?':'';
-	document.getElementById('feedurl').innerHTML='<a href="'+url+s+rss+'">'+url+s+rss+'</a>';
+	document.getElementById('feedurl').innerHTML='<a hr'+'ef="'+url+s+rss+'">'+url+s+rss+'</a>';
 	document.getElementById('filter').value=filter;
 	var showWarning = document.getElementById('status').value != "" && document.getElementById('f_daily').checked;
 	document.getElementById('status_warning').style.display=showWarning?"":"none;";
