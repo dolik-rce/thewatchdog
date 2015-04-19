@@ -32,7 +32,7 @@ SKYLARK(AcceptWork, "api/acceptwork/*:POST")
 	}
 	String builder = Nvl((String)http["builder"], http.GetPeerAddr());
 	Client::UpdateActivity(cid, true);
-	Result result;
+	struct Result result;
 	result("CMT_UID", http["commit"])
 	      ("CLIENT_ID", cid)
 	      ("START", start)
@@ -72,7 +72,7 @@ SKYLARK(SubmitWork, "api/submitwork/*:POST")
 	String builder = Nvl((String)http["builder"], http.GetPeerAddr());
 	bool partial = Nvl(http.Int("partial"), 0) > 0;
 	
-	Result result;
+	struct Result result;
 	result("CMT_UID", commit)
 	      ("CLIENT_ID", cid)
 	      ("STATUS", partial ? WD_INPROGRESS : WD_DONE)
@@ -116,7 +116,7 @@ SKYLARK(Update, "api/update:POST") {
 	Vector<String> data = Split(AsString(http["data"]), "\n");
 	for(int i = 0; i < data.GetCount(); i++){
 		Vector<String> line = Split(data[i], "\t", false);
-		Commit commit;
+		struct Commit commit;
 		commit("UID", line[0])
 		      ("BRANCH", line[1])
 		      ("CMT", line[2])
