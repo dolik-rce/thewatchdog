@@ -1,5 +1,13 @@
+thewatchdog (0.1.2) testing; urgency=low
+
+  * Daily digest emails
+  * Support for non-empty root
+
+ -- Jan Dolinar <dolik.rce@seznam.cz>  Mon, 20 Apr 2015 06:36:14 +0200
+
 thewatchdog (0.1.1) testing; urgency=low
 
+  * Fixed email notifications
   * New screen "authors"
   * New screen with current configuration
   * Homepage shows more informations
@@ -17,7 +25,7 @@ thewatchdog (0.1.1) testing; urgency=low
   * Uploading test output on the fly
   * Timeout for stalled tests
 
- -- Jan Dolinar <jan.dolinar@firma.seznam.cz>  Wed, 17 May 2014 08:12:17 +0200
+ -- Jan Dolinar <dolik.rce@seznam.cz>  Wed, 17 May 2014 08:12:17 +0200
 
 thewatchdog (0.1.0) testing; urgency=low
 
