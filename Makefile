@@ -35,7 +35,7 @@ all: $(BIN)/wds $(BIN)/wdc $(BIN)/wda $(DSQL_LIBS)
 
 ifeq ($(USESVN),true)
   UPPTAR:=
-  GETUPPDEP=mkdir -p $@; svn co '$(UPPSVN)/$@' $@;
+  GETUPPDEP=mkdir -p $@; svn co '$(UPPSVN)/$@' $@; svn revert -R $@;
   GETUPPDEPFILE=mkdir -p uppsrc; svn export --force '$(UPPSVN)/$@' $@
 else
   GETUPPDEP=tar -xzmf $(UPPTAR) --mtime=$$(stat -c@%Y $(UPPTAR)) --strip 1 $(UPPFILE)/$@;
@@ -74,7 +74,7 @@ $(LIB)/sqlite.so: $(DSQL_SQLITE_DEPS) FORCE
 
 uppsrc/%: $(UPPTAR)
 	$(GETUPPDEP)
-	[ -e patch/$*.patch ] && svn revert -R $@ && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
+	[ -e patch/$*.patch ] && patch --binary -t -l -p0 -duppsrc -i ../patch/$*.patch || true
 
 uppsrc/uppconfig.h: $(UPPTAR)
 	$(GETUPPDEPFILE)
