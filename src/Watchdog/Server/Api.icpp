@@ -161,7 +161,7 @@ SKYLARK(DailyReport, "api/dailyreport:POST") {
 
 	SQLR * Select(EMAIL, FILTER, TOKEN)
 	       .From(MAIL)
-	       .Where(FREQ == "daily");
+	       .Where(FREQ == "daily" && ACTIVE == 1);
 	ValueMap vm;
 	Vector<ValueMap> emails;
 	while(SQLR.Fetch(vm)) {

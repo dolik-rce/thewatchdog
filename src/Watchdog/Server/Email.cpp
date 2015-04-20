@@ -60,7 +60,7 @@ void SendResultMails(Http& http, const String& commit, int cid, int ok, int fail
 	Vector<String> to, tokens;
 	SQLR * Select(EMAIL,FILTER,SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN,FREQ))).As("TOK"))
 	       .From(MAIL)
-	       .Where(FREQ == "each");
+	       .Where(FREQ == "each" && ACTIVE == 1);
 	while(SQLR.Fetch(m)){
 		if(MatchFilter(m["FILTER"], commit, data["BRANCH"], cid, errors+failures==0, data["AUTHOR"], data["PATH"])){
 			to.Add(m["EMAIL"]);
