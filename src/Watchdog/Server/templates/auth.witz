@@ -8,7 +8,7 @@ function updateForm(){
   s=document.getElementById('id').value.split(';')
   document.getElementById('client_id').value=s[0]
   s=hex_md5(s[1]+document.getElementById('pwd').value)
-  document.getElementById('wd_auth').value=hex_md5('$WD_NONCE$TARGET'+s)
+  document.getElementById('wd_auth').value=hex_md5('$(WD_NONCE+TARGET)'+s)
 }
 </script>
 <p>Authorization is required to call '<b>$TARGET</b>'.</p>
