@@ -183,7 +183,7 @@ bool CheckLocal(Http& http){
 }
 
 bool CheckAuth(Http& http, Sql& sql, int client, const String& action){
-	#define AUTHLOG(X) RLOG("AUTH "<<X<<" (client:"<<cid<<", action:"<<http["wd_action"]<<"ip:"<<http.GetPeerAddr()<<")")
+	#define AUTHLOG(X) RLOG("AUTH "<<X<<" (client:"<<cid<<", action:"<<http["wd_action"]<<", ip:"<<http.GetPeerAddr()<<")")
 	int cid=http.Int("client_id");
 	if(cid!=client && cid!=0){
 		http << "Permission denied";
