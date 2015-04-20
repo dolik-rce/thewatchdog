@@ -70,7 +70,7 @@ void SendResultMails(Http& http, const String& commit, int cid, int ok, int fail
 	SendEmails(to, tokens, Format("%s %s@%s", data["NAME"], data["CMT"], data["BRANCH"]), text, html);
 }
 
-void GenerateDailyMail(Http& http, const String& filter, const String& token, String&text, String& html) {
+bool GenerateDailyMail(Http& http, const String& filter, const String& token, String& text, String& html) {
 	Time now = GetUtcTime();
 	Date to(now.year, now.month, now.day);
 	Date from = to - 1;
@@ -105,7 +105,7 @@ void GenerateDailyMail(Http& http, const String& filter, const String& token, St
 		data.Set(prev, va);
 
 	if(data.IsEmpty())
-		return;
+		return false;
 
 	http("CLIENTS", clients)
 	    ("DATA", data)
@@ -117,4 +117,5 @@ void GenerateDailyMail(Http& http, const String& filter, const String& token, St
 	html = http.RenderString("templates/dailymail");
 	http("PLAIN",1);
 	text = http.RenderString("templates/dailymail");
+	return true;
 }
