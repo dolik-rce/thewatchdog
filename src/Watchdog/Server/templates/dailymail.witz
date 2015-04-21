@@ -38,7 +38,7 @@ th, td { text-align:center; border: 1px solid black; }
 </head>
 <body>
 <h2>Daily report</h2>
-Generated for commits between $FROM and $TO.
+Generated for commits between $FROM and $(TO).
 $for(i in CLIENTS)
 	<h3>$i</h3>
 	<table>

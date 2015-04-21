@@ -113,9 +113,10 @@ bool GenerateDailyMail(Http& http, const String& filter, const String& token, St
 	    ("TOKEN", token)
 	    ("FROM", from)
 	    ("TO", to)
-	    ("SELF", String(Ini::server_url));
+	    ("SELF", String(Ini::server_url))
+	    ("PLAIN", Value(0));
 	html = http.RenderString("templates/dailymail");
-	http("PLAIN",1);
+	http("PLAIN", 1);
 	text = http.RenderString("templates/dailymail");
 	return true;
 }
