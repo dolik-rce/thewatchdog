@@ -5,6 +5,7 @@ file
 	Client.h,
 	Client.cpp,
 	main.cpp,
+	CookieFile.cpp,
 	Client.ini;
 
 mainconfig

@@ -13,6 +13,7 @@ bool WatchdogAdmin::GetState(){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	
 	Cout() << response;
 	return true;
@@ -38,6 +39,7 @@ bool WatchdogAdmin::Update(){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 
@@ -57,6 +59,7 @@ bool WatchdogAdmin::Clean(){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 
@@ -76,6 +79,7 @@ bool WatchdogAdmin::DailyReport(){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 
@@ -93,6 +97,7 @@ bool WatchdogAdmin::Delete(const String& branch) {
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 

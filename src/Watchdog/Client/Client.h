@@ -2,6 +2,7 @@
 #define _Watchdog_Client_Client_h_
 
 #include <Watchdog/Watchdog.h>
+
 using namespace Upp;
 
 namespace Upp { namespace Ini {
@@ -11,9 +12,25 @@ namespace Upp { namespace Ini {
 	extern IniInt log_level;
 	extern IniString session_cookie;
 	extern IniString lock_file;
+	extern IniString cookie_file;
 }}
 
 Time ScanTimeToUtc(const char *s);
+
+class CookieFile {
+public:
+	CookieFile(String filename = "", bool always=true);
+	~CookieFile();
+	void SetFilename(String fn);
+	void Load();
+	void Store() const;
+	void StoreCookies(const HttpRequest& req);
+	void LoadCookies(HttpRequest& req);
+private:
+	VectorMap<String, HttpCookie> cookies;
+	String filename;
+	bool always;
+};
 
 struct WatchdogClient {
 	Vector<String> todo;
@@ -50,6 +67,7 @@ protected:
 	Vector<String> actions;
 	Vector<String> options;
 	char action;
+	CookieFile cfile;
 };
 
 #endif

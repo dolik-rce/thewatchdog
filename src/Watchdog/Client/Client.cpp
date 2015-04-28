@@ -7,6 +7,7 @@ namespace Upp { namespace Ini {
 	INI_INT(log_level, 1, "Verbosity (0=errors only, 1=normal, 2=verbose)");
 	INI_STRING(session_cookie, "__watchdog_cookie__", "Skylark session cookie ID");
 	INI_STRING(lock_file, "/tmp/wd.lock", "Lock file path");
+	INI_STRING(cookie_file, "", "File used to save sassion cookie (will not be saved if empty)");
 	INI_STRING(name, TrimBoth(LoadFile("/etc/hostname")), "Builder unique identification string");
 	INI_INT(upload_interval, 60, "How often should be output send to server (in seconds)");
 	INI_INT(test_timeout, 3600, "Maximum time one test can run (in seconds). It will be killed after this time.");
@@ -25,12 +26,16 @@ Time ScanTimeToUtc(const char *s) {
 
 bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 	HttpRequest auth(Ini::host+("/auth"+action));
+	cfile.LoadCookies(req);
+
 	auth.Execute();
 	if(!auth.IsSuccess()){
 		RLOG("Error during authentication");
 		RLOG((auth.IsError() ? auth.GetErrorDesc() : AsString(auth.GetStatusCode())+':'+auth.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(auth);
+	
 	Vector<String> clients = Split(auth.GetHeader("wd_salts"),"|");
 	Vector<String> v;
 	for(int i = 0; i < clients.GetCount(); i++){
@@ -43,8 +48,9 @@ bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 		RLOG("Client unknown to server");
 		return false;
 	}
-	req.Header("Cookie", Split(auth.GetHeader("set-cookie"),";")[0])
-	   .Post("__post_identity__", auth.GetHeader("wd_id"))
+	
+	cfile.LoadCookies(req);
+	req.Post("__post_identity__", auth.GetHeader("wd_id"))
 	   .Post("wd_auth", MD5String(auth.GetHeader("wd_nonce")+action+MD5String(v[1]+Ini::password)))
 	   .Post("wd_nonce", auth.GetHeader("wd_nonce"))
 	   .Post("wd_action", action)
@@ -55,7 +61,8 @@ bool WatchdogClient::Auth(HttpRequest& req, const String& action){
 bool WatchdogClient::GetWork(){
 	String target = "/api/getwork/" + IntStr(Ini::client_id);
 	HttpRequest req(Ini::host + target);
-	
+	cfile.LoadCookies(req);
+
 	String resp = req.Execute();
 	if(!req.IsSuccess()){
 		RDUMP(resp);
@@ -63,6 +70,7 @@ bool WatchdogClient::GetWork(){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	todo = Split(resp,",");
 	return true;
 }
@@ -100,6 +108,7 @@ bool WatchdogClient::AcceptWork(const String& commit){
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 
@@ -147,6 +156,7 @@ bool WatchdogClient::SubmitWork(const String& commit, const String& output, bool
 		RLOG((req.IsError() ? req.GetErrorDesc() : AsString(req.GetStatusCode())+':'+req.GetReasonPhrase()));
 		return false;
 	}
+	cfile.StoreCookies(req);
 	return true;
 }
 
@@ -368,7 +378,9 @@ void WatchdogClient::Execute(const Vector<String>& cmd) {
 	
 	SetConfig(cfg);
 	name = Ini::name;
-	
+
+	cfile.SetFilename(Ini::cookie_file);
+
 	if(!ProcessAction())
 		Exit(65);
 }
