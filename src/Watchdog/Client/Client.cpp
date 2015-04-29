@@ -172,6 +172,7 @@ bool WatchdogClient::Run(String command){
 		return false;
 	}
 	String commit = todo.Top();
+	start = GetUtcTime();
 	if(Ini::log_level > 0) 
 		Cout() << "Commit " << commit << " selected for build\n";
 	if(!AcceptWork(commit))
@@ -185,7 +186,6 @@ bool WatchdogClient::Run(String command){
 		Cout() << "Executing command '" << command << "'\n";
 	String output;
 	int result = -1;
-	start = GetUtcTime();
 	bool killed = false;
 	LocalProcess p;
 	if(p.Start(command)) {
@@ -294,6 +294,11 @@ void WatchdogClient::ParseArgument(int& i, const Vector<String>& cmd){
 		SetAction(cmd[i]);
 		CheckParamCount(cmd, i, 1);
 		command = cmd[++i];
+	} else if(cmd[i] == "--multirun" || cmd[i] == "-m") {
+		SetAction(cmd[i]);
+		CheckParamCount(cmd, i, 1);
+		command = cmd[++i];
+		keep_going = true;
 	} else if(cmd[i] == "--config" || cmd[i] == "-C") {
 		CheckParamCount(cmd, i, 1);
 		cfg = cmd[++i];
@@ -354,6 +359,14 @@ bool WatchdogClient::ProcessAction(){
 		return SubmitWork(commit, LoadFile(output));
 	case 'r':
 		return Run(command);
+	case 'm': {
+			bool res = false;
+			while (Run(command)) {
+				res = true;
+				if (!keep_going) break;
+			}
+			return res;
+		}
 	default:
 		NEVER();
 	}
@@ -401,7 +414,7 @@ void WatchdogClient::Usage(int exitcode) const {
 	Exit(exitcode);
 }
 
-WatchdogClient::WatchdogClient() : lock(true), utc(false), action(0),
+WatchdogClient::WatchdogClient() : lock(true), utc(false), action(0), keep_going(false),
 		ok(Null), errors(Null), failures(Null), skipped(Null) {
 	actions.Add() = "\t-h --help\n"
 		"\t\tPrints usage information (this text)\n";
@@ -416,6 +429,9 @@ WatchdogClient::WatchdogClient() : lock(true), utc(false), action(0),
 		"\t\tGets and accepts work automatically, then performs <command>\n"
 		"\t\twith '@commit' substituted by actual commit identifier\n"
 		"\t\tand then submits the results to server.\n";
+	actions.Add() = "\t-m --multirun <command>\n"
+		"\t\tSame as --run, but processes multiple commits in loop,\n"
+		"\t\t until there is nothing more to do or until an error occurs.\n";
 	options.Add() = "\t-C --config <file>\n"
 		"\t\tPath to configuration file\n";
 	options.Add() = "\t-L --nolock\n"

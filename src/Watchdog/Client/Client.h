@@ -67,6 +67,7 @@ protected:
 	Vector<String> actions;
 	Vector<String> options;
 	char action;
+	bool keep_going;
 	CookieFile cfile;
 };
 
