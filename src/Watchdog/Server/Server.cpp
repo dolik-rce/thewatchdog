@@ -37,6 +37,7 @@ namespace Upp{ namespace Ini {
 	INI_INT(filter_cache_expiration, 30, "Expiration time of filter/pagination cache items (in seconds)");
 	INI_INT(rss_max_age, 30, "How old results should be shown in RSS feeds");
 	INI_INT(rss_max_count, 500, "Maximal amount of results that can be shown in RSS feeds");
+	INI_STRING(hook_dir, "", "Directory where to look for hook scripts. Hooks are disabled, if left empty.")
 }}
 
 void Watchdog::WorkThread()

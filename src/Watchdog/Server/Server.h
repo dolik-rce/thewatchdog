@@ -40,6 +40,7 @@ namespace Upp{
 		extern IniInt    filter_cache_expiration;
 		extern IniInt    rss_max_age;
 		extern IniInt    rss_max_count;
+		extern IniString hook_dir;
 	}
 }
 

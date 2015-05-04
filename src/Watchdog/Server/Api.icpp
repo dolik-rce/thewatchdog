@@ -174,3 +174,27 @@ SKYLARK(DailyReport, "api/dailyreport:POST") {
 		}
 	}
 }
+
+SKYLARK(Hook, "hook/**:POST") {
+	Vector<String> params;
+	for(int i = 1; i < http.GetParamCount(); i++) {
+		params.Add(http[i]);
+	}
+	String cmd = AppendFileName(Ini::hook_dir, http[0]);
+	if (Ini::hook_dir.ToString().IsEmpty()) {
+		http.Response(403, "Forbidden");
+		return;
+	}
+	if (!FileExists(cmd) || !FindFile(cmd).IsExecutable()) {
+		http.Response(404, "Not Found");
+		return;
+	}
+	LocalProcess p;
+	if (!p.Start(cmd, params)) {
+		http.Response(502, "Bad Gateway");
+		return;
+	}
+	http.Finalize();
+	p.Write(http.GetRequestContent());
+	p.Detach();
+}
