@@ -176,8 +176,8 @@ SKYLARK(Import, "import:POST") {
 	
 	SqlPerformScript(scripts[SqlSchema::ATTRIBUTES]);
 	SqlPerformScript(scripts[SqlSchema::CONFIG]);
-	
-	http.Redirect("/config?import=1");
+
+	http.Redirect(MakeLink(Config, Vector<Value>()) + "?import=1");
 }
 
 SKYLARK(Settings, "settings") {

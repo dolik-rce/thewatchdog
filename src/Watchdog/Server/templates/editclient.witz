@@ -21,7 +21,7 @@ function togglePwd(b){
 }
 </script>
 
-<form action="/auth/saveclient" method="POST" onsubmit="updateForm()">
+<form action=$WebAuthPost("saveclient") method="POST" onsubmit="updateForm()">
 <table>
 <tr><td>Name:</td><td><input type="text" name="wd_name" value="$CLIENT.NAME"></td></tr>
 $if(CLIENT.ID >= 0)

@@ -99,20 +99,6 @@ SKYLARK(Subscribe, "subscribe:POST")
 	SendEmail(email, "Verify Watchdog subscription", body);
 }
 
-SKYLARK(Verify, "verify")
-{
-	SQL * Update(MAIL)(ACTIVE,true)
-	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN,FREQ))));
-	if(!SQL.GetRowsProcessed()){
-		http("ACTION",-1)
-		 .RenderResult("templates/subscription");
-		return;
-	}
-	String unsubscribe = String(Ini::server_url) + "/unsubscribe?v=" + String(http["v"]);
-	http("LINK",unsubscribe)("ACTION",2)
-	 .RenderResult("templates/subscription");
-}
-
 SKYLARK(Unsubscribe, "unsubscribe")
 {
 	SQL * Delete(MAIL)
@@ -122,6 +108,20 @@ SKYLARK(Unsubscribe, "unsubscribe")
 	 .RenderResult("templates/subscription");
 	else
 		http << "Unsubscribing failed. Possible reasons for this are:<br>The subscription was already canceled<br>The link was corupted";
+}
+
+SKYLARK(Verify, "verify")
+{
+	SQL * Update(MAIL)(ACTIVE,true)
+	 .Where(http["v"]==SqlFunc("md5",Concat(SqlSet(EMAIL,FILTER,TOKEN,FREQ))));
+	if(!SQL.GetRowsProcessed()){
+		http("ACTION",-1)
+		 .RenderResult("templates/subscription");
+		return;
+	}
+	String unsubscribe = String(Ini::server_url) + MakeLink(Unsubscribe, Vector<Value>()) + "?v=" + String(http["v"]);
+	http("LINK",unsubscribe)("ACTION",2)
+	 .RenderResult("templates/subscription");
 }
 
 SKYLARK(Sitemap, "sitemap.xml")

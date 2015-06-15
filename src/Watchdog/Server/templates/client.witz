@@ -9,7 +9,7 @@
 <tr><td>Last work:</td><td>$time(CLIENT.LAST_WORK)</td></tr>
 <tr><td valign="top">Actions:</td><td>
   <a href=$EditClient(CLIENT.ID)><img src="$CachedStatic("img/edit.png")" class="icon" width=16 height=16>Edit</a><br>
-  <a href=$WebAuth("removeclient", CLIENT.ID)"><img src="$CachedStatic("img/remove.png")" class="icon" width=16 height=16>Delete</a><br>
+  <a href=$WebAuth("removeclient",CLIENT.ID)><img src="$CachedStatic("img/remove.png")" class="icon" width=16 height=16>Delete</a><br>
   <a href=$Stats(CLIENT.ID)><img src="$CachedStatic("img/stats.png")" class="icon" width=16 height=16>Statistics</a>
 </td></tr>
 </table>

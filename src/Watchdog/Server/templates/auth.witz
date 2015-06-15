@@ -12,7 +12,7 @@ function updateForm(){
 }
 </script>
 <p>Authorization is required to call '<b>$TARGET</b>'.</p>
-<form action="$TARGET" method="POST">
+<form action="$(ROOT+TARGET)" method="POST">
 <table class="indent">
     <tr>
       <td>Client:</td>

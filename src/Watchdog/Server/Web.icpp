@@ -89,7 +89,7 @@ SKYLARK(SaveClient, "saveclient:POST"){
 		      ("SALT", http["salt"]);
 	}
 	client.Save();
-	http.Redirect("/clients");
+	http.Redirect(Clients);
 }
 
 SKYLARK(RemoveClient, "removeclient/*:POST"){
@@ -98,7 +98,7 @@ SKYLARK(RemoveClient, "removeclient/*:POST"){
 		return;
 	Result::Delete(Null, cid);
 	Client::Delete(cid);
-	http.Redirect("/clients");
+	http.Redirect(Clients);
 }
 
 SKYLARK(Client, "client/*") {
@@ -210,6 +210,7 @@ void Auth(Http& http, int cid) {
 	    ("WD_NONCE", nonce)
 	    ("CLIENTS", clients)
 	    ("TARGET", target)
+	    ("ROOT", "/" + SkylarkApp::Config().root)
 	    .RenderResult("templates/auth");
 }
 
@@ -244,7 +245,7 @@ SKYLARK(Remove, "remove/*/*:POST"){
 	if(!CheckAuth(http, SQL, cid, "/remove/"+IntStr(cid)+"/"+uid))
 		return;
 	Result::Delete(uid, cid);
-	http.Redirect("/client/"+IntStr(cid)+"?uid="+uid);
+	http.Redirect(Client, IntStr(cid)+"?uid="+uid);
 }
 
 SKYLARK(Output, "output/*/*"){
