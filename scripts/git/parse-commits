@@ -5,7 +5,7 @@
 # send updates to TheWatchdog server after each push.
 
 # It needs correctly configured admin app to function. For this, you should set
-# correctly the command below. 
+# correctly the command below.
 WDADMIN="cat" # should be something like "/usr/bin/wda --update -C /etc/thewatchdog/wda.ini"
 SINCE="1 month ago"
 
@@ -64,6 +64,6 @@ format='COMMIT="%H"%nABBR=%h%nread -r -d "" MSG <<"EOF"%n%B%nEOF%nAUTHOR="%an"%n
 
 [ "$old" = "" ] && range="origin/$new" || range="$old..origin/$new"
 
-logs="$(git log "$since" --pretty=format:"$format" $range)"
+logs="$(git log "$since" --pretty=format:"$format" $range | sed 's|\\|&&|g')"
 
 eval "$logs" | $WDADMIN
