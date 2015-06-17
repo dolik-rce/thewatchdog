@@ -177,24 +177,36 @@ SKYLARK(DailyReport, "api/dailyreport:POST") {
 
 SKYLARK(Hook, "hook/**:POST") {
 	Vector<String> params;
-	for(int i = 1; i < http.GetParamCount(); i++) {
-		params.Add(http[i]);
-	}
-	String cmd = AppendFileName(Ini::hook_dir, http[0]);
+	params.Add("-c");
+
 	if (Ini::hook_dir.ToString().IsEmpty()) {
 		http.Response(403, "Forbidden");
 		return;
 	}
+
+	String cmd = AppendFileName(Ini::hook_dir, http[0]);
 	if (!FileExists(cmd) || !FindFile(cmd).IsExecutable()) {
 		http.Response(404, "Not Found");
 		return;
 	}
+	for(int i = 1; i < http.GetParamCount(); i++) {
+		if (http[i].ToString().Find('\'') >= 0) {
+			http.Response(403, "Forbidden");
+			return;
+		}
+		cmd << " '" << http[i] << "'";
+	}
+
+	params.Add("(" + cmd + " &)");
 	LocalProcess p;
-	if (!p.Start(cmd, params)) {
+	if (!p.Start("/bin/sh", params)) {
 		http.Response(502, "Bad Gateway");
 		return;
 	}
-	http.Finalize();
 	p.Write(http.GetRequestContent());
-	p.Detach();
+	while(p.IsRunning()){
+		Sleep(1);
+	}
+	if (p.GetExitCode() != 0)
+		http.Response(500, "Internal server error");
 }
